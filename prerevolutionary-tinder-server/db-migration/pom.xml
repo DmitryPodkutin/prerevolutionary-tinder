@@ -15,7 +15,6 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
-
     <build>
         <plugins>
             <!-- Плагин Flyway Maven -->
@@ -25,12 +24,14 @@
                 <version>7.0.2</version>
                 <configuration>
                     <!-- Конфигурация подключения к базе данных -->
-                    <url>jdbc:mysql://localhost:5433/your_database</url>
-                    <user>your_username</user>
-                    <password>your_password</password>
-                    <!-- Путь к миграциям SQL-скриптов -->
+                    <url>jdbc:postgresql://localhost:5433/tinder_server_database</url>
+                    <user>user</user>
+                    <password>password</password>
+                    <schemas>
+                        <schema>public</schema>
+                    </schemas>
                     <locations>
-                        <location>classpath:db/migration</location>
+                        <location>classpath:changelog/</location>
                     </locations>
                 </configuration>
             </plugin>
