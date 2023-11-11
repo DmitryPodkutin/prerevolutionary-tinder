@@ -1,0 +1,11 @@
+package ru.liga.prerevolutionarytinderserver.repository;
+
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import ru.liga.prerevolutionarytinderserver.model.Favorite;
+
+@Repository("favouriteRepository")
+@Transactional(timeout = 180)
+public interface FavouriteRepository extends BaseTinderRepository<Favorite,Long> {
+}
