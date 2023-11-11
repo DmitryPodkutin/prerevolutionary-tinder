@@ -14,9 +14,6 @@
     <artifactId>prerevolutionary-tinder</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <modules>
-        <module>prerevolutionary-tinder-server/prerevolutionary-tinder-server-app</module>
-    </modules>
 
     <properties>
         <java.version>11</java.version>
