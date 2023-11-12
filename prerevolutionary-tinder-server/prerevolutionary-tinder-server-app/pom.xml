@@ -2,22 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<packaging>pom</packaging>
-	<modules>
-		<module>db-migration</module>
-		<module>prerevolutionary-tinder-server-app</module>
-	</modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.2</version>
-		<relativePath/>
+		<version>2.7.17</version>
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ru.liga</groupId>
-	<artifactId>prerevolutionary-tinder-server</artifactId>
+	<artifactId>prerevolutionary-tinder-server-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>prerevolutionary-tinder-server</name>
-	<description>Server for rerevolutionary tinder</description>
+	<name>prerevolutionary-tinder-server-app</name>
+	<description>App prerevolutionary tinder server</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
@@ -29,10 +24,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
 		</dependency>
 
 		<dependency>
@@ -52,5 +43,24 @@
 		</dependency>
 	</dependencies>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<image>
+						<builder>paketobuildpacks/builder-jammy-base:latest</builder>
+					</image>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
