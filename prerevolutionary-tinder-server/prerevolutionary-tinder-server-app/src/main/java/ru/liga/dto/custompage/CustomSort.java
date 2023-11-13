@@ -11,7 +11,6 @@ public class CustomSort {
     public CustomSort() {
     }
 
-    ;
 
     public CustomSort(String columnName, Sort.Direction direction) {
         this.columnName = columnName;

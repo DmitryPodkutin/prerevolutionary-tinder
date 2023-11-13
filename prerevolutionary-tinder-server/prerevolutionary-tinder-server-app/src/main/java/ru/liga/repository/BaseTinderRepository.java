@@ -7,5 +7,6 @@ import org.springframework.data.repository.NoRepositoryBean;
 import java.io.Serializable;
 
 @NoRepositoryBean
-public interface BaseTinderRepository<T, ID extends Serializable> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
+public interface BaseTinderRepository<T, I extends Serializable>
+        extends JpaRepository<T, I>, JpaSpecificationExecutor<T> {
 }
