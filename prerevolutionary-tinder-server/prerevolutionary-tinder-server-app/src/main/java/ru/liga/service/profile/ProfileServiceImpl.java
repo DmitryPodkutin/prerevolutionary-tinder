@@ -39,7 +39,8 @@ public class ProfileServiceImpl implements ProfileService {
         profile.setDescriptionHeader(profileSaveDTO.getDescriptionHeader());
         profile.setDescription(profileSaveDTO.getDescription());
         profile.setSeeking(convertToSeekingFor(profileSaveDTO.getSeekingFor()));
-        return profileRepository.save(profile);
+        profileRepository.save(profile);
+        return profile;
     }
 
     @Override
@@ -51,10 +52,11 @@ public class ProfileServiceImpl implements ProfileService {
         profile.setDescriptionHeader(profileSaveDTO.getDescriptionHeader());
         profile.setDescription(profileSaveDTO.getDescription());
         profile.setSeeking(convertToSeekingFor(profileSaveDTO.getSeekingFor()));
-        return profileRepository.save(profile);
+        profileRepository.save(profile);
+        return profile;
     }
 
-    private Gender convertToGender(String genderString) {
+    public Gender convertToGender(String genderString) {
         if (genderString == null) {
             throw new GenderNotFoundException("Gender is null or empty");
         }
@@ -65,7 +67,7 @@ public class ProfileServiceImpl implements ProfileService {
                 .orElseThrow(() -> new GenderNotFoundException(genderString));
     }
 
-    private SeekingFor convertToSeekingFor(String seekingFor) {
+    public SeekingFor convertToSeekingFor(String seekingFor) {
         if (seekingFor == null) {
             throw new SeekingForNotFoundException("SeekingFor is null or empty");
         }
