@@ -2,7 +2,7 @@ package ru.liga.model;
 
 import lombok.Data;
 import ru.liga.enums.Gender;
-import ru.liga.enums.Seeking;
+import ru.liga.enums.SeekingFor;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -29,7 +29,7 @@ public class Profile implements Serializable {
     private String descriptionHeader;
     private String description;
     @Enumerated(EnumType.STRING)
-    private Seeking seeking;
+    private SeekingFor seeking;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
