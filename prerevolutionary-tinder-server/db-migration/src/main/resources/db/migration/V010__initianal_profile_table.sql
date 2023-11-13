@@ -1,5 +1,21 @@
 insert into profile (gender, name, description_header, description, seeking, user_id)
 values ('MALE',
+ 'Администратор',
+ 'Анкета администратора',
+ 'Обыкновенная анкета администратор',
+ 'ALL',
+  1);
+
+insert into profile (gender, name, description_header, description, seeking, user_id)
+values ('MALE',
+ 'Пользователь',
+ 'Анкета пользователя',
+ 'Обыкновенная анкета пользоваетеля',
+ 'ALL',
+  2);
+
+insert into profile (gender, name, description_header, description, seeking, user_id)
+values ('MALE',
  'Граф Орлов',
  'Ничего не имею.',
  'Остались только добрая душа, порядочность и графство.

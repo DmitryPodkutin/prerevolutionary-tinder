@@ -8,11 +8,11 @@ import java.util.Optional;
 
 public interface ProfileService {
 
+    Optional<Profile> getByUserId(Long userId);
 
     Optional<Profile> getCurrent(ProfileFilter filter);
+
     Optional<Profile> getProfileById(Long id);
-
-
 
     Profile create(ProfileSaveDTO verifiable);
 

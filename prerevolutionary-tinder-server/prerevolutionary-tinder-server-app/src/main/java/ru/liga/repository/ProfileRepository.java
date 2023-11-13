@@ -10,4 +10,5 @@ import java.util.Optional;
 /*@Transactional(timeout = 180)*/
 public interface ProfileRepository extends BaseTinderRepository<Profile, Long> {
     Optional<Profile> findByUserId(Long userId);
+
 }
