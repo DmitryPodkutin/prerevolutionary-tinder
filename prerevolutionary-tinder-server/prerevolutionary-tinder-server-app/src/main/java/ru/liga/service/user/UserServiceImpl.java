@@ -74,6 +74,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 });
     }
 
+    @Override
     public boolean deleteUser(Long userId) {
         return getUserById(userId)
                 .map(user -> {

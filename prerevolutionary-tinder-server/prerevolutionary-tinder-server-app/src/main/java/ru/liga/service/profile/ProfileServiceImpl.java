@@ -3,23 +3,41 @@ package ru.liga.service.profile;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.liga.dto.ProfileSaveDTO;
+import ru.liga.dto.converter.ProfileEntityToMatchingProfileDTOConverter;
+import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.filter.ProfileFilter;
 import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
 import ru.liga.exception.EntityNotFoundException;
 import ru.liga.exception.GenderNotFoundException;
 import ru.liga.exception.SeekingForNotFoundException;
+import ru.liga.model.AuthorizedUser;
 import ru.liga.model.Profile;
 import ru.liga.repository.ProfileRepository;
+import ru.liga.service.user.AuthenticationContext;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final AuthenticationContext authenticationContext;
+    private final ProfileEntityToMatchingProfileDTOConverter entityToMatchingProfileDTOConverter;
+
+    @Override
+    public List<MatchingProfileDTO> getAllMatchingProfiles() {
+        final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
+        final List<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
+                currentUser.getProfile().getSeeking());
+        return matchingProfiles.stream().map((Profile profile) ->
+                        entityToMatchingProfileDTOConverter.convert(currentUser.getUserId(), profile))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public Optional<Profile> getCurrent(ProfileFilter filter) {
@@ -35,6 +53,7 @@ public class ProfileServiceImpl implements ProfileService {
     public Optional<Profile> getProfileById(Long id) {
         return profileRepository.findById(id);
     }
+
 
     @Override
     public Profile create(ProfileSaveDTO profileSaveDTO) {

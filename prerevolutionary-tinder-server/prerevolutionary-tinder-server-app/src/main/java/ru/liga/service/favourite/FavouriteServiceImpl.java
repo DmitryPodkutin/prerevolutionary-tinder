@@ -17,6 +17,11 @@ public class FavouriteServiceImpl implements FavouriteService {
 
     private final FavouriteRepository favouriteRepository;
 
+    @Override
+    public List<Favorite> getAllFavouritesByUserId(Long userId) {
+        return favouriteRepository.findAllByUserId(userId);
+    }
+
     public List<Favorite> findFavouritesByFilter(FavouriteFilter filter) {
         return favouriteRepository.findAllByUserAndFavoriteUser(filter.getUser().getId(), getSort(filter));
     }

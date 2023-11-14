@@ -1,6 +1,7 @@
 package ru.liga.dto;
 
 import lombok.Data;
+import ru.liga.enums.SeekingFor;
 
 @Data
 public class ProfileDto {
@@ -9,7 +10,5 @@ public class ProfileDto {
     private String name;
     private String descriptionHeader;
     private String description;
-
-    private String seekingFor;
-
+    private SeekingFor seeking;
 }

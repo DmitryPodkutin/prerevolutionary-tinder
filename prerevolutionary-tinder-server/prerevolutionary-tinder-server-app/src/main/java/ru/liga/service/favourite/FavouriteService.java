@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FavouriteService {
+
+    List<Favorite> getAllFavouritesByUserId(Long useId);
+
     List<Favorite> findFavouritesByFilter(FavouriteFilter filter);
 
     Optional<Favorite> getOne(Long id);

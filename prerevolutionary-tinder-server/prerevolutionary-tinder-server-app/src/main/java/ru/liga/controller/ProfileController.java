@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.liga.dto.ProfileDto;
 import ru.liga.dto.ProfileSaveDTO;
+import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.filter.ProfileFilter;
 import ru.liga.service.profile.ProfileService;
+import ru.liga.service.user.UserService;
+
+import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -24,6 +28,7 @@ import ru.liga.service.profile.ProfileService;
 @RequestMapping("/profile")
 public class ProfileController {
 
+    private final UserService userService;
     private final ProfileService profileService;
     private final ConversionService customConversionService;
 
@@ -58,5 +63,15 @@ public class ProfileController {
         return new ResponseEntity<>(customConversionService.convert(
                 profileService.update(profileSaveDTO, id), ProfileDto.class),
                 HttpStatus.OK);
+    }
+
+    @GetMapping("/matching")
+    public ResponseEntity<List<MatchingProfileDTO>> findMatchingProfiles() {
+        final List<MatchingProfileDTO> matchingProfiles = profileService.getAllMatchingProfiles();
+        if (!matchingProfiles.isEmpty()) {
+            return new ResponseEntity<>(matchingProfiles, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
 }

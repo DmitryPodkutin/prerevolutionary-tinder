@@ -21,7 +21,7 @@ public class ProfileEntityToProfileDtoConverter implements Converter<Profile, Pr
             profileDto.setDescription(profile.getDescription());
         }
         profileDto.setGender(profile.getGender().getValue());
-        profileDto.setSeekingFor(profile.getSeeking().getValue());
+        profileDto.setSeeking(profile.getSeeking());
         return profileDto;
     }
 }

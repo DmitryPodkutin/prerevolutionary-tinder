@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ru.liga.dto.ProfileSaveDTO;
+import ru.liga.dto.converter.ProfileEntityToMatchingProfileDTOConverter;
 import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
 import ru.liga.exception.EntityNotFoundException;
@@ -13,10 +14,15 @@ import ru.liga.exception.SeekingForNotFoundException;
 import ru.liga.model.Profile;
 import ru.liga.repository.ProfileRepository;
 import ru.liga.service.profile.ProfileServiceImpl;
+import ru.liga.service.user.AuthenticationContext;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 public class ProfileServiceImplTest {
@@ -24,12 +30,18 @@ public class ProfileServiceImplTest {
     private ProfileServiceImpl profileService;
 
     @Mock
+    private AuthenticationContext authenticationContext;
+
+    @Mock
     private ProfileRepository profileRepository;
+
+    @Mock
+    private ProfileEntityToMatchingProfileDTOConverter profileDtoConverter;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        profileService = new ProfileServiceImpl(profileRepository);
+        profileService = new ProfileServiceImpl(profileRepository, authenticationContext, profileDtoConverter);
     }
 
     @Test
