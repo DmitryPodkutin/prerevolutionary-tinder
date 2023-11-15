@@ -10,7 +10,7 @@ public class AuthenticationContextImpl implements AuthenticationContext {
 
     @Override
     public Long getCurrentUserId() {
-        AuthorizedUser currentUser = getCurrentUser();
+        final AuthorizedUser currentUser = getCurrentUser();
         return (currentUser != null) ? currentUser.getUserId() : null;
     }
 
