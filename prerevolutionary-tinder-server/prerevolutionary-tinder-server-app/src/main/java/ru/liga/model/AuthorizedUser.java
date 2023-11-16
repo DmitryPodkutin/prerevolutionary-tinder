@@ -9,13 +9,11 @@ import java.util.Collection;
 public class AuthorizedUser extends org.springframework.security.core.userdetails.User {
 
     private final Long userId;
-    private final Long telegramUserId;
     private final Profile profile;
 
     public AuthorizedUser(User user, Collection<? extends GrantedAuthority> authorities, Profile profile) {
         super(user.getUserName(), user.getPassword(), authorities);
         this.userId = user.getId();
-        this.telegramUserId = user.getTelegramUserId();
         this.profile = profile;
     }
 }

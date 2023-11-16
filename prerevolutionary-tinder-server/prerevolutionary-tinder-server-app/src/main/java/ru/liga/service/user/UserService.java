@@ -14,8 +14,6 @@ public interface UserService extends UserDetailsService {
 
     Optional<User> getUserById(Long userId);
 
-    Optional<User> getByteTelegramUserId(Long telegramUserId);
-
     Optional<User> getUserByUserName(String userName);
 
     Optional<User> createUser(User user);

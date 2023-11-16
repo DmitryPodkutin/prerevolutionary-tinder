@@ -36,13 +36,6 @@ public class UserController {
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/username/{telegramUserId}")
-    public ResponseEntity<User> getUserByTelegramUserId(@PathVariable Long telegramUserId) {
-        return userService.getByteTelegramUserId(telegramUserId)
-                .map(user -> new ResponseEntity<>(user, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
     @GetMapping("/username/{userName}")
     public ResponseEntity<User> getUserByUserName(@PathVariable String userName) {
         return userService.getUserByUserName(userName)

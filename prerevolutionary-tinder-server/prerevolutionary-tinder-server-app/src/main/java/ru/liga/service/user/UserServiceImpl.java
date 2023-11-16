@@ -39,11 +39,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> getByteTelegramUserId(Long telegramUserId) {
-        return userRepository.findByTelegramUserId(telegramUserId);
-    }
-
-    @Override
     public Optional<User> getUserByUserName(String userName) {
         return userRepository.findByUserName(userName);
     }

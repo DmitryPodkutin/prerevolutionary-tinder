@@ -24,8 +24,6 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "telegram_user_id")
-    private Long telegramUserId;
     @Column(name = "user_name")
     private String userName;
     @Column(name = "password")
