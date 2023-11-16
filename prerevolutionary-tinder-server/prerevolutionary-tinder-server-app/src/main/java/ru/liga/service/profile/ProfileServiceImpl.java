@@ -33,7 +33,7 @@ public class ProfileServiceImpl implements ProfileService {
     public List<MatchingProfileDTO> getAllMatchingProfiles() {
         final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
         final List<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
-                currentUser.getProfile().getSeeking());
+                currentUser.getProfile().getGender(), currentUser.getProfile().getSeeking());
         return matchingProfiles.stream().map((Profile profile) ->
                         entityToMatchingProfileDTOConverter.convert(currentUser.getUserId(), profile))
                 .collect(Collectors.toList());

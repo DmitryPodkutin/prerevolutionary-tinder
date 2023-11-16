@@ -4,6 +4,7 @@ package ru.liga.repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
 import ru.liga.model.Profile;
 
@@ -16,8 +17,10 @@ public interface ProfileRepository extends BaseTinderRepository<Profile, Long> {
 
     Optional<Profile> findByUserId(Long userId);
 
-    @Query("SELECT p FROM Profile p WHERE p.seeking = 'ALL' OR p.seeking = :currentUserSeeking")
-    List<Profile> findMatchingProfiles(@Param("currentUserSeeking") SeekingFor currentUserSeeking);
+    @Query("SELECT p FROM Profile p WHERE p.gender = :currentUserGender " +
+            "AND (p.seeking = :currentUserSeeking OR p.seeking = 'ALL')")
+    List<Profile> findMatchingProfiles(@Param("currentUserGender") Gender currentUserGender,
+                                           @Param("currentUserSeeking") SeekingFor currentUserSeeking);
 
 }
 
