@@ -2,8 +2,11 @@ package ru.liga.prerevolutionarytindertgbotclient.telegrambot.sender;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,7 +36,7 @@ public class TelegramMessageSender implements MessageSender {
                                  ResourceBundle resourceBundle) {
         this.telegramBotKeyboardFactory = telegramBotKeyboardFactory;
         this.resourceBundle = resourceBundle;
-        this.botToken = AppConfig.getInstance().getBotUserName();
+        this.botToken = AppConfig.getInstance().getBotToken();
         this.httpClient = HttpClients.createDefault();
     }
 
