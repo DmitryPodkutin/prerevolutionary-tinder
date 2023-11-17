@@ -16,6 +16,8 @@ public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
     private final Map<Long, StateType> usersBotStates = new HashMap<>();
     private final StateFactory stateFactory;
 
+
+
     public void handleUpdate(Update update) {
         final Long chatId = update.getMessage().getChatId();
         StateType currentStateType = usersBotStates.get(chatId);
@@ -28,11 +30,13 @@ public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
         // Создаем экземпляр BotState с помощью фабрики состояний
         final BotState botState = stateFactory.createState(currentStateType);
         botState.handleInput(this, update);
+/*        setBotState(chatId, botState.getStateType(), update);*/
     }
 
 
     @Override
-    public void setBotState(Long chatId, StateType newState) {
+    public void setBotState(Long chatId, StateType newState, Update update) {
         usersBotStates.put(chatId, newState);
+        handleUpdate(update);
     }
 }

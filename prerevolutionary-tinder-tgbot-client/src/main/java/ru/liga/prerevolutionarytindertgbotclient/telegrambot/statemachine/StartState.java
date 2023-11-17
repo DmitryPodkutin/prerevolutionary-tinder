@@ -1,5 +1,6 @@
 package ru.liga.prerevolutionarytindertgbotclient.telegrambot.statemachine;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -8,18 +9,23 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.liga.prerevolutionarytindertgbotclient.telegrambot.dialoghandler.TelegramBotDialogHandler;
-import ru.liga.prerevolutionarytindertgbotclient.telegrambot.model.StateType;
 import ru.liga.prerevolutionarytindertgbotclient.telegrambot.sender.MessageSender;
 
+import static ru.liga.prerevolutionarytindertgbotclient.telegrambot.model.StateType.START;
+import static ru.liga.prerevolutionarytindertgbotclient.telegrambot.model.StateType.VIEW_PROFILE;
+
 @Component
-public class StartState implements BotState {
+public class StartState extends AbstractBotState {
     private final RestTemplate restTemplate;
     private final MessageSender messageSender;
     private String profileEndpointUrl;
 
+
+    @Autowired
     public StartState(RestTemplate restTemplate,
                       MessageSender messageSender,
                       @Value("${profile.endpoint.url}") String profileEndpointUrl) {
+        super(START);
         this.restTemplate = restTemplate;
         this.messageSender = messageSender;
         this.profileEndpointUrl = profileEndpointUrl;
@@ -34,7 +40,6 @@ public class StartState implements BotState {
         try {
             profileResponse = restTemplate.exchange(profileEndpointUrl, HttpMethod.GET, null, String.class);
         } catch (HttpClientErrorException.NotFound e) {
-            dialogHandler.setBotState(chatId, StateType.START);
             return this;
         }
 
@@ -46,7 +51,7 @@ public class StartState implements BotState {
             messageSender.sendMessage(chatId, profileMessage);
 
             // Переходим в состояние просмотра профиля
-            dialogHandler.setBotState(chatId, StateType.VIEW_PROFILE);
+            dialogHandler.setBotState(chatId, VIEW_PROFILE, update);
         } else {
             return this;
         }
