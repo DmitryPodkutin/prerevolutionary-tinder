@@ -26,7 +26,8 @@ public class TinderTelegramBot extends TelegramLongPollingBot implements BotMess
     @Override
     public void onUpdateReceived(Update update) {
         log.debug("Received an update: {}", update);
-        sendMessage(update.getMessage().getChatId(), "Добро пожаловать в Дореволюционный тиндер! Нажмите /start для начала.");
+        sendMessage(update.getMessage().getChatId(),
+                "Добро пожаловать в Дореволюционный тиндер! Нажмите /start для начала.");
         telegramBotDialogHandler.handleUpdate(update);
     }
 
@@ -42,7 +43,7 @@ public class TinderTelegramBot extends TelegramLongPollingBot implements BotMess
 
     @Override
     public void sendMessage(Long chatId, String text) {
-        SendMessage message = new SendMessage();
+        final SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText(text);
 
@@ -55,7 +56,7 @@ public class TinderTelegramBot extends TelegramLongPollingBot implements BotMess
 
     public void initializeBot() throws TelegramApiException {
         log.info("Initializing Telegram Bot...");
-        TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+        final TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         try {
             botsApi.registerBot(this); // Регистрация вашего бота
             log.info("Telegram Bot successfully registered!");

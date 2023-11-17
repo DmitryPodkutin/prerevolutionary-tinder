@@ -18,7 +18,7 @@ public class RestClientConfiguration {
 
     @Bean
     public RestTemplate restTemplate() throws Exception {
-        TrustManager[] trustAllCertificates = new TrustManager[]{
+        final TrustManager[] trustAllCertificates = new TrustManager[]{
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
@@ -30,15 +30,16 @@ public class RestClientConfiguration {
                 }
         };
 
-        SSLContext sslContext = SSLContext.getInstance("TLS");
+        final SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, trustAllCertificates, new java.security.SecureRandom());
 
-        CloseableHttpClient httpClient = HttpClients.custom()
+        final CloseableHttpClient httpClient = HttpClients.custom()
                 .setSSLContext(sslContext)
                 .setSSLHostnameVerifier(new NoopHostnameVerifier())
                 .build();
 
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        final HttpComponentsClientHttpRequestFactory factory =
+                new HttpComponentsClientHttpRequestFactory(httpClient);
 
         return new RestTemplate(factory);
     }

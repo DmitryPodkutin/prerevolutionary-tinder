@@ -26,7 +26,7 @@ public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
         }
 
         // Создаем экземпляр BotState с помощью фабрики состояний
-        BotState botState = stateFactory.createState(currentStateType);
+        final BotState botState = stateFactory.createState(currentStateType);
         botState.handleInput(this, update);
     }
 

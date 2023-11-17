@@ -40,7 +40,7 @@ public class StartState implements BotState {
 
         if (profileResponse.getStatusCode().is2xxSuccessful()) {
             // Получаем сообщение с профилем
-            String profileMessage = profileResponse.toString();
+            final String profileMessage = profileResponse.toString();
 
             // Отправляем сообщение с профилем пользователю
             messageSender.sendMessage(chatId, profileMessage);
