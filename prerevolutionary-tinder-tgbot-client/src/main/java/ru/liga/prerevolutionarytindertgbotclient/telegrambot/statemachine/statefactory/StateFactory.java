@@ -1,4 +1,4 @@
-package ru.liga.prerevolutionarytindertgbotclient.telegrambot.statefactory;
+package ru.liga.prerevolutionarytindertgbotclient.telegrambot.statemachine.statefactory;
 
 import ru.liga.prerevolutionarytindertgbotclient.telegrambot.model.StateType;
 import ru.liga.prerevolutionarytindertgbotclient.telegrambot.statemachine.BotState;

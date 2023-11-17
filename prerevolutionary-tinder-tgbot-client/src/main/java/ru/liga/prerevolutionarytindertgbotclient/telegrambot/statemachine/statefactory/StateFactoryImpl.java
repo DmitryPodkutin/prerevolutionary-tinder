@@ -1,4 +1,4 @@
-package ru.liga.prerevolutionarytindertgbotclient.telegrambot.statefactory;
+package ru.liga.prerevolutionarytindertgbotclient.telegrambot.statemachine.statefactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
