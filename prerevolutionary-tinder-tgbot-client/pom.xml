@@ -49,7 +49,15 @@
 			<artifactId>telegrambots-meta</artifactId>
 			<version>6.8.0</version>
 		</dependency>
-        <dependency>
+		<dependency>
+			<groupId>org.telegram</groupId>
+			<artifactId>telegramapi</artifactId>
+			<version>57.0</version>
+		</dependency>
+
+
+
+		<dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>

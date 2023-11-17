@@ -15,7 +15,7 @@ import ru.liga.prerevolutionarytindertgbotclient.telegrambot.dialoghandler.Teleg
 
 @Component
 @AllArgsConstructor
-public class TinderTelegramBot extends TelegramLongPollingBot implements BotMessenger {
+public class TinderTelegramBot extends TelegramLongPollingBot {
 
 
 
@@ -41,7 +41,6 @@ public class TinderTelegramBot extends TelegramLongPollingBot implements BotMess
         return AppConfig.getInstance().getBotToken();
     }
 
-    @Override
     public void sendMessage(Long chatId, String text) {
         final SendMessage message = new SendMessage();
         message.setChatId(chatId);

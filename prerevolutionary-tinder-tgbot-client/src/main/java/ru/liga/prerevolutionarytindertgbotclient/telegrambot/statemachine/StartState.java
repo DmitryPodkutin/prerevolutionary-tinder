@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.liga.prerevolutionarytindertgbotclient.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.prerevolutionarytindertgbotclient.telegrambot.sender.MessageSender;
 
+import java.io.IOException;
+
 import static ru.liga.prerevolutionarytindertgbotclient.telegrambot.model.StateType.START;
 import static ru.liga.prerevolutionarytindertgbotclient.telegrambot.model.StateType.VIEW_PROFILE;
 
@@ -48,7 +50,11 @@ public class StartState extends AbstractBotState {
             final String profileMessage = profileResponse.toString();
 
             // Отправляем сообщение с профилем пользователю
-            messageSender.sendMessage(chatId, profileMessage);
+            try {
+                messageSender.sendMessage(chatId, profileMessage);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
             // Переходим в состояние просмотра профиля
             dialogHandler.setBotState(chatId, VIEW_PROFILE, update);

@@ -2,8 +2,10 @@ package ru.liga.prerevolutionarytindertgbotclient.telegrambot.sender;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.io.IOException;
+
 public interface MessageSender {
-    void sendMessage(Long chatId, String message);
+    void sendMessage(Long chatId, String message) throws IOException;
     void openProfileViewKeyboard(Update update);
     void openMenuKeyboard(Update update);
 
