@@ -44,4 +44,7 @@ public class FavouriteController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    //TODO - здесб должен быть метод по добавлению в любимки
+
+
 }

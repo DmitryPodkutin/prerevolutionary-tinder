@@ -1,6 +1,7 @@
 package ru.liga.model;
 
 import lombok.Data;
+import lombok.ToString;
 import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
 
@@ -17,6 +18,7 @@ import java.io.Serializable;
 
 @Entity
 @Data
+@ToString
 @Table(name = "profile")
 public class Profile implements Serializable {
     @Id
