@@ -1,13 +1,15 @@
 package ru.liga.prerevolutionarytindertgbotclient.telegrambot.statemachine;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.liga.prerevolutionarytindertgbotclient.config.AppConfig;
 import ru.liga.prerevolutionarytindertgbotclient.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.prerevolutionarytindertgbotclient.telegrambot.sender.MessageSender;
 
@@ -18,19 +20,20 @@ import static ru.liga.prerevolutionarytindertgbotclient.telegrambot.model.StateT
 
 @Component
 public class StartState extends AbstractBotState {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StartState.class);
+
     private final RestTemplate restTemplate;
     private final MessageSender messageSender;
-    private String profileEndpointUrl;
-
+    private final AppConfig appConfig;
 
     @Autowired
     public StartState(RestTemplate restTemplate,
                       MessageSender messageSender,
-                      @Value("${profile.endpoint.url}") String profileEndpointUrl) {
+                      AppConfig appConfig) {
         super(START);
         this.restTemplate = restTemplate;
         this.messageSender = messageSender;
-        this.profileEndpointUrl = profileEndpointUrl;
+        this.appConfig = appConfig;
     }
 
 
@@ -40,25 +43,25 @@ public class StartState extends AbstractBotState {
         final ResponseEntity<String> profileResponse;
 
         try {
-            profileResponse = restTemplate.exchange(profileEndpointUrl, HttpMethod.GET, null, String.class);
+            profileResponse = restTemplate.exchange(appConfig.getProfileUrl(),
+                    HttpMethod.GET, null, String.class);
         } catch (HttpClientErrorException.NotFound e) {
+            LOGGER.error("Profile not found for URL: {}", appConfig.getProfileUrl());
             return this;
         }
 
         if (profileResponse.getStatusCode().is2xxSuccessful()) {
-            // Получаем сообщение с профилем
-            final String profileMessage = profileResponse.toString();
-
-            // Отправляем сообщение с профилем пользователю
+            final String profileMessage = profileResponse.getBody();
             try {
                 messageSender.sendMessage(chatId, profileMessage);
             } catch (IOException e) {
+                LOGGER.error("Error while sending message: {}", e.getMessage());
                 throw new RuntimeException(e);
             }
-
-            // Переходим в состояние просмотра профиля
             dialogHandler.setBotState(chatId, VIEW_PROFILE, update);
         } else {
+            LOGGER.error("Profile response not successful. Status code: {}",
+                    profileResponse.getStatusCodeValue());
             return this;
         }
         return this;

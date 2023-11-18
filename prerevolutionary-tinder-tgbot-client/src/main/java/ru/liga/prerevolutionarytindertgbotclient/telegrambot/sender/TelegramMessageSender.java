@@ -1,10 +1,15 @@
 package ru.liga.prerevolutionarytindertgbotclient.telegrambot.sender;
 
 import com.google.gson.Gson;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -19,6 +24,8 @@ import ru.liga.prerevolutionarytindertgbotclient.config.AppConfig;
 import ru.liga.prerevolutionarytindertgbotclient.telegrambot.keyboard.TelegramBotKeyboardFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
@@ -26,7 +33,10 @@ import java.util.ResourceBundle;
 public class TelegramMessageSender implements MessageSender {
 
     private static final String SEND_MESSAGE_ENDPOINT = "/sendMessage";
+    private static final String SEND_PHOTO_ENDPOINT = "/sendPhoto";
     private static final String CHAT_ID_ENDPOINT = "?chat_id=";
+    private static final String CONTENT_TYPE_HEADER = "Content-Type";
+    private static final String APPLICATION_JSON = "application/json";
     private final Logger logger = LoggerFactory.getLogger(TelegramMessageSender.class);
     private final TelegramBotKeyboardFactory telegramBotKeyboardFactory;
     private final ResourceBundle resourceBundle;
@@ -54,7 +64,7 @@ public class TelegramMessageSender implements MessageSender {
 
     private HttpPost createHttpPostRequest(String apiUrl, Object body) {
         final HttpPost request = new HttpPost(apiUrl);
-        request.addHeader("Content-Type", "application/json");
+        request.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
         if (body != null) {
             final Gson gson = new Gson();
             final String jsonBody = gson.toJson(body);
@@ -103,6 +113,38 @@ public class TelegramMessageSender implements MessageSender {
             sendHttpRequest(createHttpPostRequest(apiUrl, sendMessage));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void sendPhoto(Long chatId, String photoCaption, String photoUrl) {
+        final String apiUrl = appConfig.getTgBotApiUrl() + botToken + SEND_PHOTO_ENDPOINT + CHAT_ID_ENDPOINT +
+                chatId + "&caption=" + photoCaption;
+
+        final HttpPost request = new HttpPost(apiUrl);
+        request.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+
+        final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        try {
+            builder.addPart("photo", new ByteArrayBody(getImageData(photoUrl),
+                    ContentType.IMAGE_JPEG, "photo.jpg"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        request.setEntity(builder.build());
+
+        try {
+            sendHttpRequest(request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private byte[] getImageData(String photoUrl) throws IOException {
+        final URL url = new URL(photoUrl);
+        try (InputStream input = url.openStream()) {
+            return IOUtils.toByteArray(input);
         }
     }
 

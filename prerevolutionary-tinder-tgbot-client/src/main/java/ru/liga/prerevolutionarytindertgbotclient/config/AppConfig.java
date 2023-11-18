@@ -49,6 +49,11 @@ public class AppConfig {
         return properties.getProperty("tgbot.api.url");
     }
 
+    public String getProfileUrl() {
+        return properties.getProperty("profile.endpoint.url");
+    }
+
+
     private void handlePropertiesLoadFailure(String path) {
         final String errorMessage = getPropertiesPathErrorMessage() + path;
         logger.error(errorMessage);
