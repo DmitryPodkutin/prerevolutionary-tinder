@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  tinder_server_database:
+    image: postgres:latest
+    container_name: tinder_server_database
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: tinder_server_database
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+  tinder_client_database:
+    image: postgres:latest
+    container_name: tinder_client_database
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: tinder_client_database
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data_2

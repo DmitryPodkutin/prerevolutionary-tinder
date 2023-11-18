@@ -50,3 +50,4 @@ build/
 /prerevolutionary-tinder-server/db-migration/src/main/resources/pgdata/
 /prerevolutionary-tinder-server/db-migration/src/main/resources/postgres/pgdata/
 /prerevolutionary-tinder-server/db-migration/src/main/resources/docker/pgdata/
+/docker/pgdata/

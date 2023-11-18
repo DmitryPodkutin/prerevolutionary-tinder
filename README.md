@@ -58,7 +58,7 @@
 
 1. Убедитесь, что у вас установлен Docker и Docker Compose.
 
-2. Перейдите в директорию `prerevolutionary-tinder-server/src/main/resources/docker`.
+2. Перейдите в директорию `prerevolutionary-tinder/docker`.
 
 3. Создайте и перейдите в директорию `docker-compose.yml` в этой директории.
 
