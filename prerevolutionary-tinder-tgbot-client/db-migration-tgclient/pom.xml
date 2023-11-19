@@ -26,7 +26,7 @@
                             <goal>migrate</goal>
                         </goals>
                         <configuration>
-                            <url>jdbc:postgresql://localhost:5434/tinder_client_database</url>
+                            <url>jdbc:postgresql://localhost:5433/tinder_client_database</url>
                             <user>user</user>
                             <password>password</password>
                             <schemas>
