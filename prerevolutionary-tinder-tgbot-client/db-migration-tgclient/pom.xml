@@ -18,15 +18,23 @@
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>7.0.2</version>
-                <configuration>
-                    <!-- Конфигурация подключения к базе данных -->
-                    <url>jdbc:postgresql://localhost:5434/tinder_client_database</url>
-                    <user>user</user>
-                    <password>password</password>
-                    <schemas>
-                        <schema>public</schema>
-                    </schemas>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>migrate-database</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                        <configuration>
+                            <url>jdbc:postgresql://localhost:5434/tinder_client_database</url>
+                            <user>user</user>
+                            <password>password</password>
+                            <schemas>
+                                <schema>public</schema>
+                            </schemas>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
