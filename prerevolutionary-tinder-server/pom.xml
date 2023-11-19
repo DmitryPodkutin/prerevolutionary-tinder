@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>pom</packaging>
 	<modules>
-		<module>db-migration</module>
+		<module>db-migration-server</module>
 		<module>prerevolutionary-tinder-server-app</module>
 	</modules>
 	<parent>
@@ -51,6 +51,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-
 </project>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>prerevolutionary-tinder-tgbot-client</artifactId>
+        <groupId>ru.liga</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>db-migration-client</artifactId>
+
+    <build>
+        <plugins>
+            <!-- Плагин Flyway Maven  mvn flyway:migrate-->
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>7.0.2</version>
+                <configuration>
+                    <!-- Конфигурация подключения к базе данных -->
+                    <url>jdbc:postgresql://localhost:5434/tinder_client_database</url>
+                    <user>user</user>
+                    <password>password</password>
+                    <schemas>
+                        <schema>public</schema>
+                    </schemas>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
