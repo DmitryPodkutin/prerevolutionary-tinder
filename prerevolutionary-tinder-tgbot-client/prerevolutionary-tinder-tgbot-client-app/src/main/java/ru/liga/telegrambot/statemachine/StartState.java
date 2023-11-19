@@ -49,7 +49,6 @@ public class StartState extends AbstractBotState {
             LOGGER.error("Profile not found for URL: {}", appConfig.getProfileUrl());
             return this;
         }
-
         if (profileResponse.getStatusCode().is2xxSuccessful()) {
             final String profileMessage = profileResponse.getBody();
             try {

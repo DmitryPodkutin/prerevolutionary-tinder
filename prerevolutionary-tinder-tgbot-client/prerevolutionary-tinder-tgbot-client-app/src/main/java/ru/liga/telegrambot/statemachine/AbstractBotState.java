@@ -22,4 +22,16 @@ public abstract class AbstractBotState implements BotState {
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         return null;
     }
+
+//    protected void authenticateAndSetBotState(TelegramBotDialogHandler dialogHandler,
+//                                              Update update) {
+//        final User telegramUser = update.getMessage().getFrom();
+//        final Long chatId = update.getMessage().getChatId();
+//        final Optional<AuthorizedUser> present = authService.authenticateUser(telegramUser.getId());
+//        if (present.isPresent()) {
+//            dialogHandler.setBotState(chatId, StateType.START, update);
+//        } else {
+//            dialogHandler.setBotState(chatId, REGISTRATION, update);
+//        }
+//    }
 }

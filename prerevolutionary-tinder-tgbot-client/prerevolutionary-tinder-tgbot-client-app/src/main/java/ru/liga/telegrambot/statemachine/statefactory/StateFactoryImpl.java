@@ -24,8 +24,6 @@ public class StateFactoryImpl implements StateFactory {
     private final ResourceBundle resourceBundle;
     private final TelegramMessageSender telegramMessageSender;
 
-
-
     @Override
     public BotState createState(StateType stateType) {
         switch (stateType) {
