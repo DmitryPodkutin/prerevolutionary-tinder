@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.liga.config.AppConfig;
+import ru.liga.dto.converter.ProfileEntityToProfileDtoConverter;
 import ru.liga.exception.CreatingProfileError;
 import ru.liga.model.Profile;
 import ru.liga.service.ProfileService;
@@ -32,7 +33,8 @@ public class CreateProfileState extends AbstractBotState {
     private static final String MALE_BOTTOM = "male.bottom";
     private static final String FEMALE_BOTTOM = "female.bottom";
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateProfileState.class);
-    public static final String EMPTY_STRING = "";
+    private static final String EMPTY_STRING = "";
+    private static final String ALL_GENDER_BOTTOM = "all.gender.bottom";
 
 
     private final RestTemplate restTemplate;
@@ -40,18 +42,20 @@ public class CreateProfileState extends AbstractBotState {
     private final ProfileService profileService;
     private final ResourceBundle resourceBundle;
     private final AppConfig appConfig;
+    private final ProfileEntityToProfileDtoConverter converter;
 
     @Autowired
     public CreateProfileState(RestTemplate restTemplate,
                               MessageSender messageSender,
                               ProfileService profileService, ResourceBundle resourceBundle,
-                              AppConfig appConfig) {
+                              AppConfig appConfig, ProfileEntityToProfileDtoConverter converter) {
         super(CREATE_PROFILE);
         this.restTemplate = restTemplate;
         this.messageSender = messageSender;
         this.profileService = profileService;
         this.resourceBundle = resourceBundle;
         this.appConfig = appConfig;
+        this.converter = converter;
     }
 
     @Override
@@ -147,7 +151,7 @@ public class CreateProfileState extends AbstractBotState {
             final ResponseEntity<Void> response = restTemplate.exchange(
                     appConfig.getProfileUrl(),
                     HttpMethod.POST,
-                    new HttpEntity<>(profile), // Передача profileDTO в качестве тела запроса
+                    new HttpEntity<>(converter.convert(profile)),
                     Void.class
             );
             if (response.getStatusCode().is2xxSuccessful()) {
@@ -174,7 +178,7 @@ public class CreateProfileState extends AbstractBotState {
     private Profile fillLookingFor(Profile profile, String messageText) {
         if (messageText.equals(MALE_BOTTOM) ||
                 messageText.equals(FEMALE_BOTTOM) ||
-                messageText.equals("all.gender.bottom")) {
+                messageText.equals(ALL_GENDER_BOTTOM)) {
             profile.setLookingFor(messageText);
             return profile;
         } else {
@@ -187,7 +191,8 @@ public class CreateProfileState extends AbstractBotState {
         final int endIndex = (newlineIndex != -1) ? newlineIndex : messageText.length();
 
         final String descriptionHeader = messageText.substring(0, endIndex);
-        final String description = (endIndex < messageText.length()) ? messageText.substring(endIndex + 1) : EMPTY_STRING;
+        final String description = (endIndex < messageText.length()) ?
+                messageText.substring(endIndex + 1) : EMPTY_STRING;
         profile.setDescriptionHeader(descriptionHeader);
         profile.setDescription(description);
         return profile;

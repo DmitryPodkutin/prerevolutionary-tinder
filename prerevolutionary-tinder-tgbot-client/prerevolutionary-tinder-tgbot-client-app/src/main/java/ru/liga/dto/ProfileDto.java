@@ -9,5 +9,5 @@ public class ProfileDto {
     private String name;
     private String descriptionHeader;
     private String description;
-    private String lookingFor;
+    private String seekingFor;
 }
