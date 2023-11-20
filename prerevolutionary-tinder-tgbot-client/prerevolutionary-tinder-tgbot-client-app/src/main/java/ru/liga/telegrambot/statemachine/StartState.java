@@ -13,8 +13,6 @@ import ru.liga.config.AppConfig;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.sender.MessageSender;
 
-import java.io.IOException;
-
 import static ru.liga.telegrambot.model.StateType.START;
 import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
 
@@ -51,12 +49,7 @@ public class StartState extends AbstractBotState {
         }
         if (profileResponse.getStatusCode().is2xxSuccessful()) {
             final String profileMessage = profileResponse.getBody();
-            try {
-                messageSender.sendMessage(chatId, profileMessage);
-            } catch (IOException e) {
-                LOGGER.error("Error while sending message: {}", e.getMessage());
-                throw new RuntimeException(e);
-            }
+            messageSender.sendMessage(chatId, profileMessage);
             dialogHandler.setBotState(chatId, VIEW_PROFILE, update);
         } else {
             LOGGER.error("Profile response not successful. Status code: {}",

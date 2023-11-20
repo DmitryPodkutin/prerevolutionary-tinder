@@ -4,9 +4,8 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.liga.exception.KeyboardCreationError;
 
 import java.util.ArrayList;
@@ -16,118 +15,147 @@ import java.util.ResourceBundle;
 @Component
 @AllArgsConstructor
 public class TelegramBotKeyboardFactoryImpl implements TelegramBotKeyboardFactory {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TelegramBotKeyboardFactoryImpl.class);
     private static final String MENU_BOTTOM = "menu.bottom";
     private static final String MALE_BOTTOM = "male.bottom";
     private static final String FEMALE_BOTTOM = "female.bottom";
-    private static final Logger LOGGER = LoggerFactory.getLogger(TelegramBotKeyboardFactoryImpl.class);
+    private static final String LEFT_BOTTOM = "left.bottom";
+    private static final String RIGHT_BOTTOM = "right.bottom";
+    private static final String ALL_GENDER_BOTTOM = "all.gender.bottom";
+    private static final String SEARCH_BOTTOM = "search.bottom";
+    private static final String VIEW_PROFILE_BOTTOM = "view.profile.bottom";
+    private static final String FAVORITE_BOTTOM = "favorite.bottom";
+
+    private static final String EDIT_PROFILE_BOTTOM = "edit.profile.bottom";
+
     private final ResourceBundle resourceBundle;
 
     @Override
-    public ReplyKeyboardMarkup createProfileViewKeyboard() {
-        final ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
-        final List<KeyboardRow> keyboardRows = new ArrayList<>();
-        try {
-            final KeyboardRow row = new KeyboardRow();
-            final KeyboardButton editButton = new KeyboardButton(resourceBundle.getString("edit.profile.bottom"));
-            final KeyboardButton menuButton = new KeyboardButton(resourceBundle.getString(MENU_BOTTOM));
-            row.add(editButton);
-            row.add(menuButton);
-            keyboardRows.add(row);
-        } catch (KeyboardCreationError e) {
-            LOGGER.error("Fail to create profile view keyboard.", e);
-            throw new KeyboardCreationError("Error while creating profile view keyboard.");
-        }
+    public InlineKeyboardMarkup createProfileViewKeyboard() {
+        final InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        final List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
+
+        final InlineKeyboardButton editButton = new InlineKeyboardButton();
+        editButton.setText(resourceBundle.getString(EDIT_PROFILE_BOTTOM));
+        editButton.setCallbackData(EDIT_PROFILE_BOTTOM);
+
+        final InlineKeyboardButton menuButton = new InlineKeyboardButton();
+        menuButton.setText(resourceBundle.getString(MENU_BOTTOM));
+        menuButton.setCallbackData(MENU_BOTTOM);
+
+        final List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(editButton);
+        row.add(menuButton);
+        keyboardRows.add(row);
 
         keyboard.setKeyboard(keyboardRows);
-        keyboard.setOneTimeKeyboard(true);
         return keyboard;
     }
 
     @Override
-    public ReplyKeyboardMarkup createMenuKeyboard() {
-        final ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
-        final List<KeyboardRow> keyboardRows = new ArrayList<>();
-        try {
-            final KeyboardRow row = new KeyboardRow();
-            final KeyboardButton searchButton = new KeyboardButton(resourceBundle.getString("search.bottom"));
-            final KeyboardButton profileButton = new KeyboardButton(resourceBundle.getString("view.profile.bottom"));
-            final KeyboardButton favoriteButton = new KeyboardButton(resourceBundle.getString("favorite.bottom"));
-            row.add(searchButton);
-            row.add(profileButton);
-            row.add(favoriteButton);
-            keyboardRows.add(row);
-        } catch (KeyboardCreationError e) {
-            LOGGER.error("Fail to create menu keyboard.", e);
-            throw new KeyboardCreationError("Error while creating menu keyboard.");
-        }
+    public InlineKeyboardMarkup createMenuKeyboard() {
+        final InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        final  List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
+
+        final InlineKeyboardButton searchButton = new InlineKeyboardButton();
+        searchButton.setText(resourceBundle.getString(SEARCH_BOTTOM));
+        searchButton.setCallbackData(SEARCH_BOTTOM);
+
+        final InlineKeyboardButton profileButton = new InlineKeyboardButton();
+        profileButton.setText(resourceBundle.getString(VIEW_PROFILE_BOTTOM));
+        profileButton.setCallbackData(VIEW_PROFILE_BOTTOM);
+
+        final InlineKeyboardButton favoriteButton = new InlineKeyboardButton();
+        favoriteButton.setText(resourceBundle.getString(FAVORITE_BOTTOM));
+        favoriteButton.setCallbackData(FAVORITE_BOTTOM);
+
+        final List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(searchButton);
+        row.add(profileButton);
+        row.add(favoriteButton);
+        keyboardRows.add(row);
 
         keyboard.setKeyboard(keyboardRows);
-        keyboard.setOneTimeKeyboard(true);
         return keyboard;
     }
 
     @Override
-    public ReplyKeyboardMarkup createSwipeKeyboard() {
-        final ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
-        final List<KeyboardRow> keyboardRows = new ArrayList<>();
+    public InlineKeyboardMarkup createSwipeKeyboard() {
+        final InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        final List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
         try {
-            final KeyboardRow row = new KeyboardRow();
-            final KeyboardButton leftButton = new KeyboardButton(resourceBundle.getString("left.bottom"));
-            final KeyboardButton rightButton = new KeyboardButton(resourceBundle.getString("right.bottom"));
-            final KeyboardButton menuButton = new KeyboardButton(resourceBundle.getString(MENU_BOTTOM));
+            final List<InlineKeyboardButton> row = new ArrayList<>();
+            final InlineKeyboardButton leftButton = new InlineKeyboardButton();
+            leftButton.setText(resourceBundle.getString(LEFT_BOTTOM));
+            leftButton.setCallbackData(LEFT_BOTTOM);
+            final InlineKeyboardButton rightButton = new InlineKeyboardButton();
+            rightButton.setText(resourceBundle.getString(RIGHT_BOTTOM));
+            rightButton.setCallbackData(RIGHT_BOTTOM);
+            final InlineKeyboardButton menuButton = new InlineKeyboardButton();
+            menuButton.setText(resourceBundle.getString(MENU_BOTTOM));
+            menuButton.setCallbackData(MENU_BOTTOM);
             row.add(leftButton);
             row.add(rightButton);
             row.add(menuButton);
-            keyboardRows.add(row);
+            keyboard.add(row);
         } catch (KeyboardCreationError e) {
-            LOGGER.error("Fail to create swipe keyboard.", e);
-            throw new KeyboardCreationError("Error while creating swipe keyboard.");
+            LOGGER.error("Fail to create swipe inline keyboard.", e);
+            throw new KeyboardCreationError("Error while creating swipe inline keyboard.");
         }
 
-        keyboard.setKeyboard(keyboardRows);
-        keyboard.setOneTimeKeyboard(true);
-        return keyboard;
+        inlineKeyboard.setKeyboard(keyboard);
+        return inlineKeyboard;
     }
 
     @Override
-    public ReplyKeyboardMarkup createGreetingKeyboard() {
-        final ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
-        final List<KeyboardRow> keyboardRows = new ArrayList<>();
-        try {
-            final KeyboardRow row = new KeyboardRow();
-            final KeyboardButton maleButton = new KeyboardButton(resourceBundle.getString(MALE_BOTTOM));
-            final KeyboardButton femaleButton = new KeyboardButton(resourceBundle.getString(FEMALE_BOTTOM));
-            row.add(maleButton);
-            row.add(femaleButton);
-            keyboardRows.add(row);
-        } catch (KeyboardCreationError e) {
-            LOGGER.error("Fail to create greeting keyboard.", e);
-            throw new KeyboardCreationError("Error while creating greeting keyboard.");
-        }
+    public InlineKeyboardMarkup createGreetingKeyboard() {
+        final InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        final List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
+
+        final InlineKeyboardButton maleButton = new InlineKeyboardButton();
+        maleButton.setText(resourceBundle.getString(MALE_BOTTOM));
+        maleButton.setCallbackData(MALE_BOTTOM);
+
+        final InlineKeyboardButton femaleButton = new InlineKeyboardButton();
+        femaleButton.setText(resourceBundle.getString(FEMALE_BOTTOM));
+        femaleButton.setCallbackData(FEMALE_BOTTOM);
+
+        final List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(maleButton);
+        row.add(femaleButton);
+        keyboardRows.add(row);
+
         keyboard.setKeyboard(keyboardRows);
-        keyboard.setOneTimeKeyboard(true);
         return keyboard;
     }
 
+
     @Override
-    public ReplyKeyboardMarkup createLookingForKeyboard() {
-        final ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
-        final List<KeyboardRow> keyboardRows = new ArrayList<>();
-        try {
-            final KeyboardRow row = new KeyboardRow();
-            final KeyboardButton maleButton = new KeyboardButton(resourceBundle.getString(MALE_BOTTOM));
-            final KeyboardButton femaleButton = new KeyboardButton(resourceBundle.getString(FEMALE_BOTTOM));
-            final KeyboardButton allGenderButton = new KeyboardButton(resourceBundle.getString("all.gender.bottom"));
-            row.add(maleButton);
-            row.add(femaleButton);
-            row.add(allGenderButton);
-            keyboardRows.add(row);
-        } catch (KeyboardCreationError e) {
-            LOGGER.error("Fail to create lookingFor keyboard.", e);
-            throw new KeyboardCreationError("Error while creating lookingFor keyboard.");
-        }
+    public InlineKeyboardMarkup createLookingForKeyboard() {
+        final InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        final List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
+
+        final InlineKeyboardButton maleButton = new InlineKeyboardButton();
+        maleButton.setText(resourceBundle.getString(MALE_BOTTOM));
+        maleButton.setCallbackData(MALE_BOTTOM);
+
+        final InlineKeyboardButton femaleButton = new InlineKeyboardButton();
+        femaleButton.setText(resourceBundle.getString(FEMALE_BOTTOM));
+        femaleButton.setCallbackData(FEMALE_BOTTOM);
+
+        final InlineKeyboardButton allGenderButton = new InlineKeyboardButton();
+        allGenderButton.setText(resourceBundle.getString(ALL_GENDER_BOTTOM));
+        allGenderButton.setCallbackData(ALL_GENDER_BOTTOM);
+
+        final List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(maleButton);
+        row.add(femaleButton);
+        row.add(allGenderButton);
+        keyboardRows.add(row);
+
         keyboard.setKeyboard(keyboardRows);
-        keyboard.setOneTimeKeyboard(true);
         return keyboard;
     }
 

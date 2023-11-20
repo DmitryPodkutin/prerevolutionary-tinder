@@ -15,7 +15,7 @@ import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 
 @Component
 @AllArgsConstructor
-public class TinderTelegramBot extends TelegramLongPollingBot {
+public class TinderTelegramBot extends TelegramLongPollingBot implements BotMessenger {
 
 
 
@@ -26,8 +26,6 @@ public class TinderTelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         log.debug("Received an update: {}", update);
-        sendMessage(update.getMessage().getChatId(),
-                "Добро пожаловать в Дореволюционный тиндер! Нажмите /start для начала.");
         telegramBotDialogHandler.handleUpdate(update);
     }
 
@@ -63,5 +61,10 @@ public class TinderTelegramBot extends TelegramLongPollingBot {
             log.error("Failed to register Telegram Bot: {}", e.getMessage());
             // Дополнительные действия при неудачной регистрации бота
         }
+    }
+
+    @Override
+    public void sendMessageWithKeyboard(Long chatId, String text) {
+
     }
 }

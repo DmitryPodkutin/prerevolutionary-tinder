@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository("favouriteRepository")
 /*@Transactional(timeout = 180)*/
-public interface FavouriteRepository extends BaseTinderRepository<Favorite, Long> {
+public interface FavouriteRepository extends BaseTinderServerRepository<Favorite, Long> {
 
     @Query(value = "SELECT * FROM public.favorite WHERE user_id = :userId", nativeQuery = true)
     List<Favorite> findAllByUserId(@Param("userId") Long userId);

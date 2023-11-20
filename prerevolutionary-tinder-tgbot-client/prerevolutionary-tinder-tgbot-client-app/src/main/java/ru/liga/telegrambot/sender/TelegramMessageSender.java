@@ -1,6 +1,7 @@
 package ru.liga.telegrambot.sender;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -19,7 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.liga.config.AppConfig;
 import ru.liga.telegrambot.keyboard.TelegramBotKeyboardFactory;
 
@@ -66,10 +67,15 @@ public class TelegramMessageSender implements MessageSender {
         final HttpPost request = new HttpPost(apiUrl);
         request.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
         if (body != null) {
-            final Gson gson = new Gson();
-            final String jsonBody = gson.toJson(body);
-            final StringEntity params = new StringEntity(jsonBody, StandardCharsets.UTF_8);
-            request.setEntity(params);
+            final ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                final String jsonBody = objectMapper.writeValueAsString(body);
+                final  StringEntity params = new StringEntity(jsonBody, StandardCharsets.UTF_8);
+                request.setEntity(params);
+            } catch (JsonProcessingException e) {
+                // Обработка ошибки сериализации объекта в JSON
+                e.printStackTrace();
+            }
         }
 
         return request;
@@ -92,15 +98,20 @@ public class TelegramMessageSender implements MessageSender {
         }
     }
 
-    public void sendMessageWithKeyboard(Update update, String text, ReplyKeyboardMarkup keyboard) throws IOException {
-        final String apiUrl = appConfig.getTgBotApiUrl() + botToken + SEND_MESSAGE_ENDPOINT;
+    public void sendMessageWithKeyboard(Update update, String text, InlineKeyboardMarkup keyboard)  {
+        final String apiUrl = appConfig.getTgBotApiUrl() + botToken + SEND_MESSAGE_ENDPOINT +
+                CHAT_ID_ENDPOINT + update.getMessage().getChatId().toString();
         final SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(update.getMessage().getChatId().toString());
         sendMessage.setText(text);
         sendMessage.setReplyMarkup(keyboard);
 
         final HttpPost request = createHttpPostRequest(apiUrl, sendMessage);
-        sendHttpRequest(request);
+        try {
+            sendHttpRequest(request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void sendMessage(Long chatId, String message) {
@@ -150,63 +161,39 @@ public class TelegramMessageSender implements MessageSender {
 
 
     public void openProfileViewKeyboard(Update update) {
-        try {
-            sendMessageWithKeyboard(update,
-                    resourceBundle.getString("view.profile.message"),
-                    telegramBotKeyboardFactory.createProfileViewKeyboard());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        sendMessageWithKeyboard(update,
+                resourceBundle.getString("view.profile.message"),
+                telegramBotKeyboardFactory.createProfileViewKeyboard());
     }
 
     @Override
     public void openMenuKeyboard(Update update) {
-        try {
-            sendMessageWithKeyboard(update, resourceBundle.getString("menu.message"),
-                    telegramBotKeyboardFactory.createMenuKeyboard());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        sendMessageWithKeyboard(update, resourceBundle.getString("menu.message"),
+                telegramBotKeyboardFactory.createMenuKeyboard());
     }
 
     @Override
     public void openSearchSwipeKeyboard(Update update) {
-        try {
-            sendMessageWithKeyboard(update, resourceBundle.getString("search.message"),
-                    telegramBotKeyboardFactory.createSwipeKeyboard());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        sendMessageWithKeyboard(update, resourceBundle.getString("search.message"),
+                telegramBotKeyboardFactory.createSwipeKeyboard());
     }
 
     @Override
     public void openFavoritesSwipeKeyboard(Update update) {
-        try {
-            sendMessageWithKeyboard(update, resourceBundle.getString("favorite.message"),
-                    telegramBotKeyboardFactory.createSwipeKeyboard());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        sendMessageWithKeyboard(update, resourceBundle.getString("favorite.message"),
+                telegramBotKeyboardFactory.createSwipeKeyboard());
 
     }
 
     @Override
     public void openGreetingKeyboard(Update update) {
-        try {
-            sendMessageWithKeyboard(update, resourceBundle.getString("choose.greeting"),
-                    telegramBotKeyboardFactory.createSwipeKeyboard());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        sendMessageWithKeyboard(update, resourceBundle.getString("choose.greeting"),
+                telegramBotKeyboardFactory.createGreetingKeyboard());
     }
 
     @Override
     public void openLookingForKeyboard(Update update) {
-        try {
-            sendMessageWithKeyboard(update, resourceBundle.getString("choose.looking.for"),
-                    telegramBotKeyboardFactory.createSwipeKeyboard());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        sendMessageWithKeyboard(update, resourceBundle.getString("choose.looking.for"),
+                telegramBotKeyboardFactory.createSwipeKeyboard());
     }
 }

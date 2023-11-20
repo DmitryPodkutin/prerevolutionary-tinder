@@ -10,6 +10,8 @@ import ru.liga.telegrambot.statemachine.BotState;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Objects.nonNull;
+
 @Component
 @AllArgsConstructor
 public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
@@ -19,11 +21,11 @@ public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
 
 
     public void handleUpdate(Update update) {
-        final Long chatId = update.getMessage().getChatId();
+        final Long chatId = getChatId(update);
         StateType currentStateType = usersBotStates.get(chatId);
 
         if (currentStateType == null) {
-            currentStateType = StateType.START;
+            currentStateType = StateType.CREATE_PROFILE; //TODO - тут сейчас тестовая логика
             usersBotStates.put(chatId, currentStateType);
         }
 
@@ -31,6 +33,16 @@ public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
         final BotState botState = stateFactory.createState(currentStateType);
         botState.handleInput(this, update);
 /*        setBotState(chatId, botState.getStateType(), update);*/
+    }
+
+    private static Long getChatId(Update update) {
+        final Long chatId;
+        if (nonNull(update.getMessage())) {
+            chatId = update.getMessage().getChatId();
+        } else {
+            chatId = update.getCallbackQuery().getMessage().getChatId();
+        }
+        return chatId;
     }
 
 
