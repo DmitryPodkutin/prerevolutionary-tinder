@@ -194,6 +194,6 @@ public class TelegramMessageSender implements MessageSender {
     @Override
     public void openLookingForKeyboard(Update update) {
         sendMessageWithKeyboard(update, resourceBundle.getString("choose.looking.for"),
-                telegramBotKeyboardFactory.createSwipeKeyboard());
+                telegramBotKeyboardFactory.createLookingForKeyboard());
     }
 }

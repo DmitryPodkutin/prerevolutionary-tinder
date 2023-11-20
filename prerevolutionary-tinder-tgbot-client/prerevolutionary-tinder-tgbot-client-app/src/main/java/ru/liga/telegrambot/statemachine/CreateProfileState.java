@@ -32,6 +32,7 @@ public class CreateProfileState extends AbstractBotState {
     private static final String MALE_BOTTOM = "male.bottom";
     private static final String FEMALE_BOTTOM = "female.bottom";
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateProfileState.class);
+    public static final String EMPTY_STRING = "";
 
 
     private final RestTemplate restTemplate;
@@ -65,17 +66,17 @@ public class CreateProfileState extends AbstractBotState {
 
         final Profile profile = profileService.getByChatId(chatId).orElseThrow(EntityNotFoundException::new);
 
-        if (isNull(profile.getName())) {
+        if (isNull(profile.getName()) || profile.getName().equals(EMPTY_STRING)) {
             if (!getProfileName(update, profile).isEmpty()) {
                 return this;
             }
         }
-        if (isNull(profile.getDescription())) {
+        if (isNull(profile.getDescription()) || profile.getDescription().equals(EMPTY_STRING)) {
             if (!getProfileDescription(update, profile).isEmpty()) {
                 return this;
             }
         }
-        if (isNull(profile.getLookingFor())) {
+        if (isNull(profile.getLookingFor()) || profile.getLookingFor().equals(EMPTY_STRING)) {
             if (!getProfileLookingFor(update, profile).isEmpty()) {
                 return this;
             }
@@ -86,38 +87,44 @@ public class CreateProfileState extends AbstractBotState {
 
     @Nullable
     private Optional<CreateProfileState> getProfileLookingFor(Update update, Profile profile) {
-        if (nonNull(update.getMessage()) && !update.getMessage().getText().isEmpty()) {
-            fillLookingFor(profile, update.getMessage().getText());
-            return Optional.empty();
-        } else {
+        if (isNull(profile.getLookingFor())) {
+            profile.setLookingFor(EMPTY_STRING);
+            profileService.saveProfile(profile);
             messageSender.openLookingForKeyboard(update);
             return Optional.of(this);
+        } else {
+            fillLookingFor(profile, update.getCallbackQuery().getData());
+            return Optional.empty();
         }
     }
 
     @NotNull
     private Optional<CreateProfileState> getProfileDescription(Update update, Profile profile) {
-        if (nonNull(update.getMessage()) && !update.getMessage().getText().isEmpty()) {
-            fillDescription(profile, update.getMessage().getText());
+        if (isNull(profile.getDescription())) {
+            profile.setDescription(EMPTY_STRING);
             profileService.saveProfile(profile);
-            return Optional.empty();
-        } else {
             messageSender.sendMessage(update.getMessage().getChatId(),
                     resourceBundle.getString("choose.description"));
             return Optional.of(this);
+        } else {
+            fillDescription(profile, update.getMessage().getText());
+            profileService.saveProfile(profile);
+            return Optional.empty();
         }
     }
 
     @NotNull
     private Optional<CreateProfileState> getProfileName(Update update, Profile profile) {
-        if (nonNull(update.getMessage())) {
-            profile.setName(update.getMessage().getText());
+        if (isNull(profile.getName())) {
+            profile.setName(EMPTY_STRING);
             profileService.saveProfile(profile);
-            return Optional.empty();
-        } else {
             messageSender.sendMessage(getChatId(update),
                     resourceBundle.getString("choose.name"));
             return Optional.of(this);
+        } else {
+            profile.setName(update.getMessage().getText());
+            profileService.saveProfile(profile);
+            return Optional.empty();
         }
     }
 
@@ -165,9 +172,9 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     private Profile fillLookingFor(Profile profile, String messageText) {
-        if (messageText.equals(resourceBundle.getString(MALE_BOTTOM)) ||
-                messageText.equals(resourceBundle.getString(FEMALE_BOTTOM)) ||
-                messageText.equals(resourceBundle.getString("all.gender.bottom"))) {
+        if (messageText.equals(MALE_BOTTOM) ||
+                messageText.equals(FEMALE_BOTTOM) ||
+                messageText.equals("all.gender.bottom")) {
             profile.setLookingFor(messageText);
             return profile;
         } else {
@@ -180,7 +187,7 @@ public class CreateProfileState extends AbstractBotState {
         final int endIndex = (newlineIndex != -1) ? newlineIndex : messageText.length();
 
         final String descriptionHeader = messageText.substring(0, endIndex);
-        final String description = (endIndex < messageText.length()) ? messageText.substring(endIndex + 1) : "";
+        final String description = (endIndex < messageText.length()) ? messageText.substring(endIndex + 1) : EMPTY_STRING;
         profile.setDescriptionHeader(descriptionHeader);
         profile.setDescription(description);
         return profile;
