@@ -13,6 +13,7 @@ import ru.liga.telegrambot.statemachine.BotState;
 import ru.liga.telegrambot.statemachine.CreateProfileState;
 import ru.liga.telegrambot.statemachine.EditProfileState;
 import ru.liga.telegrambot.statemachine.MenuState;
+import ru.liga.telegrambot.statemachine.RegistrationState;
 import ru.liga.telegrambot.statemachine.StartState;
 import ru.liga.telegrambot.statemachine.ViewProfileState;
 
@@ -28,10 +29,13 @@ public class StateFactoryImpl implements StateFactory {
     private final TelegramMessageSender telegramMessageSender;
     private final ProfileService profileService;
     private final ProfileEntityToProfileDtoConverter converter;
+    private final RegistrationState registrationState;
 
     @Override
     public BotState createState(StateType stateType) {
         switch (stateType) {
+            case REGISTRATION:
+                return registrationState;
             case VIEW_PROFILE:
                 return new ViewProfileState(resourceBundle, telegramMessageSender);
             case CREATE_PROFILE:

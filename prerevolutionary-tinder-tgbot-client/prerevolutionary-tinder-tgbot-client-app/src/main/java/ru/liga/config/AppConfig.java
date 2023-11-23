@@ -2,7 +2,11 @@ package ru.liga.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import ru.liga.model.ServiceUser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +44,6 @@ public class AppConfig {
         return System.getenv("TELEGRAM_BOT_USERNAME");
     }
 
-
     public String getLocale() {
         return properties.getProperty("locale");
     }
@@ -53,6 +56,15 @@ public class AppConfig {
         return properties.getProperty("profile.endpoint.url");
     }
 
+    @Bean
+    public ServiceUser serviceUser() {
+        return new ServiceUser(properties.getProperty("service.user.name"),
+                properties.getProperty("service.user.password"));
+    }
+
+    public String getRegisterServiceUrl() {
+        return properties.getProperty("register.service.url");
+    }
 
     private void handlePropertiesLoadFailure(String path) {
         final String errorMessage = getPropertiesPathErrorMessage() + path;
@@ -68,5 +80,10 @@ public class AppConfig {
 
     private String getPropertiesPathErrorMessage() {
         return "Failed to load application properties from ";
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

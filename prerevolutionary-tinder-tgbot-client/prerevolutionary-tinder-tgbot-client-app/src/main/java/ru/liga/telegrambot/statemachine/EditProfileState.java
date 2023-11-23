@@ -9,7 +9,6 @@ import ru.liga.telegrambot.model.StateType;
 import java.util.ResourceBundle;
 
 @Component
-
 public class EditProfileState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
 

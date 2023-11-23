@@ -2,6 +2,7 @@ package ru.liga.model;
 
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.liga.enums.Role;
 
 import javax.persistence.Column;
@@ -16,6 +17,7 @@ import javax.persistence.Table;
 @Data
 @Entity
 @Table(name = "role")
+@NoArgsConstructor
 public class UserRole {
 
     @Id

@@ -9,4 +9,8 @@ import java.util.Optional;
 public interface UserRepository extends BaseTinderClientRepository<User, Long> {
 
     Optional<User> findByTelegramId(Long telegramId);
+
+    Optional<User> findByUserName(String userName);
+
+
 }

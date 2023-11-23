@@ -15,6 +15,8 @@ public interface UserService {
 
     Optional<User> getUserByTelegramId(Long telegramId);
 
+    Optional<User> getUserByName(String userName);
+
     Optional<User> createUser(User user);
 
     Optional<User> updateUser(Long userId, User user);

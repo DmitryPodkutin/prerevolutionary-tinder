@@ -30,6 +30,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> getUserByName(String userName) {
+        return userRepository.findByUserName(userName);
+    }
+
+    @Override
     public Optional<User> createUser(User user) {
         return Optional.of(userRepository.save(user));
     }
