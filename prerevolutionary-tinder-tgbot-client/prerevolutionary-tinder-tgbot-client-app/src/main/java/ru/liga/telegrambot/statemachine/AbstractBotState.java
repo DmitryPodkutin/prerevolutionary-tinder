@@ -4,6 +4,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.model.StateType;
 
+import static java.util.Objects.nonNull;
+
 
 public abstract class AbstractBotState implements BotState {
 
@@ -21,6 +23,15 @@ public abstract class AbstractBotState implements BotState {
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         return null;
+    }
+    public Long getChatId(Update update) {
+        final Long chatId;
+        if (nonNull(update.getMessage())) {
+            chatId = update.getMessage().getChatId();
+        } else {
+            chatId = update.getCallbackQuery().getMessage().getChatId();
+        }
+        return chatId;
     }
 
 //    protected void authenticateAndSetBotState(TelegramBotDialogHandler dialogHandler,

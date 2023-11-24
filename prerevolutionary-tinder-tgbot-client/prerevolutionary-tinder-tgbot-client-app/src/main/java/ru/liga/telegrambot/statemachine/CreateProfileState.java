@@ -197,14 +197,4 @@ public class CreateProfileState extends AbstractBotState {
         profile.setDescription(description);
         return profile;
     }
-
-    private static Long getChatId(Update update) {
-        final Long chatId;
-        if (nonNull(update.getMessage())) {
-            chatId = update.getMessage().getChatId();
-        } else {
-            chatId = update.getCallbackQuery().getMessage().getChatId();
-        }
-        return chatId;
-    }
 }

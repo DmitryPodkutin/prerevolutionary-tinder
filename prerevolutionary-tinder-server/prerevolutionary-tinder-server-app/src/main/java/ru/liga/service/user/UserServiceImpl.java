@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import ru.liga.dto.UserSaveDTO;
 import ru.liga.enums.Role;
 import ru.liga.model.AuthorizedUser;
 import ru.liga.model.Profile;
@@ -49,13 +50,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> registration(User user) {
-        return userRepository.findByUserName(user.getUserName())
-                .map(existingUser -> Optional.<User>empty())
-                .orElseGet(() -> {
-                    userRepository.save(user);
-                    return Optional.of(user);
-                });
+    public Optional<User> registration(UserSaveDTO userSaveDTO) {
+        final Optional<User> byUserName = userRepository.findByUserName(userSaveDTO.getUserName());
+        if (byUserName.isPresent()) {
+            return byUserName;
+        } else {
+            final User user = new User();
+            user.setUserName(userSaveDTO.getUserName());
+            user.setPassword(userSaveDTO.getPassword());
+            userRepository.save(user);
+            return Optional.of(user);
+        }
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.liga.dto.UserSaveDTO;
 import ru.liga.model.User;
 import ru.liga.service.user.UserService;
 
@@ -51,8 +52,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        final Optional<User> registeredUser = userService.registration(user);
+    public ResponseEntity<User> registerUser(@RequestBody UserSaveDTO userSaveDTO) {
+        final Optional<User> registeredUser = userService.registration(userSaveDTO);
         return registeredUser.map(
                 value -> new ResponseEntity<>(value, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));

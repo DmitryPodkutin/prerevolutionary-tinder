@@ -45,7 +45,7 @@ public class ProfileServiceImplTest {
     }
 
     @Test
-    public void getProfileById_ExistingProfile_ReturnsProfile() {
+        public void getProfileById_ExistingProfile_ReturnsProfile() {
         Long fakeProfileId = 1L;
         Profile fakeProfile = new Profile();
         when(profileRepository.findById(fakeProfileId)).thenReturn(Optional.of(fakeProfile));

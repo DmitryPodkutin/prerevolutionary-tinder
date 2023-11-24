@@ -2,6 +2,7 @@ package ru.liga.service.user;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import ru.liga.dto.UserSaveDTO;
 import ru.liga.model.User;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface UserService extends UserDetailsService {
 
     Optional<User> createUser(User user);
 
-    Optional<User> registration(User user);
+    Optional<User> registration(UserSaveDTO userSaveDTO);
 
     Optional<User> updateUser(Long userId, User user);
 

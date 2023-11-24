@@ -1,14 +1,18 @@
 package ru.liga.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
+
+@NoArgsConstructor
+@Data
 public class UserDto {
     @JsonProperty("telegramId")
-    private final Long telegramId;
-    @JsonProperty("username")
-    private final String userName;
+    private Long telegramId;
+    @JsonProperty("userName")
+    private String userName;
     @JsonProperty("password")
-    private final String password;
+    private String password;
+
 }

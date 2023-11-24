@@ -36,7 +36,11 @@ public class RegistrationService {
         if (validateMessage == null) {
             final String userName = credentialsParts[0];
             final String password = passwordEncoder.encode(credentialsParts[1]);
-            final String remoteRegisterMessage = remoteRegister(new UserDto(telegramId, userName, password));
+            final UserDto userDto = new UserDto();
+            userDto.setTelegramId(telegramId);
+            userDto.setUserName(userName);
+            userDto.setPassword(password);
+            final String remoteRegisterMessage = remoteRegister(userDto);
             if ("OK".equals(remoteRegisterMessage)) {
                 userService.createUser(new User(telegramId, userName, password,
                         new UserState(StateType.CREATE_PROFILE)));
