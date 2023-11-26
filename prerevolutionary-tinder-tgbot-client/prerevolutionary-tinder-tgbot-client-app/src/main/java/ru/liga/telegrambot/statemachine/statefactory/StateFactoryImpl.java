@@ -42,7 +42,8 @@ public class StateFactoryImpl implements StateFactory {
             case REGISTRATION:
                 return registrationState;
             case VIEW_PROFILE:
-                return new ViewProfileState(resourceBundle, telegramMessageSender);
+                return new ViewProfileState(resourceBundle, telegramMessageSender, restTemplate, appConfig,
+                        messageSender, userService, userStateRepository);
             case CREATE_PROFILE:
                 return new CreateProfileState(restTemplate, messageSender, profileService,
                         resourceBundle, appConfig, viewProfileState, customConversionService,

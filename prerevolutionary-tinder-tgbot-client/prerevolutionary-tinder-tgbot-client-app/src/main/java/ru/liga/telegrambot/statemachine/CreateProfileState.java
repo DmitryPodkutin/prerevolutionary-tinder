@@ -100,6 +100,7 @@ public class CreateProfileState extends AbstractBotState {
             }
         }
         createProfile(dialogHandler, update, chatId, customConversionService.convert(profile, ProfileDto.class));
+        viewProfileState.handleInput(dialogHandler, update);
         return viewProfileState;
     }
 
