@@ -53,3 +53,4 @@ build/
 /docker/pgdata/
 /prerevolutionary-tinder-tgbot-client/prerevolutionary-tinder-tgbot-client-app/logs/
 /logs/
+/prerevolutionary-tinder-server/prerevolutionary-tinder-server-app/logs/

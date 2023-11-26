@@ -7,7 +7,7 @@
         </layout>
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/prerevolutionary-tinder-client.log</file>
+        <file>logs/prerevolutionary-tinder-server.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>logs/myapp.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>7</maxHistory>
