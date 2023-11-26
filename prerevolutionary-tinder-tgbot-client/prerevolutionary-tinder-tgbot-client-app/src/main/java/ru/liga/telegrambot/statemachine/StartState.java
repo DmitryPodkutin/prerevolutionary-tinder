@@ -1,5 +1,7 @@
 package ru.liga.telegrambot.statemachine;
 
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +18,9 @@ import ru.liga.telegrambot.sender.MessageSender;
 import static ru.liga.telegrambot.model.StateType.START;
 import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
 
+@Slf4j
 @Component
 public class StartState extends AbstractBotState {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StartState.class);
 
     private final RestTemplate restTemplate;
     private final MessageSender messageSender;
@@ -39,12 +41,12 @@ public class StartState extends AbstractBotState {
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         final Long chatId = update.getMessage().getChatId();
         final ResponseEntity<String> profileResponse;
-
         try {
+
             profileResponse = restTemplate.exchange(appConfig.getProfileUrl(),
                     HttpMethod.GET, null, String.class);
         } catch (HttpClientErrorException.NotFound e) {
-            LOGGER.error("Profile not found for URL: {}", appConfig.getProfileUrl());
+            log.error("Profile not found for URL: {}", appConfig.getProfileUrl());
             return this;
         }
         if (profileResponse.getStatusCode().is2xxSuccessful()) {
@@ -52,7 +54,7 @@ public class StartState extends AbstractBotState {
             messageSender.sendMessage(chatId, profileMessage);
             dialogHandler.setBotState(chatId, VIEW_PROFILE, update);
         } else {
-            LOGGER.error("Profile response not successful. Status code: {}",
+            log.error("Profile response not successful. Status code: {}",
                     profileResponse.getStatusCodeValue());
             return this;
         }
