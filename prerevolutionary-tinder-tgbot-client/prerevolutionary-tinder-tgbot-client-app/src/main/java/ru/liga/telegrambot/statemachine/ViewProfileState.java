@@ -26,7 +26,6 @@ import java.util.ResourceBundle;
 import static java.util.Objects.nonNull;
 import static ru.liga.telegrambot.model.StateType.EDIT_PROFILE;
 import static ru.liga.telegrambot.model.StateType.MENU;
-import static ru.liga.utils.Base64EncoderDecoder.decode;
 
 @Component
 
@@ -90,7 +89,7 @@ public class ViewProfileState extends AbstractBotState {
             final User user = userService.getUserByTelegramId(update.getCallbackQuery().getFrom().getId())
                     .orElseThrow(EntityNotFoundException::new);
             final HttpHeaders headers = new HttpHeaders();
-            headers.setBasicAuth(user.getUserName(), decode(user.getPassword()));
+            headers.setBasicAuth(user.getUserName(), user.getPassword());
             headers.setContentType(MediaType.APPLICATION_JSON);
             profileResponse = restTemplate.getForEntity(appConfig.getProfileUrl(), null, String.class);
         } catch (HttpClientErrorException.NotFound e) {

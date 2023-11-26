@@ -1,32 +1,21 @@
 package ru.liga.service.user;
 
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import ru.liga.dto.UserSaveDTO;
-import ru.liga.enums.Role;
-import ru.liga.model.AuthorizedUser;
-import ru.liga.model.Profile;
 import ru.liga.model.User;
-import ru.liga.model.UserRole;
 import ru.liga.repository.UserRepository;
-import ru.liga.service.profile.ProfileService;
+import ru.liga.utils.CustomPasswordEncoder;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component()
 @AllArgsConstructor
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final ProfileService profileService;
+    private final CustomPasswordEncoder customPasswordEncoder;
 
     @Override
     public List<User> getAllUsers() {
@@ -45,7 +34,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Optional<User> createUser(User user) {
-        return Optional.of(userRepository.save(user));
+        return Optional.of(userRepository.save(customPasswordEncoder.encodePassword(user)));
     }
 
     @Override
@@ -57,6 +46,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             final User user = new User();
             user.setUserName(userSaveDTO.getUserName());
             user.setPassword(userSaveDTO.getPassword());
+            customPasswordEncoder.encodePassword(user);
             userRepository.save(user);
             return Optional.of(user);
         }
@@ -68,6 +58,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .map(existingUser -> {
                     existingUser.setUserName(user.getUserName());
                     existingUser.setPassword(user.getPassword());
+                    customPasswordEncoder.encodePassword(existingUser);
                     userRepository.save(existingUser);
                     return existingUser;
                 });
@@ -80,19 +71,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     userRepository.deleteById(userId);
                     return true;
                 }).orElse(false);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        final User user = getUserByUserName(username).orElseThrow(
-                () -> new UsernameNotFoundException(String.format("User name:%s not found", username)));
-        final Profile profile = profileService.getByUserId(user.getId())
-                .orElse(null);
-        return new AuthorizedUser(user, getGrantedAuthorities(user.getUserRoles()), profile);
-    }
-
-    private Collection<GrantedAuthority> getGrantedAuthorities(Collection<UserRole> userRoles) {
-        return userRoles.stream().map(role -> new SimpleGrantedAuthority(Role.USER.name()))
-                .collect(Collectors.toList());
     }
 }
