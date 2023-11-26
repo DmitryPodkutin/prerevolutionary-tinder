@@ -3,6 +3,8 @@ package ru.liga.controller;
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,15 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.ProfileDto;
 import ru.liga.dto.ProfileSaveDTO;
-import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.filter.ProfileFilter;
 import ru.liga.service.profile.ProfileService;
 import ru.liga.service.user.UserService;
-
-import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -66,9 +67,11 @@ public class ProfileController {
     }
 
     @GetMapping("/matching")
-    public ResponseEntity<List<MatchingProfileDTO>> findMatchingProfiles() {
-        final List<MatchingProfileDTO> matchingProfiles = profileService.getAllMatchingProfiles();
-        if (!matchingProfiles.isEmpty()) {
+    public ResponseEntity<Page<MatchingProfileDTO>> findMatchingProfiles(@RequestParam() int page,
+                                                                         @RequestParam() int size) {
+        final Page<MatchingProfileDTO> matchingProfiles =
+                profileService.getAllMatchingProfiles(PageRequest.of(page, size));
+        if (!matchingProfiles.hasContent()) {
             return new ResponseEntity<>(matchingProfiles, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

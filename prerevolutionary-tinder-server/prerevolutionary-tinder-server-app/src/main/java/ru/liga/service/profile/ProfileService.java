@@ -1,16 +1,17 @@
 package ru.liga.service.profile;
 
-import ru.liga.dto.ProfileSaveDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.liga.dto.MatchingProfileDTO;
+import ru.liga.dto.ProfileSaveDTO;
 import ru.liga.dto.filter.ProfileFilter;
 import ru.liga.model.Profile;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface ProfileService {
 
-    List<MatchingProfileDTO> getAllMatchingProfiles();
+    Page<MatchingProfileDTO> getAllMatchingProfiles(Pageable pageable);
 
     Optional<Profile> getByUserId(Long userId);
 

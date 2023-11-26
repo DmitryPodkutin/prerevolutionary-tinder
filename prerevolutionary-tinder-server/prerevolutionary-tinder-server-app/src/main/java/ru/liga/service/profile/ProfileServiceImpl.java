@@ -1,10 +1,12 @@
 package ru.liga.service.profile;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.ProfileSaveDTO;
 import ru.liga.dto.converter.ProfileEntityToMatchingProfileDTOConverter;
-import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.filter.ProfileFilter;
 import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
@@ -18,9 +20,7 @@ import ru.liga.repository.UserRepository;
 import ru.liga.service.user.AuthenticationContext;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,13 +32,12 @@ public class ProfileServiceImpl implements ProfileService {
     private final UserRepository userRepository;
 
     @Override
-    public List<MatchingProfileDTO> getAllMatchingProfiles() {
+    public Page<MatchingProfileDTO> getAllMatchingProfiles(Pageable pageable) {
         final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
-        final List<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
-                currentUser.getProfile().getGender(), currentUser.getProfile().getSeeking());
-        return matchingProfiles.stream().map((Profile profile) ->
-                        entityToMatchingProfileDTOConverter.convert(currentUser.getUserId(), profile))
-                .collect(Collectors.toList());
+        final Page<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
+                currentUser.getProfile().getGender(), currentUser.getProfile().getSeeking(), pageable);
+        return matchingProfiles.map(profile ->
+                entityToMatchingProfileDTOConverter.convert(currentUser.getUserId(), profile));
     }
 
     @Override
