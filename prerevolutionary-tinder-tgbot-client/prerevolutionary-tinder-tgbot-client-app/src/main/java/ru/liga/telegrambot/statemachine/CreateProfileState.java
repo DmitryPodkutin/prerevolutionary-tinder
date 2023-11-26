@@ -32,6 +32,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static ru.liga.telegrambot.model.StateType.CREATE_PROFILE;
 import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
+import static ru.liga.utils.Base64EncoderDecoder.decode;
 
 @Component
 public class CreateProfileState extends AbstractBotState {
@@ -164,9 +165,8 @@ public class CreateProfileState extends AbstractBotState {
         try {
             final User user = userService.getUserByTelegramId(update.getCallbackQuery().getFrom().getId())
                     .orElseThrow(EntityNotFoundException::new);
-
             final HttpHeaders headers = new HttpHeaders();
-            headers.setBasicAuth(user.getUserName(), "password");
+            headers.setBasicAuth(user.getUserName(), decode(user.getPassword()));
             headers.setContentType(MediaType.APPLICATION_JSON);
             final HttpEntity<ProfileDto> requestEntity = new HttpEntity<>(profileDto, headers);
             restTemplate.postForEntity(appConfig.getProfileUrl(), requestEntity, ProfileDto.class);

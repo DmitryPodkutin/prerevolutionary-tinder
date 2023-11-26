@@ -13,6 +13,8 @@ import ru.liga.model.ServiceUser;
 
 import java.util.ResourceBundle;
 
+import static ru.liga.utils.Base64EncoderDecoder.decode;
+
 @Component
 @AllArgsConstructor
 public class AuthApiImpl implements AuthApi {
@@ -26,7 +28,7 @@ public class AuthApiImpl implements AuthApi {
     public String remoteRegister(UserDto userDto) {
         try {
             final HttpHeaders headers = new HttpHeaders();
-            headers.setBasicAuth(serviceUser.getUserName(), serviceUser.getPassword());
+            headers.setBasicAuth(serviceUser.getUserName(), decode(serviceUser.getPassword()));
             headers.setContentType(MediaType.APPLICATION_JSON);
             final HttpEntity<UserDto> requestEntity = new HttpEntity<>(userDto, headers);
             restTemplate.postForEntity(restClientConfig.getRegisterServiceUrl(), requestEntity, UserDto.class);

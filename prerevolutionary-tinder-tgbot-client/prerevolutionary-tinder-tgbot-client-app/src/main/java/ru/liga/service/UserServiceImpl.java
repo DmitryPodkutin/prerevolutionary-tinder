@@ -8,6 +8,8 @@ import ru.liga.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
+import static ru.liga.utils.Base64EncoderDecoder.encode;
+
 @Component()
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -36,7 +38,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> createUser(User user) {
-        return Optional.of(userRepository.save(user));
+        if (user != null && user.getPassword() != null) {
+            final String base64EncodedPassword = encode(user.getPassword());
+            user.setPassword(base64EncodedPassword);
+            return Optional.of(userRepository.save(user));
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -44,7 +51,7 @@ public class UserServiceImpl implements UserService {
         return getUserById(userId)
                 .map(existingUser -> {
                     existingUser.setUserName(user.getUserName());
-                    existingUser.setPassword(user.getPassword());
+                    existingUser.setPassword(encode(user.getPassword()));
                     userRepository.save(existingUser);
                     return existingUser;
                 });
