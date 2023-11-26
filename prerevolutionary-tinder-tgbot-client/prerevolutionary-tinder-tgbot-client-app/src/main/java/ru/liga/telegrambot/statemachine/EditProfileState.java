@@ -3,6 +3,8 @@ package ru.liga.telegrambot.statemachine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.liga.repository.UserStateRepository;
+import ru.liga.service.UserService;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.model.StateType;
 
@@ -13,13 +15,23 @@ public class EditProfileState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
 
     @Autowired
-    public EditProfileState(ResourceBundle resourceBundle) {
-        super(StateType.EDIT_PROFILE);
+    public EditProfileState(ResourceBundle resourceBundle, UserService userService,
+                            UserStateRepository userStateRepository,
+                            MenuState menuState, EditProfileState editProfileState,
+                            ViewProfileState viewProfileState, SearchState searchState, FavoriteState favoriteState,
+                            CreateProfileState createProfileState) {
+        super(StateType.EDIT_PROFILE, userService, userStateRepository,
+                menuState,
+                viewProfileState,
+                editProfileState,
+                searchState,
+                favoriteState,
+                createProfileState);
         this.resourceBundle = resourceBundle;
     }
 
     @Override
-    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-        return null;
+    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        return;
     }
 }

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.liga.integration.service.RegistrationService;
+import ru.liga.repository.UserStateRepository;
+import ru.liga.service.UserService;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.model.StateType;
 import ru.liga.telegrambot.sender.TelegramMessageSender;
@@ -15,22 +17,24 @@ import java.util.ResourceBundle;
 public class RegistrationState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
     private final TelegramMessageSender telegramMessageSender;
-    private final CreateProfileState createProfileState;
     private final RegistrationService registrationService;
 
     @Autowired
     public RegistrationState(ResourceBundle resourceBundle,
-                             TelegramMessageSender telegramMessageSender,
-                             CreateProfileState createProfileState, RegistrationService registrationService) {
-        super(StateType.REGISTRATION);
+                             TelegramMessageSender telegramMessageSender, RegistrationService registrationService,
+                             UserService userService, UserStateRepository userStateRepository,
+                             MenuState menuState, EditProfileState editProfileState,
+                             ViewProfileState viewProfileState, SearchState searchState, FavoriteState favoriteState,
+                             CreateProfileState createProfileState) {
+        super(StateType.REGISTRATION, userService, userStateRepository,
+                menuState, viewProfileState, editProfileState, searchState, favoriteState, createProfileState);
         this.resourceBundle = resourceBundle;
         this.telegramMessageSender = telegramMessageSender;
-        this.createProfileState = createProfileState;
         this.registrationService = registrationService;
     }
 
     @Override
-    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         final Long chatId = update.getMessage().getChatId();
         final Long userTelegramId = update.getMessage().getFrom().getId();
         final String userInputMessage = update.getMessage().getText();
@@ -41,12 +45,11 @@ public class RegistrationState extends AbstractBotState {
                     userTelegramId,
                     userInputMessage);
             if (registerUserAndCheckFormatMessage == null || registerUserAndCheckFormatMessage.isEmpty()) {
-                createProfileState.handleInput(dialogHandler, update);
+                goToNextStep(StateType.CREATE_PROFILE, dialogHandler, update);
             } else {
                 handleInvalidFormatMessage(chatId, registerUserAndCheckFormatMessage);
             }
         }
-        return this;
     }
 
     private void handleStartCommand(Long chatId) {
