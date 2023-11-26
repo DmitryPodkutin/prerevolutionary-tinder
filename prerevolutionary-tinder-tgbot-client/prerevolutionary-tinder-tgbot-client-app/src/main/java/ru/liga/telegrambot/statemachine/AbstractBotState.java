@@ -1,6 +1,7 @@
 package ru.liga.telegrambot.statemachine;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.model.StateType;
 
@@ -32,6 +33,16 @@ public abstract class AbstractBotState implements BotState {
             chatId = update.getCallbackQuery().getMessage().getChatId();
         }
         return chatId;
+    }
+
+    public User getCurrentUser(Update update) {
+        final User currentUser;
+        if (nonNull(update.getMessage())) {
+            currentUser = update.getMessage().getFrom();
+        } else {
+            currentUser = update.getCallbackQuery().getFrom();
+        }
+        return currentUser;
     }
 
 //    protected void authenticateAndSetBotState(TelegramBotDialogHandler dialogHandler,

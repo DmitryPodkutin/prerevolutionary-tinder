@@ -5,17 +5,18 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.liga.config.AppConfig;
-import ru.liga.dto.converter.ProfileEntityToProfileDtoConverter;
+import ru.liga.dto.ProfileDto;
 import ru.liga.exception.CreatingProfileError;
 import ru.liga.model.Profile;
+import ru.liga.model.User;
 import ru.liga.service.ProfileService;
+import ru.liga.service.UserService;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.sender.MessageSender;
 
@@ -26,7 +27,6 @@ import java.util.ResourceBundle;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static ru.liga.telegrambot.model.StateType.CREATE_PROFILE;
-import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
 
 @Component
 public class CreateProfileState extends AbstractBotState {
@@ -42,20 +42,25 @@ public class CreateProfileState extends AbstractBotState {
     private final ProfileService profileService;
     private final ResourceBundle resourceBundle;
     private final AppConfig appConfig;
-    private final ProfileEntityToProfileDtoConverter converter;
+    private final ViewProfileState viewProfileState;
+    private final ConversionService customConversionService;
+    private final UserService userService;
 
     @Autowired
     public CreateProfileState(RestTemplate restTemplate,
                               MessageSender messageSender,
                               ProfileService profileService, ResourceBundle resourceBundle,
-                              AppConfig appConfig, ProfileEntityToProfileDtoConverter converter) {
+                              AppConfig appConfig, ViewProfileState viewProfileState,
+                              ConversionService customConversionService, UserService userService) {
         super(CREATE_PROFILE);
         this.restTemplate = restTemplate;
         this.messageSender = messageSender;
         this.profileService = profileService;
         this.resourceBundle = resourceBundle;
         this.appConfig = appConfig;
-        this.converter = converter;
+        this.viewProfileState = viewProfileState;
+        this.customConversionService = customConversionService;
+        this.userService = userService;
     }
 
     @Override
@@ -85,8 +90,8 @@ public class CreateProfileState extends AbstractBotState {
                 return this;
             }
         }
-        createProfile(dialogHandler, update, chatId, profile);
-        return this;
+        createProfile(dialogHandler, update, chatId, customConversionService.convert(profile, ProfileDto.class));
+        return viewProfileState;
     }
 
     @Nullable
@@ -146,19 +151,22 @@ public class CreateProfileState extends AbstractBotState {
         }
     }
 
-    private void createProfile(TelegramBotDialogHandler dialogHandler, Update update, Long chatId, Profile profile) {
+    private void createProfile(TelegramBotDialogHandler dialogHandler, Update update, Long chatId,
+                               ProfileDto profileDto) {
         try {
-            final ResponseEntity<Void> response = restTemplate.exchange(
+            final User user = userService.getUserByTelegramId(update.getCallbackQuery().getFrom().getId())
+                    .orElseThrow(EntityNotFoundException::new);
+
+            final HttpHeaders headers = new HttpHeaders();
+            headers.setBasicAuth(user.getUserName(), user.getPassword());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            final HttpEntity<ProfileDto> requestEntity = new HttpEntity<>(profileDto, headers);
+            ResponseEntity<Void> response = restTemplate.exchange(
                     appConfig.getProfileUrl(),
                     HttpMethod.POST,
-                    new HttpEntity<>(converter.convert(profile)),
+                    requestEntity,
                     Void.class
             );
-            if (response.getStatusCode().is2xxSuccessful()) {
-                dialogHandler.setBotState(chatId, VIEW_PROFILE, update); // Установка следующего состояния
-            } else {
-                LOGGER.error("Error creating profile. Status code: {}", response.getStatusCodeValue());
-            }
         } catch (Exception e) {
             LOGGER.error("Error while creating profile: {}", e.getMessage());
         }
@@ -179,7 +187,7 @@ public class CreateProfileState extends AbstractBotState {
         if (messageText.equals(MALE_BOTTOM) ||
                 messageText.equals(FEMALE_BOTTOM) ||
                 messageText.equals(ALL_GENDER_BOTTOM)) {
-            profile.setLookingFor(messageText);
+            profile.setLookingFor(resourceBundle.getString(messageText));
             return profile;
         } else {
             throw new CreatingProfileError("Wrong choice of looking for.");

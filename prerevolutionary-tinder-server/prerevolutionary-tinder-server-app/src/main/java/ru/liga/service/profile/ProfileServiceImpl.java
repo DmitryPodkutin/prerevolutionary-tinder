@@ -14,6 +14,7 @@ import ru.liga.exception.SeekingForNotFoundException;
 import ru.liga.model.AuthorizedUser;
 import ru.liga.model.Profile;
 import ru.liga.repository.ProfileRepository;
+import ru.liga.repository.UserRepository;
 import ru.liga.service.user.AuthenticationContext;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ public class ProfileServiceImpl implements ProfileService {
     private final ProfileRepository profileRepository;
     private final AuthenticationContext authenticationContext;
     private final ProfileEntityToMatchingProfileDTOConverter entityToMatchingProfileDTOConverter;
+    private final UserRepository userRepository;
 
     @Override
     public List<MatchingProfileDTO> getAllMatchingProfiles() {
@@ -63,6 +65,8 @@ public class ProfileServiceImpl implements ProfileService {
         profile.setDescriptionHeader(profileSaveDTO.getDescriptionHeader());
         profile.setDescription(profileSaveDTO.getDescription());
         profile.setSeeking(convertToSeekingFor(profileSaveDTO.getSeekingFor()));
+        profile.setUser(userRepository.findById(authenticationContext.getCurrentUserId())
+                .orElseThrow(() -> new EntityNotFoundException(authenticationContext.getCurrentUserId())));
         profileRepository.save(profile);
         return profile;
     }

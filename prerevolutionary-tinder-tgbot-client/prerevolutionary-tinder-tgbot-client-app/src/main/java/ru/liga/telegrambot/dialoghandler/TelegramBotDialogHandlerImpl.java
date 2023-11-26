@@ -25,7 +25,7 @@ public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
     public void handleUpdate(Update update) {
         final Long chatId = getChatId(update);
         final StateType currentStateType;
-        final User telegramUser = update.getMessage().getFrom();
+        final User telegramUser = getCurrentUser(update);
         final Optional<ru.liga.model.User> userByTelegramId = userService.getUserByTelegramId(telegramUser.getId());
         if (userByTelegramId.isEmpty()) {
             currentStateType = StateType.REGISTRATION;
@@ -43,7 +43,15 @@ public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
 //        }
 
 
-    private static Long getChatId(Update update) {
+
+
+    @Override
+    public void setBotState(Long chatId, StateType newState, Update update) {
+        usersBotStates.put(chatId, newState);
+        handleUpdate(update);
+    }
+
+    private Long getChatId(Update update) {
         final Long chatId;
         if (nonNull(update.getMessage())) {
             chatId = update.getMessage().getChatId();
@@ -53,10 +61,13 @@ public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
         return chatId;
     }
 
-
-    @Override
-    public void setBotState(Long chatId, StateType newState, Update update) {
-        usersBotStates.put(chatId, newState);
-        handleUpdate(update);
+    private User getCurrentUser(Update update) {
+        final User currentUser;
+        if (nonNull(update.getMessage())) {
+            currentUser = update.getMessage().getFrom();
+        } else {
+            currentUser = update.getCallbackQuery().getFrom();
+        }
+        return currentUser;
     }
 }
