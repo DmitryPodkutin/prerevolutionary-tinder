@@ -47,6 +47,10 @@ public class RestClientConfig {
         return properties.getProperty("register.service.url");
     }
 
+    public String getProfileServiceUrl() {
+        return properties.getProperty("profile.service.url");
+    }
+
     @Bean
     public ServiceUser serviceUser() {
         return new ServiceUser(properties.getProperty("service.user.name"),
