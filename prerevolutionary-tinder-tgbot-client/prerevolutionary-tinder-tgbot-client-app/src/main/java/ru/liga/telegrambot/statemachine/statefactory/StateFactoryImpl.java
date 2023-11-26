@@ -5,6 +5,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.liga.config.AppConfig;
+import ru.liga.repository.UserStateRepository;
 import ru.liga.service.ProfileService;
 import ru.liga.service.UserService;
 import ru.liga.telegrambot.model.StateType;
@@ -33,6 +34,7 @@ public class StateFactoryImpl implements StateFactory {
     private final RegistrationState registrationState;
     private final ViewProfileState viewProfileState;
     private final UserService userService;
+    private final UserStateRepository userStateRepository;
 
     @Override
     public BotState createState(StateType stateType) {
@@ -43,7 +45,8 @@ public class StateFactoryImpl implements StateFactory {
                 return new ViewProfileState(resourceBundle, telegramMessageSender);
             case CREATE_PROFILE:
                 return new CreateProfileState(restTemplate, messageSender, profileService,
-                        resourceBundle, appConfig, viewProfileState, customConversionService, userService);
+                        resourceBundle, appConfig, viewProfileState, customConversionService,
+                        userService, userStateRepository);
             case EDIT_PROFILE:
                 return new EditProfileState(resourceBundle);
             case MENU:

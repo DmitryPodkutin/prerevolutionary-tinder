@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -15,6 +17,8 @@ import ru.liga.dto.ProfileDto;
 import ru.liga.exception.CreatingProfileError;
 import ru.liga.model.Profile;
 import ru.liga.model.User;
+import ru.liga.model.UserState;
+import ru.liga.repository.UserStateRepository;
 import ru.liga.service.ProfileService;
 import ru.liga.service.UserService;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
@@ -27,6 +31,7 @@ import java.util.ResourceBundle;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static ru.liga.telegrambot.model.StateType.CREATE_PROFILE;
+import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
 
 @Component
 public class CreateProfileState extends AbstractBotState {
@@ -45,13 +50,15 @@ public class CreateProfileState extends AbstractBotState {
     private final ViewProfileState viewProfileState;
     private final ConversionService customConversionService;
     private final UserService userService;
+    private final UserStateRepository userStateRepository;
 
     @Autowired
     public CreateProfileState(RestTemplate restTemplate,
                               MessageSender messageSender,
                               ProfileService profileService, ResourceBundle resourceBundle,
                               AppConfig appConfig, ViewProfileState viewProfileState,
-                              ConversionService customConversionService, UserService userService) {
+                              ConversionService customConversionService, UserService userService,
+                              UserStateRepository userStateRepository) {
         super(CREATE_PROFILE);
         this.restTemplate = restTemplate;
         this.messageSender = messageSender;
@@ -61,6 +68,7 @@ public class CreateProfileState extends AbstractBotState {
         this.viewProfileState = viewProfileState;
         this.customConversionService = customConversionService;
         this.userService = userService;
+        this.userStateRepository = userStateRepository;
     }
 
     @Override
@@ -158,15 +166,14 @@ public class CreateProfileState extends AbstractBotState {
                     .orElseThrow(EntityNotFoundException::new);
 
             final HttpHeaders headers = new HttpHeaders();
-            headers.setBasicAuth(user.getUserName(), user.getPassword());
+            headers.setBasicAuth(user.getUserName(), "password");
             headers.setContentType(MediaType.APPLICATION_JSON);
             final HttpEntity<ProfileDto> requestEntity = new HttpEntity<>(profileDto, headers);
-            ResponseEntity<Void> response = restTemplate.exchange(
-                    appConfig.getProfileUrl(),
-                    HttpMethod.POST,
-                    requestEntity,
-                    Void.class
-            );
+            restTemplate.postForEntity(appConfig.getProfileUrl(), requestEntity, ProfileDto.class);
+            final UserState userState = userStateRepository.findByUserId(user.getId())
+                    .orElseThrow(EntityNotFoundException::new);
+            userState.setStateType(VIEW_PROFILE);
+            userStateRepository.save(userState);
         } catch (Exception e) {
             LOGGER.error("Error while creating profile: {}", e.getMessage());
         }
