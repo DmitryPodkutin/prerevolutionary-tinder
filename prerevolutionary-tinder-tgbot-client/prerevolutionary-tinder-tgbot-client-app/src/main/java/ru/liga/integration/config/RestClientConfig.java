@@ -1,25 +1,26 @@
-package ru.liga.config;
+package ru.liga.integration.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+import ru.liga.model.ServiceUser;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 @Configuration
-public class AppConfig {
+public class RestClientConfig {
 
-    private static final AppConfig INSTANCE = new AppConfig();
-    private final String propertiesPath = "application.properties";
-    private final Logger logger = LoggerFactory.getLogger(AppConfig.class);
+    private static final RestClientConfig INSTANCE = new RestClientConfig();
+    private final Logger logger = LoggerFactory.getLogger(RestClientConfig.class);
     private final Properties properties = new Properties();
 
-    public AppConfig() {
+    public RestClientConfig() {
+        final String propertiesPath = "application.properties";
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(propertiesPath)) {
             if (input != null) {
                 properties.load(input);
@@ -31,28 +32,25 @@ public class AppConfig {
         }
     }
 
-    public static AppConfig getInstance() {
+    public static RestClientConfig getInstance() {
         return INSTANCE;
     }
 
-    public String getBotToken() {
-        return System.getenv("TELEGRAM_BOT_TOKEN");
+    @Bean
+    public RestTemplate restTemplate() {
+        final RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        return restTemplate;
     }
 
-    public String getBotUserName() {
-        return System.getenv("TELEGRAM_BOT_USERNAME");
+    public String getRegisterServiceUrl() {
+        return properties.getProperty("register.service.url");
     }
 
-    public String getLocale() {
-        return properties.getProperty("locale");
-    }
-
-    public String getTgBotApiUrl() {
-        return properties.getProperty("tgbot.api.url");
-    }
-
-    public String getProfileUrl() {
-        return properties.getProperty("profile.endpoint.url");
+    @Bean
+    public ServiceUser serviceUser() {
+        return new ServiceUser(properties.getProperty("service.user.name"),
+                properties.getProperty("service.user.password"));
     }
 
     private void handlePropertiesLoadFailure(String path) {
@@ -69,10 +67,5 @@ public class AppConfig {
 
     private String getPropertiesPathErrorMessage() {
         return "Failed to load application properties from ";
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

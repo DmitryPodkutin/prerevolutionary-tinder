@@ -1,34 +1,26 @@
-package ru.liga.service;
+package ru.liga.integration.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-import ru.liga.config.AppConfig;
 import ru.liga.dto.UserDto;
-import ru.liga.model.ServiceUser;
+import ru.liga.integration.api.AuthApi;
 import ru.liga.model.User;
 import ru.liga.model.UserState;
+import ru.liga.service.CredentialsValidator;
+import ru.liga.service.UserService;
 import ru.liga.telegrambot.model.StateType;
-
-import java.util.ResourceBundle;
 
 @Service
 @AllArgsConstructor
-public class RegistrationService {
-    private final AppConfig appConfig;
-    private final ResourceBundle resourceBundle;
-    private final ServiceUser serviceUser;
+public class RegistrationServiceImpl implements RegistrationService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final CredentialsValidator credentialsValidator;
-    private final RestTemplate restTemplate;
+    private final AuthApi authApi;
 
+    @Override
     @Transactional
     public String registerUser(Long telegramId, String credentials) {
         final String[] credentialsParts = credentials.split(":");
@@ -40,7 +32,7 @@ public class RegistrationService {
             userDto.setTelegramId(telegramId);
             userDto.setUserName(userName);
             userDto.setPassword(password);
-            final String remoteRegisterMessage = remoteRegister(userDto);
+            final String remoteRegisterMessage = authApi.remoteRegister(userDto);
             if ("OK".equals(remoteRegisterMessage)) {
                 userService.createUser(new User(telegramId, userName, password,
                         new UserState(StateType.CREATE_PROFILE)));
@@ -49,19 +41,5 @@ public class RegistrationService {
             }
         }
         return validateMessage;
-    }
-
-    public String remoteRegister(UserDto userDto) {
-        try {
-            final HttpHeaders headers = new HttpHeaders();
-            headers.setBasicAuth(serviceUser.getUserName(), serviceUser.getPassword());
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            final HttpEntity<UserDto> requestEntity = new HttpEntity<>(userDto, headers);
-            restTemplate.postForEntity(appConfig.getRegisterServiceUrl(), requestEntity, UserDto.class);
-            return HttpStatus.OK.name();
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-            return resourceBundle.getString("registration.remote.service.error");
-        }
     }
 }

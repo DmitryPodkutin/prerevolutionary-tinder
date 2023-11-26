@@ -3,7 +3,7 @@ package ru.liga.telegrambot.statemachine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.liga.service.RegistrationService;
+import ru.liga.integration.service.RegistrationService;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.model.StateType;
 import ru.liga.telegrambot.sender.TelegramMessageSender;
@@ -40,7 +40,7 @@ public class RegistrationState extends AbstractBotState {
             final String registerUserAndCheckFormatMessage = tryRegisterUserAndCheckFormat(
                     userTelegramId,
                     userInputMessage);
-            if (registerUserAndCheckFormatMessage.isEmpty()) {
+            if (registerUserAndCheckFormatMessage == null || registerUserAndCheckFormatMessage.isEmpty()) {
                 return createProfileState;
             } else {
                 handleInvalidFormatMessage(chatId, registerUserAndCheckFormatMessage);
