@@ -27,7 +27,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         final String validateMessage = credentialsValidator.validate(credentialsParts);
         if (validateMessage == null) {
             final String userName = credentialsParts[0];
-            final String password = passwordEncoder.encode(credentialsParts[1]);
+            final String password = credentialsParts[1];
             final UserDto userDto = new UserDto();
             userDto.setTelegramId(telegramId);
             userDto.setUserName(userName);

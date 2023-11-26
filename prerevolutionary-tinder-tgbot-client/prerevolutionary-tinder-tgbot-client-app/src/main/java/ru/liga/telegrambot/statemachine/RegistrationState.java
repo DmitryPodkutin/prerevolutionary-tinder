@@ -41,7 +41,7 @@ public class RegistrationState extends AbstractBotState {
                     userTelegramId,
                     userInputMessage);
             if (registerUserAndCheckFormatMessage == null || registerUserAndCheckFormatMessage.isEmpty()) {
-                return createProfileState;
+                createProfileState.handleInput(dialogHandler, update);
             } else {
                 handleInvalidFormatMessage(chatId, registerUserAndCheckFormatMessage);
             }

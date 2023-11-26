@@ -1,6 +1,9 @@
 package ru.liga.model;
 
-import lombok.Data;
+
+
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,8 +15,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 
-@Data
 @Entity
+@Getter
+@Setter
 @Table(name = "\"user\"")
 public class User implements Serializable {
     @Id
@@ -40,4 +44,12 @@ public class User implements Serializable {
         userState.setUser(this);
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", telegramId=" + telegramId +
+                ", userName='" + userName + '\'' +
+                '}';
+    }
 }

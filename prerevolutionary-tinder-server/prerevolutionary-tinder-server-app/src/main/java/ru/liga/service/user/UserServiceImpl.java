@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
-
     private final ProfileService profileService;
 
     @Override

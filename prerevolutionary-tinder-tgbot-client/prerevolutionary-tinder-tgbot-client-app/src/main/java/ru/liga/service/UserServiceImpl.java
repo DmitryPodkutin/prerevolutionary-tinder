@@ -7,7 +7,9 @@ import ru.liga.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static ru.liga.utils.Base64EncoderDecoder.decode;
 import static ru.liga.utils.Base64EncoderDecoder.encode;
 
 @Component()
@@ -18,30 +20,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll().stream().peek(this::decodePassword).collect(Collectors.toList());
     }
 
     @Override
     public Optional<User> getUserById(Long userId) {
-        return userRepository.findById(userId);
+        return userRepository.findById(userId).map(this::decodePassword);
     }
 
     @Override
     public Optional<User> getUserByTelegramId(Long telegramId) {
-        return userRepository.findByTelegramId(telegramId);
+        return userRepository.findByTelegramId(telegramId).map(this::decodePassword);
     }
 
     @Override
     public Optional<User> getUserByName(String userName) {
-        return userRepository.findByUserName(userName);
+        return userRepository.findByUserName(userName).map(this::decodePassword);
     }
 
     @Override
     public Optional<User> createUser(User user) {
         if (user != null && user.getPassword() != null) {
-            final String base64EncodedPassword = encode(user.getPassword());
-            user.setPassword(base64EncodedPassword);
-            return Optional.of(userRepository.save(user));
+            return Optional.of(userRepository.save(encodePassword(user)));
         }
         return Optional.empty();
     }
@@ -51,8 +51,7 @@ public class UserServiceImpl implements UserService {
         return getUserById(userId)
                 .map(existingUser -> {
                     existingUser.setUserName(user.getUserName());
-                    existingUser.setPassword(encode(user.getPassword()));
-                    userRepository.save(existingUser);
+                    userRepository.save(encodePassword(existingUser));
                     return existingUser;
                 });
     }
@@ -64,5 +63,17 @@ public class UserServiceImpl implements UserService {
                     userRepository.deleteById(userId);
                     return true;
                 }).orElse(false);
+    }
+
+    private User encodePassword(User user) {
+        final String encodePassword = encode(user.getPassword());
+        user.setPassword(encodePassword);
+        return user;
+    }
+
+    private User decodePassword(User user) {
+        final String decodePassword = decode(user.getPassword());
+        user.setPassword(decodePassword);
+        return user;
     }
 }

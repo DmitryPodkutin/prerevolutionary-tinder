@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.liga.dto.UserSaveDTO;
 import ru.liga.model.User;
 import ru.liga.service.user.UserService;
+import ru.liga.utils.CustomPasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final CustomPasswordEncoder customPasswordEncoder;
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
@@ -46,16 +48,16 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        return userService.createUser(user)
+        return userService.createUser(customPasswordEncoder.encodePassword(user))
                 .map(createdUser -> new ResponseEntity<>(createdUser, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody UserSaveDTO userSaveDTO) {
-        final Optional<User> registeredUser = userService.registration(userSaveDTO);
-        return registeredUser.map(
-                value -> new ResponseEntity<>(value, HttpStatus.CREATED))
+        final Optional<User> registeredUser = userService.registration(
+                customPasswordEncoder.encodePassword(userSaveDTO));
+        return registeredUser.map(value -> new ResponseEntity<>(value, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
