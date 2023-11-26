@@ -32,6 +32,8 @@ public class User implements Serializable {
     private String password;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserState userState;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MatchingProfilesPageInfo userPageInfo;
 
     public User() {
     }
