@@ -8,6 +8,6 @@ public interface ProfileClientService {
 
     ProfileDto findMatchingProfiles(Long telegramId);
     void createProfile(ProfileDto profileDto, User user);
-    ResponseEntity<String> getProfile(User user);
+    ResponseEntity<ProfileDto> getProfile(User user);
 
 }

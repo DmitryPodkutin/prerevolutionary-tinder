@@ -11,17 +11,8 @@ import ru.liga.telegrambot.model.StateType;
 @Slf4j
 @Component
 public class FavoriteState extends AbstractBotState {
-    public FavoriteState(UserService userService, UserStateRepository userStateRepository,
-                         MenuState menuState, EditProfileState editProfileState,
-                         ViewProfileState viewProfileState, SearchState searchState, FavoriteState favoriteState,
-                         CreateProfileState createProfileState) {
-        super(StateType.FAVORITES, userService, userStateRepository,
-                menuState,
-                viewProfileState,
-                editProfileState,
-                searchState,
-                favoriteState,
-                createProfileState);
+    public FavoriteState(UserService userService, UserStateRepository userStateRepository) {
+        super(StateType.FAVORITES, userService, userStateRepository);
     }
 
     @Override

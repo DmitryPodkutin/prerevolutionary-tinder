@@ -16,17 +16,8 @@ public class EditProfileState extends AbstractBotState {
 
     @Autowired
     public EditProfileState(ResourceBundle resourceBundle, UserService userService,
-                            UserStateRepository userStateRepository,
-                            MenuState menuState, EditProfileState editProfileState,
-                            ViewProfileState viewProfileState, SearchState searchState, FavoriteState favoriteState,
-                            CreateProfileState createProfileState) {
-        super(StateType.EDIT_PROFILE, userService, userStateRepository,
-                menuState,
-                viewProfileState,
-                editProfileState,
-                searchState,
-                favoriteState,
-                createProfileState);
+                            UserStateRepository userStateRepository) {
+        super(StateType.EDIT_PROFILE, userService, userStateRepository);
         this.resourceBundle = resourceBundle;
     }
 

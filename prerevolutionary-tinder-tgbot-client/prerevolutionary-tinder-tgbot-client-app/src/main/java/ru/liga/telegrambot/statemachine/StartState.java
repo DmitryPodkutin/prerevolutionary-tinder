@@ -23,17 +23,8 @@ public class StartState extends AbstractBotState {
     @Autowired
     public StartState(RestTemplate restTemplate,
                       MessageSender messageSender,
-                      AppConfig appConfig, UserService userService, UserStateRepository userStateRepository,
-                      MenuState menuState, EditProfileState editProfileState,
-                      ViewProfileState viewProfileState, SearchState searchState, FavoriteState favoriteState,
-                      CreateProfileState createProfileState) {
-        super(StateType.FAVORITES, userService, userStateRepository,
-                menuState,
-                viewProfileState,
-                editProfileState,
-                searchState,
-                favoriteState,
-                createProfileState);
+                      AppConfig appConfig, UserService userService, UserStateRepository userStateRepository) {
+        super(StateType.FAVORITES, userService, userStateRepository);
         this.restTemplate = restTemplate;
         this.messageSender = messageSender;
         this.appConfig = appConfig;

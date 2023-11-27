@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.liga.dto.ProfileDto;
 import ru.liga.integration.service.ProfileClientService;
 import ru.liga.model.User;
 import ru.liga.repository.UserStateRepository;
@@ -25,24 +26,16 @@ public class ViewProfileState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
     private final TelegramMessageSender telegramMessageSender;
     private final MessageSender messageSender;
-    private final EditProfileState editProfileState;
-    private final MenuState menuState;
     private final ProfileClientService profileClientService;
 
     @Autowired
     public ViewProfileState(ResourceBundle resourceBundle, TelegramMessageSender telegramMessageSender,
                             MessageSender messageSender, UserService userService,
-                            UserStateRepository userStateRepository, ProfileClientService profileClientService,
-                            MenuState menuState, EditProfileState editProfileState, ViewProfileState viewProfileState,
-                            SearchState searchState, FavoriteState favoriteState,
-                            CreateProfileState createProfileState) {
-        super(StateType.FAVORITES, userService, userStateRepository, menuState, viewProfileState,
-                editProfileState, searchState, favoriteState, createProfileState);
+                            UserStateRepository userStateRepository, ProfileClientService profileClientService) {
+        super(StateType.FAVORITES, userService, userStateRepository);
         this.resourceBundle = resourceBundle;
         this.telegramMessageSender = telegramMessageSender;
         this.messageSender = messageSender;
-        this.editProfileState = editProfileState;
-        this.menuState = menuState;
         this.profileClientService = profileClientService;
     }
 
@@ -50,10 +43,10 @@ public class ViewProfileState extends AbstractBotState {
     public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         final String userInput = getUserMessage(update);
         final User user = getUserByTelegramId(update);
-        if (resourceBundle.getString("edit.profile.bottom").equals(userInput)) {
+        if ("edit.profile.bottom".equals(userInput)) {
             changeUserState(user, EDIT_PROFILE);
             goToNextStep(EDIT_PROFILE, dialogHandler, update);
-        } else if (resourceBundle.getString("menu.bottom").equals(userInput)) {
+        } else if ("menu.bottom".equals(userInput)) {
             changeUserState(user, MENU);
             goToNextStep(MENU, dialogHandler, update);
         } else {
@@ -63,9 +56,9 @@ public class ViewProfileState extends AbstractBotState {
     }
 
     public void getProfile(Update update) {
-        final ResponseEntity<String> profileResponse = profileClientService.getProfile(getUserByTelegramId(update));
+        final ResponseEntity<ProfileDto> profileResponse = profileClientService.getProfile(getUserByTelegramId(update));
         if (profileResponse.getStatusCode().is2xxSuccessful()) {
-            final String profileMessage = profileResponse.getBody();
+            final String profileMessage = profileResponse.getBody().toString();
             messageSender.sendMessage(getChatId(update), profileMessage);
         } else {
             log.error("Profile response not successful. Status code: {}", profileResponse.getStatusCodeValue());

@@ -13,7 +13,6 @@ import ru.liga.telegrambot.sender.TelegramMessageSender;
 import java.util.ResourceBundle;
 
 @Component
-
 public class RegistrationState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
     private final TelegramMessageSender telegramMessageSender;
@@ -26,8 +25,7 @@ public class RegistrationState extends AbstractBotState {
                              MenuState menuState, EditProfileState editProfileState,
                              ViewProfileState viewProfileState, SearchState searchState, FavoriteState favoriteState,
                              CreateProfileState createProfileState) {
-        super(StateType.REGISTRATION, userService, userStateRepository,
-                menuState, viewProfileState, editProfileState, searchState, favoriteState, createProfileState);
+        super(StateType.REGISTRATION, userService, userStateRepository);
         this.resourceBundle = resourceBundle;
         this.telegramMessageSender = telegramMessageSender;
         this.registrationService = registrationService;

@@ -30,6 +30,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
+import static java.util.Objects.nonNull;
+
 @Component
 public class TelegramMessageSender implements MessageSender {
 
@@ -100,9 +102,9 @@ public class TelegramMessageSender implements MessageSender {
 
     public void sendMessageWithKeyboard(Update update, String text, InlineKeyboardMarkup keyboard)  {
         final String apiUrl = appConfig.getTgBotApiUrl() + botToken + SEND_MESSAGE_ENDPOINT +
-                CHAT_ID_ENDPOINT + update.getMessage().getChatId().toString();
+                CHAT_ID_ENDPOINT + getChatId(update).toString();
         final SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(update.getMessage().getChatId().toString());
+        sendMessage.setChatId(getChatId(update).toString());
         sendMessage.setText(text);
         sendMessage.setReplyMarkup(keyboard);
 
@@ -195,5 +197,13 @@ public class TelegramMessageSender implements MessageSender {
     public void openLookingForKeyboard(Update update) {
         sendMessageWithKeyboard(update, resourceBundle.getString("choose.looking.for"),
                 telegramBotKeyboardFactory.createLookingForKeyboard());
+    }
+
+    private Long getChatId(Update update) {
+        if (nonNull(update.getCallbackQuery())) {
+            return update.getCallbackQuery().getMessage().getChatId();
+        } else {
+            return update.getMessage().getChatId();
+        }
     }
 }

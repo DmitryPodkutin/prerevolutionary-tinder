@@ -1,5 +1,7 @@
 package ru.liga.telegrambot.statemachine;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.liga.model.UserState;
 import ru.liga.repository.UserStateRepository;
@@ -17,26 +19,58 @@ public abstract class AbstractBotState implements BotState {
     private final StateType stateType;
     private final UserService userService;
     private final UserStateRepository userStateRepository;
-    private final MenuState menuState;
-    private final ViewProfileState viewProfileState;
-    private final EditProfileState editProfileState;
-    private final SearchState searchState;
-    private final FavoriteState favoriteState;
-    private final CreateProfileState createProfileState;
+    private  MenuState menuState;
+    private  ViewProfileState viewProfileState;
+    private  EditProfileState editProfileState;
+    private  SearchState searchState;
+    private  FavoriteState favoriteState;
+    private  CreateProfileState createProfileState;
 
 
     public AbstractBotState(StateType stateType, UserService userService, UserStateRepository
-            userStateRepository, MenuState menuState, ViewProfileState viewProfileState,
-                            EditProfileState editProfileState, SearchState searchState,
-                            FavoriteState favoriteState, CreateProfileState createProfileState) {
+            userStateRepository) {
         this.stateType = stateType;
         this.userService = userService;
         this.userStateRepository = userStateRepository;
+    }
+
+    @Autowired
+    @Lazy
+    public void setMenuState(MenuState menuState) {
         this.menuState = menuState;
+    }
+
+    @Autowired
+    @Lazy
+    public void setViewProfileState(ViewProfileState viewProfileState) {
         this.viewProfileState = viewProfileState;
+    }
+
+
+    @Autowired
+    @Lazy
+    public void setEditProfileState(EditProfileState editProfileState) {
         this.editProfileState = editProfileState;
+    }
+
+
+    @Autowired
+    @Lazy
+    public void setSearchState(SearchState searchState) {
         this.searchState = searchState;
+    }
+
+
+    @Autowired
+    @Lazy
+    public void setFavoriteState(FavoriteState favoriteState) {
         this.favoriteState = favoriteState;
+    }
+
+
+    @Autowired
+    @Lazy
+    public void setCreateProfileState(CreateProfileState createProfileState) {
         this.createProfileState = createProfileState;
     }
 
@@ -80,7 +114,7 @@ public abstract class AbstractBotState implements BotState {
 
     public String getUserMessage(Update update) {
         if (nonNull(update.getCallbackQuery())) {
-            return update.getCallbackQuery().getMessage().getText();
+            return update.getCallbackQuery().getData();
         } else {
             return update.getMessage().getText();
         }

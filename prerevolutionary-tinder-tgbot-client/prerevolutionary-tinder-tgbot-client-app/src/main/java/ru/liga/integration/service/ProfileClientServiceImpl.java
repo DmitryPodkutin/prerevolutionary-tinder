@@ -39,8 +39,8 @@ public class ProfileClientServiceImpl implements ProfileClientService {
     }
 
     @Override
-    public ResponseEntity<String> getProfile(User user) {
-        ResponseEntity<String> profileResponse = null;
+    public ResponseEntity<ProfileDto> getProfile(User user) {
+        ResponseEntity<ProfileDto> profileResponse = null;
         try {
             final HttpHeaders headers = new HttpHeaders();
             headers.setBasicAuth(user.getUserName(), user.getPassword());

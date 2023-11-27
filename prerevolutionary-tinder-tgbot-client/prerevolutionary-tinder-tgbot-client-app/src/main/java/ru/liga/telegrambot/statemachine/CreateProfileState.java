@@ -41,17 +41,8 @@ public class CreateProfileState extends AbstractBotState {
     public CreateProfileState(MessageSender messageSender,
                               ProfileService profileService, ResourceBundle resourceBundle,
                               ConversionService customConversionService, ProfileClientService profileClientService,
-                              UserService userService, UserStateRepository userStateRepository,
-                              MenuState menuState, EditProfileState editProfileState,
-                              ViewProfileState viewProfileState, SearchState searchState, FavoriteState favoriteState,
-                              CreateProfileState createProfileState) {
-        super(CREATE_PROFILE, userService, userStateRepository,
-                menuState,
-                viewProfileState,
-                editProfileState,
-                searchState,
-                favoriteState,
-                createProfileState);
+                              UserService userService, UserStateRepository userStateRepository) {
+        super(CREATE_PROFILE, userService, userStateRepository);
         this.messageSender = messageSender;
         this.profileService = profileService;
         this.resourceBundle = resourceBundle;

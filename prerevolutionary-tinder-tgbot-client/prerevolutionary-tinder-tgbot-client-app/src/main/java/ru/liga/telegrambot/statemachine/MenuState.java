@@ -22,27 +22,24 @@ public class MenuState extends AbstractBotState {
     private final MessageSender telegramMessageSender;
     @Autowired
     public MenuState(ResourceBundle resourceBundle, UserService userService, UserStateRepository userStateRepository,
-                     MessageSender telegramMessageSender,
-                     MenuState menuState, EditProfileState editProfileState,
-                     ViewProfileState viewProfileState, SearchState searchState, FavoriteState favoriteState,
-                     CreateProfileState createProfileState) {
-        super(StateType.MENU, userService, userStateRepository,
-                menuState, viewProfileState, editProfileState, searchState, favoriteState, createProfileState);
+                     MessageSender telegramMessageSender) {
+        super(StateType.MENU, userService, userStateRepository);
         this.resourceBundle = resourceBundle;
         this.telegramMessageSender = telegramMessageSender;
+
     }
 
     @Override
     public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         final String userInput = getUserMessage(update);
         final User user = getUserByTelegramId(update);
-        if (resourceBundle.getString("search.bottom").equals(userInput)) {
+        if ("search.bottom".equals(userInput)) {
             changeUserState(user, SEARCH);
             goToNextStep(SEARCH, dialogHandler, update);
-        } else if (resourceBundle.getString("view.profile.bottom").equals(userInput)) {
+        } else if ("view.profile.bottom".equals(userInput)) {
             changeUserState(user, VIEW_PROFILE);
             goToNextStep(VIEW_PROFILE, dialogHandler, update);
-        } else if (resourceBundle.getString("favorite.bottom").equals(userInput)) {
+        } else if ("favorite.bottom".equals(userInput)) {
             changeUserState(user, FAVORITES);
             goToNextStep(FAVORITES, dialogHandler, update);
         } else {
