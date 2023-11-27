@@ -22,7 +22,7 @@ public class EditProfileState extends AbstractBotState {
     }
 
     @Override
-    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-        return;
+    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        return this;
     }
 }

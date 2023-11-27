@@ -80,8 +80,8 @@ public abstract class AbstractBotState implements BotState {
     }
 
     @Override
-    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-        return;
+    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        return menuState;
     }
 
     public Long getChatId(Update update) {
@@ -120,23 +120,22 @@ public abstract class AbstractBotState implements BotState {
         }
     }
 
-    public void goToNextStep(StateType stateTypeToGo, TelegramBotDialogHandler
+    public BotState goToNextStep(StateType stateTypeToGo, TelegramBotDialogHandler
             telegramBotDialogHandler, Update update) {
-        switch (stateTypeToGo) {
-            case MENU:
-                menuState.handleInput(telegramBotDialogHandler, update);
+        final StateType stateTypeSwitch = stateTypeToGo;
+        switch (stateTypeSwitch) {
             case VIEW_PROFILE:
-                viewProfileState.handleInput(telegramBotDialogHandler, update);
+                return viewProfileState.handleInput(telegramBotDialogHandler, update);
             case EDIT_PROFILE:
-                editProfileState.handleInput(telegramBotDialogHandler, update);
+                return editProfileState.handleInput(telegramBotDialogHandler, update);
             case CREATE_PROFILE:
-                createProfileState.handleInput(telegramBotDialogHandler, update);
+                return createProfileState.handleInput(telegramBotDialogHandler, update);
             case SEARCH:
-                searchState.handleInput(telegramBotDialogHandler, update);
+                return searchState.handleInput(telegramBotDialogHandler, update);
             case FAVORITES:
-                favoriteState.handleInput(telegramBotDialogHandler, update);
+                return favoriteState.handleInput(telegramBotDialogHandler, update);
             default:
-                viewProfileState.handleInput(telegramBotDialogHandler, update);
+                return menuState.handleInput(telegramBotDialogHandler, update);
         }
     }
 }

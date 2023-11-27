@@ -12,6 +12,7 @@ import ru.liga.service.UserService;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.sender.MessageSender;
 
+import static ru.liga.telegrambot.model.StateType.MENU;
 import static ru.liga.telegrambot.model.StateType.SEARCH;
 
 @Slf4j
@@ -30,12 +31,17 @@ public class SearchState extends AbstractBotState {
     }
 
     @Override
-    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        if (getUserMessage(update).equals("menu.bottom")) {
+            changeUserState(getUserByTelegramId(update), MENU);
+            return goToNextStep(MENU, dialogHandler, update);
+        }
         final Long userTelegramId = getChatId(update);
         final User currentUser = getUserByTelegramId(update);
         final ProfileDto profileDto = profileClientService.findNextMatchingProfiles(userTelegramId,
                 currentUser).orElseThrow(() -> new RuntimeException(
                 String.format("MatchingProfiles fo userTelegramId %s not found ", userTelegramId)));
         messageSender.openSearchSwipeKeyboard(update, profileDto.toString());
+        return  this;
     }
 }

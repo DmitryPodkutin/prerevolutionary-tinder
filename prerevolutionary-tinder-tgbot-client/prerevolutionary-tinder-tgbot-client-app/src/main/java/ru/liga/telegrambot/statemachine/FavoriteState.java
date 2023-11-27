@@ -16,7 +16,7 @@ public class FavoriteState extends AbstractBotState {
     }
 
     @Override
-    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-
+    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        return this;
     }
 }

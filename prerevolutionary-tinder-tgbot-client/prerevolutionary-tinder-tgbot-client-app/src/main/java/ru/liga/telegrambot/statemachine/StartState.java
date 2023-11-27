@@ -32,7 +32,8 @@ public class StartState extends AbstractBotState {
 
 
     @Override
-    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        return this;
   /*      final Long chatId = update.getMessage().getChatId();
         final ResponseEntity<String> profileResponse;
         try {

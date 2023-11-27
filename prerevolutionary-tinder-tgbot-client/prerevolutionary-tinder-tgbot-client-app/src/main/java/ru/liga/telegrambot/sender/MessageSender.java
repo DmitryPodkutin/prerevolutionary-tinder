@@ -8,7 +8,7 @@ public interface MessageSender {
 
     void sendMessageWithKeyboard(Update update, String text, InlineKeyboardMarkup keyboard);
 
-    void openProfileViewKeyboard(Update update);
+    void openProfileViewKeyboard(Update update, String message);
 
     void openMenuKeyboard(Update update);
 

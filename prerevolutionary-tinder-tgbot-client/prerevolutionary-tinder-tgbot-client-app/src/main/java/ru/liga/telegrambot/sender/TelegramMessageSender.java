@@ -161,9 +161,10 @@ public class TelegramMessageSender implements MessageSender {
     }
 
 
-    public void openProfileViewKeyboard(Update update) {
+    @Override
+    public void openProfileViewKeyboard(Update update, String profileMessage) {
         sendMessageWithKeyboard(update,
-                resourceBundle.getString("view.profile.message"),
+                resourceBundle.getString("view.profile.message") + "/n"  + profileMessage,
                 telegramBotKeyboardFactory.createProfileViewKeyboard());
     }
 

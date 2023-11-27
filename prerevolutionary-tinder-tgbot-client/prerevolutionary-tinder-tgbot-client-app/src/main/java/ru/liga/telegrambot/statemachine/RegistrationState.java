@@ -32,7 +32,7 @@ public class RegistrationState extends AbstractBotState {
     }
 
     @Override
-    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         final Long chatId = update.getMessage().getChatId();
         final Long userTelegramId = update.getMessage().getFrom().getId();
         final String userInputMessage = update.getMessage().getText();
@@ -43,11 +43,13 @@ public class RegistrationState extends AbstractBotState {
                     userTelegramId,
                     userInputMessage);
             if (registerUserAndCheckFormatMessage == null || registerUserAndCheckFormatMessage.isEmpty()) {
-                goToNextStep(StateType.CREATE_PROFILE, dialogHandler, update);
+                return goToNextStep(StateType.CREATE_PROFILE, dialogHandler, update);
             } else {
                 handleInvalidFormatMessage(chatId, registerUserAndCheckFormatMessage);
+                return this;
             }
         }
+        return this;
     }
 
     private void handleStartCommand(Long chatId) {

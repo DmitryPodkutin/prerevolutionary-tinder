@@ -5,7 +5,7 @@ import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.model.StateType;
 
 public interface BotState {
-    void handleInput(TelegramBotDialogHandler dialogHandler, Update update);
+    BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update);
 
     StateType getStateType();
 }

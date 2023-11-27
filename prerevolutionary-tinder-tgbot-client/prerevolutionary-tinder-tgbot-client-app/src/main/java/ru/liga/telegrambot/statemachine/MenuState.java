@@ -20,6 +20,7 @@ import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
 public class MenuState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
     private final MessageSender telegramMessageSender;
+
     @Autowired
     public MenuState(ResourceBundle resourceBundle, UserService userService, UserStateRepository userStateRepository,
                      MessageSender telegramMessageSender) {
@@ -30,20 +31,20 @@ public class MenuState extends AbstractBotState {
     }
 
     @Override
-    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         final String userInput = getUserMessage(update);
         final User user = getUserByTelegramId(update);
         if ("search.bottom".equals(userInput)) {
             changeUserState(user, SEARCH);
-            goToNextStep(SEARCH, dialogHandler, update);
+            return goToNextStep(SEARCH, dialogHandler, update);
         } else if ("view.profile.bottom".equals(userInput)) {
             changeUserState(user, VIEW_PROFILE);
-            goToNextStep(VIEW_PROFILE, dialogHandler, update);
+            return goToNextStep(VIEW_PROFILE, dialogHandler, update);
         } else if ("favorite.bottom".equals(userInput)) {
             changeUserState(user, FAVORITES);
             goToNextStep(FAVORITES, dialogHandler, update);
-        } else {
-            telegramMessageSender.openMenuKeyboard(update);
         }
+        telegramMessageSender.openMenuKeyboard(update);
+        return this;
     }
 }

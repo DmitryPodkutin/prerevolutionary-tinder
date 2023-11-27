@@ -41,18 +41,18 @@ public class ViewProfileState extends AbstractBotState {
     }
 
     @Override
-    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         final String userInput = getUserMessage(update);
         final User user = getUserByTelegramId(update);
         if ("edit.profile.bottom".equals(userInput)) {
             changeUserState(user, EDIT_PROFILE);
-            goToNextStep(EDIT_PROFILE, dialogHandler, update);
+            return goToNextStep(EDIT_PROFILE, dialogHandler, update);
         } else if ("menu.bottom".equals(userInput)) {
             changeUserState(user, MENU);
-            goToNextStep(MENU, dialogHandler, update);
+            return goToNextStep(MENU, dialogHandler, update);
         } else {
             getProfile(update);
-            telegramMessageSender.openProfileViewKeyboard(update);
+            return this;
         }
     }
 
@@ -61,7 +61,7 @@ public class ViewProfileState extends AbstractBotState {
                 getUserByTelegramId(update));
         if (profileResponse.getStatusCode().is2xxSuccessful()) {
             final String profileMessage = Objects.requireNonNull(profileResponse.getBody()).toString();
-            messageSender.sendMessage(getChatId(update), profileMessage);
+            messageSender.openProfileViewKeyboard(update, profileMessage);
         } else {
             log.error("Profile response not successful. Status code: {}", profileResponse.getStatusCodeValue());
         }

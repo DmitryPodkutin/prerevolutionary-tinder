@@ -51,12 +51,12 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     @Override
-    public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+    public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         final Long chatId = getChatId(update);
         final Optional<Profile> profileOptional = profileService.getByChatId(chatId);
         if (profileOptional.isEmpty()) {
             if (Boolean.TRUE.equals(getProfileGender(update))) {
-                return;
+                return this;
             }
         }
 
@@ -64,17 +64,17 @@ public class CreateProfileState extends AbstractBotState {
 
         if (isNull(profile.getName()) || profile.getName().equals(EMPTY_STRING)) {
             if (Boolean.TRUE.equals(getProfileName(update, profile))) {
-                return;
+                return this;
             }
         }
         if (isNull(profile.getDescription()) || profile.getDescription().equals(EMPTY_STRING)) {
             if (Boolean.TRUE.equals(getProfileDescription(update, profile))) {
-                return;
+                return this;
             }
         }
         if (isNull(profile.getLookingFor()) || profile.getLookingFor().equals(EMPTY_STRING)) {
             if (Boolean.TRUE.equals(getProfileLookingFor(update, profile))) {
-                return;
+                return this;
             }
         }
 
@@ -82,7 +82,7 @@ public class CreateProfileState extends AbstractBotState {
         profileClientService.createProfile(customConversionService.convert(profile, ProfileDto.class),
                 user);
         changeUserState(user, VIEW_PROFILE);
-        goToNextStep(VIEW_PROFILE, dialogHandler, update);
+        return goToNextStep(VIEW_PROFILE, dialogHandler, update);
     }
 
     private Boolean getProfileLookingFor(Update update, Profile profile) {
