@@ -1,7 +1,6 @@
 package ru.liga.model;
 
 
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,17 +32,19 @@ public class User implements Serializable {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserState userState;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private MatchingProfilesPageInfo userPageInfo;
+    private PageInfo pageInfo;
 
     public User() {
     }
 
-    public User(Long telegramId, String userName, String password, UserState userState) {
+    public User(Long telegramId, String userName, String password, UserState userState, PageInfo pageInfo) {
         this.telegramId = telegramId;
         this.userName = userName;
         this.password = password;
         this.userState = userState;
         userState.setUser(this);
+        this.pageInfo = pageInfo;
+        pageInfo.setUser(this);
     }
 
     @Override

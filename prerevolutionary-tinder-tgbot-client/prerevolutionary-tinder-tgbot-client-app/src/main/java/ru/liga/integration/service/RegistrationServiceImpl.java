@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.liga.dto.UserDto;
 import ru.liga.integration.api.AuthApi;
+import ru.liga.model.PageInfo;
 import ru.liga.model.User;
 import ru.liga.model.UserState;
 import ru.liga.service.CredentialsValidator;
@@ -35,7 +36,8 @@ public class RegistrationServiceImpl implements RegistrationService {
             final String remoteRegisterMessage = authApi.remoteRegister(userDto);
             if ("OK".equals(remoteRegisterMessage)) {
                 userService.createUser(new User(telegramId, userName, password,
-                        new UserState(StateType.CREATE_PROFILE)));
+                        new UserState(StateType.CREATE_PROFILE),
+                        new PageInfo(0, 0)));
             } else {
                 return remoteRegisterMessage;
             }

@@ -21,7 +21,6 @@ import ru.liga.dto.ProfileDto;
 import ru.liga.dto.ProfileSaveDTO;
 import ru.liga.dto.filter.ProfileFilter;
 import ru.liga.service.profile.ProfileService;
-import ru.liga.service.user.UserService;
 
 @AllArgsConstructor
 @RestController
@@ -29,7 +28,6 @@ import ru.liga.service.user.UserService;
 @RequestMapping("/profile")
 public class ProfileController {
 
-    private final UserService userService;
     private final ProfileService profileService;
     private final ConversionService customConversionService;
 
@@ -71,7 +69,7 @@ public class ProfileController {
                                                                          @RequestParam() int size) {
         final Page<MatchingProfileDTO> matchingProfiles =
                 profileService.getAllMatchingProfiles(PageRequest.of(page, size));
-        if (!matchingProfiles.hasContent()) {
+        if (matchingProfiles.hasContent()) {
             return new ResponseEntity<>(matchingProfiles, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -1,16 +1,18 @@
 package ru.liga.integration.service;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.liga.config.AppConfig;
 import ru.liga.dto.ProfileDto;
+import ru.liga.integration.api.ProfileApi;
+import ru.liga.model.PageInfo;
+import ru.liga.model.User;
+import ru.liga.service.MatchingProfilesPageInfoService;
+
+import java.util.Optional;
 import ru.liga.model.User;
 
 @Slf4j
@@ -20,9 +22,31 @@ public class ProfileClientServiceImpl implements ProfileClientService {
     private final RestTemplate restTemplate;
     private final AppConfig appConfig;
 
+    private final ProfileApi profileApi;
+    private final MatchingProfilesPageInfoService matchingProfilesPageInfoService;
+
     @Override
-    public ProfileDto findMatchingProfiles(Long telegramId) {
-        return null;
+    public Optional<ProfileDto> findNextMatchingProfiles(Long telegramId, User user) {
+        final int currentPage = getCurrentPage(user);
+        final Page<ProfileDto> matchingProfiles = profileApi.findMatchingProfiles(
+                telegramId, currentPage, 1);
+        updateCurrentPageIfNeeded(user, matchingProfiles.isLast(), currentPage);
+        return matchingProfiles.getContent().stream().findFirst();
+    }
+
+    private int getCurrentPage(User user) {
+        return user.getPageInfo() == null ? 0 : user.getPageInfo().getSearchProfileCurrentPage();
+    }
+
+    private void updateCurrentPageIfNeeded(User user, boolean isLast, int currentPage) {
+        PageInfo pageInfo = user.getPageInfo();
+        if (pageInfo == null) {
+            pageInfo = new PageInfo();
+            pageInfo.setSearchProfileCurrentPage(currentPage);
+        } else {
+            pageInfo.setSearchProfileCurrentPage(isLast ? 0 : currentPage + 1);
+        }
+        matchingProfilesPageInfoService.save(pageInfo);
     }
 
     @Override

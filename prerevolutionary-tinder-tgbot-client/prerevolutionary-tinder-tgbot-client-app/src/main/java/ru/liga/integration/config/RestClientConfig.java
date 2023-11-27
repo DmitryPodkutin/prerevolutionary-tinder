@@ -36,6 +36,7 @@ public class RestClientConfig {
         return INSTANCE;
     }
 
+
     @Bean
     public RestTemplate restTemplate() {
         final RestTemplate restTemplate = new RestTemplate();

@@ -2,8 +2,10 @@ package ru.liga.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class ProfileDto {
     private Long id;
 

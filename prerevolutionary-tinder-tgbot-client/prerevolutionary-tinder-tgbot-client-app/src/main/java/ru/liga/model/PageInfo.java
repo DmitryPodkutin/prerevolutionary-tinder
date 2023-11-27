@@ -16,8 +16,8 @@ import javax.persistence.Table;
 @Entity
 @Getter
 @Setter
-@Table(name = "matching_profiles_page_info")
-public class MatchingProfilesPageInfo {
+@Table(name = "page_info")
+public class PageInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,18 @@ public class MatchingProfilesPageInfo {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "current_page")
-    private int currentPage;
+    @Column(name = "search_profile_current_page")
+    private int searchProfileCurrentPage;
 
+    @Column(name = "favorite_current_page")
+    private int favoriteCurrentPage;
+
+    public PageInfo() {
+    }
+
+    public PageInfo(int searchProfileCurrentPage, int favoriteCurrentPage) {
+        this.searchProfileCurrentPage = searchProfileCurrentPage;
+        this.favoriteCurrentPage = favoriteCurrentPage;
+    }
 }
+
