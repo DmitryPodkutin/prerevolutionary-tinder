@@ -9,6 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -33,6 +35,28 @@ public class ProfileApiImpl implements ProfileApi {
     private final UserService userService;
 
     @Override
+    public ResponseEntity<ProfileDto> getProfile(User user) {
+        try {
+            final HttpHeaders headers = new HttpHeaders();
+            headers.setBasicAuth(user.getUserName(), user.getPassword());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            return restTemplate.exchange(
+                    restClientConfig.getProfileServiceUrl(),
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    new ParameterizedTypeReference<>() {
+                    });
+        } catch (HttpClientErrorException.NotFound e) {
+            log.error("Profile not found for URL: {}", restClientConfig.getProfileServiceUrl());
+        } catch (HttpClientErrorException.BadRequest e) {
+            log.error("Bad request to profile service: {}", e.getMessage());
+        } catch (HttpClientErrorException.Unauthorized e) {
+            log.error("Unauthorized access to profile service: {}", e.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @Override
     public Page<ProfileDto> findMatchingProfiles(Long telegramId, int page, int size) {
         try {
             final Optional<User> currentUser = userService.getUserByTelegramId(telegramId);
@@ -42,7 +66,7 @@ public class ProfileApiImpl implements ProfileApi {
             final HttpHeaders headers = new HttpHeaders();
             currentUser.ifPresent(user -> headers.setBasicAuth(user.getUserName(), user.getPassword()));
             final UriComponentsBuilder builder = UriComponentsBuilder
-                    .fromUriString(restClientConfig.getProfileServiceUrl())
+                    .fromUriString(restClientConfig.getProfileMatchingServiceUrl())
                     .queryParam("page", page)
                     .queryParam("size", size);
             final ResponseEntity<CustomPageImpl<ProfileDto>> responseEntity = restTemplate.exchange(
@@ -59,6 +83,48 @@ public class ProfileApiImpl implements ProfileApi {
             log.error("Error during remote service call", e);
             return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
         }
+    }
+
+    @Override
+    public ResponseEntity<ProfileDto> createProfile(ProfileDto profileDto, User user) {
+        try {
+            final HttpHeaders headers = new HttpHeaders();
+            headers.setBasicAuth(user.getUserName(), user.getPassword());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            final HttpEntity<ProfileDto> requestEntity = new HttpEntity<>(profileDto, headers);
+            return restTemplate.postForEntity(
+                    restClientConfig.getProfileServiceUrl(), requestEntity, ProfileDto.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            log.error("Profile service URL to create not found: {}", e.getMessage());
+        } catch (HttpClientErrorException.BadRequest e) {
+            log.error("Bad request to profile create service: {}", e.getMessage());
+        } catch (HttpClientErrorException.Unauthorized e) {
+            log.error("Unauthorized access to profile create service: {}", e.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @Override
+    public ResponseEntity<ProfileDto> updateProfile(ProfileDto profileDto, User user) {
+        try {
+            final HttpHeaders headers = new HttpHeaders();
+            headers.setBasicAuth(user.getUserName(), user.getPassword());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            final HttpEntity<ProfileDto> requestEntity = new HttpEntity<>(profileDto, headers);
+            return restTemplate.exchange(
+                    restClientConfig.getProfileServiceUrl(),
+                    HttpMethod.PUT,
+                    requestEntity,
+                    ProfileDto.class
+            );
+        } catch (HttpClientErrorException.NotFound e) {
+            log.error("Profile service URL to update not found: {}", e.getMessage());
+        } catch (HttpClientErrorException.BadRequest e) {
+            log.error("Bad request to profile update service: {}", e.getMessage());
+        } catch (HttpClientErrorException.Unauthorized e) {
+            log.error("Unauthorized access to profile update service: {}", e.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 }
 

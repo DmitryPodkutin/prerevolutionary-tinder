@@ -15,6 +15,7 @@ import ru.liga.telegrambot.model.StateType;
 import ru.liga.telegrambot.sender.MessageSender;
 import ru.liga.telegrambot.sender.TelegramMessageSender;
 
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static ru.liga.telegrambot.model.StateType.EDIT_PROFILE;
@@ -56,9 +57,10 @@ public class ViewProfileState extends AbstractBotState {
     }
 
     public void getProfile(Update update) {
-        final ResponseEntity<ProfileDto> profileResponse = profileClientService.getProfile(getUserByTelegramId(update));
+        final ResponseEntity<ProfileDto> profileResponse = profileClientService.getProfile(
+                getUserByTelegramId(update));
         if (profileResponse.getStatusCode().is2xxSuccessful()) {
-            final String profileMessage = profileResponse.getBody().toString();
+            final String profileMessage = Objects.requireNonNull(profileResponse.getBody()).toString();
             messageSender.sendMessage(getChatId(update), profileMessage);
         } else {
             log.error("Profile response not successful. Status code: {}", profileResponse.getStatusCodeValue());

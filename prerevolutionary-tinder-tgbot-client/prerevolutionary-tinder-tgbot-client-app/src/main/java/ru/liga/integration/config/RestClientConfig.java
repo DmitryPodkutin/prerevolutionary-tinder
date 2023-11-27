@@ -48,6 +48,9 @@ public class RestClientConfig {
         return properties.getProperty("register.service.url");
     }
 
+    public String getProfileMatchingServiceUrl() {
+        return properties.getProperty("profile.matching.service.url");
+    }
     public String getProfileServiceUrl() {
         return properties.getProperty("profile.service.url");
     }

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.ProfileSaveDTO;
 import ru.liga.dto.converter.ProfileEntityToMatchingProfileDTOConverter;
-import ru.liga.dto.filter.ProfileFilter;
 import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
 import ru.liga.exception.EntityNotFoundException;
@@ -41,8 +40,8 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public Optional<Profile> getCurrent(ProfileFilter filter) {
-        return profileRepository.findByUserId(filter.getUserId());
+    public Optional<Profile> getCurrent() {
+        return profileRepository.findByUserId(authenticationContext.getCurrentUserId());
     }
 
     @Override

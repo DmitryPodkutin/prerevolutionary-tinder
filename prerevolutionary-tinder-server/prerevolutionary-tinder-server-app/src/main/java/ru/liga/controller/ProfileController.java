@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.ProfileDto;
 import ru.liga.dto.ProfileSaveDTO;
-import ru.liga.dto.filter.ProfileFilter;
 import ru.liga.service.profile.ProfileService;
 
 @AllArgsConstructor
@@ -32,8 +31,8 @@ public class ProfileController {
     private final ConversionService customConversionService;
 
     @GetMapping
-    public ResponseEntity<ProfileDto> getCurrent(ProfileFilter filter) {
-        return profileService.getCurrent(filter)
+    public ResponseEntity<ProfileDto> getCurrent() {
+        return profileService.getCurrent()
                 .map(profile -> new ResponseEntity<>(customConversionService.convert(
                         profile, ProfileDto.class),
                         HttpStatus.OK))
