@@ -10,22 +10,18 @@ import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.model.StateType;
 import ru.liga.telegrambot.sender.MessageSender;
 
-import java.util.ResourceBundle;
-
 import static ru.liga.telegrambot.model.StateType.FAVORITES;
 import static ru.liga.telegrambot.model.StateType.SEARCH;
 import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
 
 @Component
 public class MenuState extends AbstractBotState {
-    private final ResourceBundle resourceBundle;
     private final MessageSender telegramMessageSender;
 
     @Autowired
-    public MenuState(ResourceBundle resourceBundle, UserService userService, UserStateRepository userStateRepository,
+    public MenuState(UserService userService, UserStateRepository userStateRepository,
                      MessageSender telegramMessageSender) {
         super(StateType.MENU, userService, userStateRepository);
-        this.resourceBundle = resourceBundle;
         this.telegramMessageSender = telegramMessageSender;
 
     }

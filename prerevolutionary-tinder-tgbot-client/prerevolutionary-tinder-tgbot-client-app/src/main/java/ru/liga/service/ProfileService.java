@@ -10,4 +10,6 @@ public interface ProfileService {
     Optional<Profile> getProfileById(Long id);
 
     Optional<Profile> getByChatId(Long chatId);
+
+    void deleteTempProfile(Profile profile);
 }

@@ -105,14 +105,14 @@ public class ProfileApiImpl implements ProfileApi {
     }
 
     @Override
-    public ResponseEntity<ProfileDto> updateProfile(ProfileDto profileDto, User user) {
+    public ResponseEntity<ProfileDto> updateProfile(ProfileDto profileDto, User user, Long id) {
         try {
             final HttpHeaders headers = new HttpHeaders();
             headers.setBasicAuth(user.getUserName(), user.getPassword());
             headers.setContentType(MediaType.APPLICATION_JSON);
             final HttpEntity<ProfileDto> requestEntity = new HttpEntity<>(profileDto, headers);
             return restTemplate.exchange(
-                    restClientConfig.getProfileServiceUrl(),
+                    restClientConfig.getProfileServiceUrl() + "/" + id,
                     HttpMethod.PUT,
                     requestEntity,
                     ProfileDto.class

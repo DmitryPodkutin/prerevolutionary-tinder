@@ -9,6 +9,6 @@ public interface ProfileApi {
 
     Page<ProfileDto> findMatchingProfiles(Long telegramId, int page, int size);
     ResponseEntity<ProfileDto> createProfile(ProfileDto profileDto, User user);
-    ResponseEntity<ProfileDto> updateProfile(ProfileDto profileDto, User user);
+    ResponseEntity<ProfileDto> updateProfile(ProfileDto profileDto, User user, Long id);
     ResponseEntity<ProfileDto> getProfile(User user);
 }

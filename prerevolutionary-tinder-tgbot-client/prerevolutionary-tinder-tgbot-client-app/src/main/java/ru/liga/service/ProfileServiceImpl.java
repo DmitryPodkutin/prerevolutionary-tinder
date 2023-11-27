@@ -27,4 +27,9 @@ public class ProfileServiceImpl implements ProfileService {
     public Optional<Profile> getByChatId(Long chatId) {
         return profileRepository.findByChatId(chatId);
     }
+
+    @Override
+    public void deleteTempProfile(Profile profile) {
+        profileRepository.delete(profile);
+    }
 }

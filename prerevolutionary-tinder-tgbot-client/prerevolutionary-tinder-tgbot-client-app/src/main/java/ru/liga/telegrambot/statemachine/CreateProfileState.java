@@ -81,6 +81,7 @@ public class CreateProfileState extends AbstractBotState {
         final User user = getUserByTelegramId(update);
         profileClientService.createProfile(customConversionService.convert(profile, ProfileDto.class),
                 user);
+        profileService.deleteTempProfile(profile);
         changeUserState(user, VIEW_PROFILE);
         return goToNextStep(VIEW_PROFILE, dialogHandler, update);
     }
