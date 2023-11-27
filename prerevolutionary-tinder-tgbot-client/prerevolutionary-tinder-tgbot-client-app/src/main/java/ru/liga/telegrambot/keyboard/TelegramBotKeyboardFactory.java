@@ -4,8 +4,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 
 public interface TelegramBotKeyboardFactory {
     InlineKeyboardMarkup createProfileViewKeyboard();
+
     InlineKeyboardMarkup createMenuKeyboard();
+
     InlineKeyboardMarkup createSwipeKeyboard();
+
     InlineKeyboardMarkup createGreetingKeyboard();
+
     InlineKeyboardMarkup createLookingForKeyboard();
 }

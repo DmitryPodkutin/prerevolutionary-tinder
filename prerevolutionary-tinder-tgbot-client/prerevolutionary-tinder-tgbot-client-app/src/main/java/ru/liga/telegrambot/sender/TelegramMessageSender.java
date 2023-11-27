@@ -107,7 +107,6 @@ public class TelegramMessageSender implements MessageSender {
         sendMessage.setChatId(getChatId(update).toString());
         sendMessage.setText(text);
         sendMessage.setReplyMarkup(keyboard);
-
         final HttpPost request = createHttpPostRequest(apiUrl, sendMessage);
         try {
             sendHttpRequest(request);
@@ -175,8 +174,8 @@ public class TelegramMessageSender implements MessageSender {
     }
 
     @Override
-    public void openSearchSwipeKeyboard(Update update) {
-        sendMessageWithKeyboard(update, resourceBundle.getString("search.message"),
+    public void openSearchSwipeKeyboard(Update update, String message) {
+        sendMessageWithKeyboard(update, message,
                 telegramBotKeyboardFactory.createSwipeKeyboard());
     }
 

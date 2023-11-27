@@ -4,14 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.liga.dto.ProfileDto;
 import ru.liga.integration.service.ProfileClientServiceImpl;
 import ru.liga.model.User;
 import ru.liga.repository.UserStateRepository;
 import ru.liga.service.UserService;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.sender.MessageSender;
-
-import java.util.Optional;
 
 import static ru.liga.telegrambot.model.StateType.SEARCH;
 
@@ -20,7 +19,6 @@ import static ru.liga.telegrambot.model.StateType.SEARCH;
 public class SearchState extends AbstractBotState {
     private final ProfileClientServiceImpl profileClientService;
     private final MessageSender messageSender;
-
 
     @Autowired
     public SearchState(MessageSender messageSender,
@@ -33,12 +31,11 @@ public class SearchState extends AbstractBotState {
 
     @Override
     public void handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-        final Long userTelegramId = update.getMessage().getFrom().getId();
+        final Long userTelegramId = getChatId(update);
         final User currentUser = getUserByTelegramId(update);
-        messageSender.sendMessage(update.getMessage().getChatId(),
-                profileClientService.findNextMatchingProfiles(userTelegramId, currentUser)
-                        .get().toString());
+        final ProfileDto profileDto = profileClientService.findNextMatchingProfiles(userTelegramId,
+                currentUser).orElseThrow(() -> new RuntimeException(
+                String.format("MatchingProfiles fo userTelegramId %s not found ", userTelegramId)));
+        messageSender.openSearchSwipeKeyboard(update, profileDto.toString());
     }
-
-
 }

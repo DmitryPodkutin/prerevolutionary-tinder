@@ -1,7 +1,12 @@
 package ru.liga.integration.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -13,7 +18,6 @@ import ru.liga.model.User;
 import ru.liga.service.MatchingProfilesPageInfoService;
 
 import java.util.Optional;
-import ru.liga.model.User;
 
 @Slf4j
 @Service
@@ -28,8 +32,9 @@ public class ProfileClientServiceImpl implements ProfileClientService {
     @Override
     public Optional<ProfileDto> findNextMatchingProfiles(Long telegramId, User user) {
         final int currentPage = getCurrentPage(user);
+        final int oneElementPerPage = 1;
         final Page<ProfileDto> matchingProfiles = profileApi.findMatchingProfiles(
-                telegramId, currentPage, 1);
+                telegramId, currentPage, oneElementPerPage);
         updateCurrentPageIfNeeded(user, matchingProfiles.isLast(), currentPage);
         return matchingProfiles.getContent().stream().findFirst();
     }
