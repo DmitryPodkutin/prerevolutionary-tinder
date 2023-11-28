@@ -13,3 +13,13 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/data
       - ./create_databases.sql:/docker-entrypoint-initdb.d/create_databases.sql
+  translator:
+    image: briarey/old_russian_translator:latest
+    ports:
+      - "5006:5006"
+    restart: always
+  tti:
+    image: asura0kami/txt-to-img:latest
+    ports:
+      - "5005:5005"
+    restart: always
