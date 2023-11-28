@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.ProfileDto;
+import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.dto.ProfileSaveDTO;
 import ru.liga.service.profile.ProfileService;
 
@@ -31,12 +32,13 @@ public class ProfileController {
     private final ConversionService customConversionService;
 
     @GetMapping
-    public ResponseEntity<ProfileDto> getCurrent() {
+    public ResponseEntity<ProfileDtoWithImage> getCurrent() {
         return profileService.getCurrent()
                 .map(profile -> new ResponseEntity<>(customConversionService.convert(
-                        profile, ProfileDto.class),
+                        profile, ProfileDtoWithImage.class),
                         HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
     }
 
     @GetMapping("/{id}")

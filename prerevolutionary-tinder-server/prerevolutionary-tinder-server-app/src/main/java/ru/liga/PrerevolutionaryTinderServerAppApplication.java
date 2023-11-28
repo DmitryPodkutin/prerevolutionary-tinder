@@ -9,6 +9,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 import ru.liga.dto.converter.FavouriteEntityToDtoConverter;
 import ru.liga.dto.converter.ProfileEntityToProfileDtoConverter;
+import ru.liga.dto.converter.ProfileToDtoWithImageConverter;
 
 import java.util.HashSet;
 
@@ -25,6 +26,7 @@ public class PrerevolutionaryTinderServerAppApplication {
         final HashSet<Converter> converters = new HashSet<>();
         converters.add(context.getBean(ProfileEntityToProfileDtoConverter.class));
         converters.add(context.getBean(FavouriteEntityToDtoConverter.class));
+        converters.add(context.getBean(ProfileToDtoWithImageConverter.class));
         bean.setConverters(converters);
         bean.afterPropertiesSet();
         return bean.getObject();
