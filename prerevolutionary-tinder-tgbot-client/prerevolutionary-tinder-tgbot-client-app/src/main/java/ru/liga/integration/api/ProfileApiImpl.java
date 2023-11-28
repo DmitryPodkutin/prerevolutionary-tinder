@@ -17,6 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.liga.dto.ProfileDto;
+import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.integration.component.CustomPageImpl;
 import ru.liga.integration.config.RestClientConfig;
 import ru.liga.model.User;
@@ -35,7 +36,7 @@ public class ProfileApiImpl implements ProfileApi {
     private final UserService userService;
 
     @Override
-    public ResponseEntity<ProfileDto> getProfile(User user) {
+    public ResponseEntity<ProfileDtoWithImage> getProfile(User user) {
         try {
             final HttpHeaders headers = new HttpHeaders();
             headers.setBasicAuth(user.getUserName(), user.getPassword());
@@ -57,7 +58,7 @@ public class ProfileApiImpl implements ProfileApi {
     }
 
     @Override
-    public Page<ProfileDto> findMatchingProfiles(Long telegramId, int page, int size) {
+    public Page<ProfileDtoWithImage> findMatchingProfiles(Long telegramId, int page, int size) {
         try {
             final Optional<User> currentUser = userService.getUserByTelegramId(telegramId);
             if (currentUser.isEmpty()) {
@@ -69,7 +70,7 @@ public class ProfileApiImpl implements ProfileApi {
                     .fromUriString(restClientConfig.getProfileMatchingServiceUrl())
                     .queryParam("page", page)
                     .queryParam("size", size);
-            final ResponseEntity<CustomPageImpl<ProfileDto>> responseEntity = restTemplate.exchange(
+            final ResponseEntity<CustomPageImpl<ProfileDtoWithImage>> responseEntity = restTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.GET,
                     new HttpEntity<>(headers),
@@ -86,14 +87,14 @@ public class ProfileApiImpl implements ProfileApi {
     }
 
     @Override
-    public ResponseEntity<ProfileDto> createProfile(ProfileDto profileDto, User user) {
+    public ResponseEntity<ProfileDtoWithImage> createProfile(ProfileDto profileDto, User user) {
         try {
             final HttpHeaders headers = new HttpHeaders();
             headers.setBasicAuth(user.getUserName(), user.getPassword());
             headers.setContentType(MediaType.APPLICATION_JSON);
             final HttpEntity<ProfileDto> requestEntity = new HttpEntity<>(profileDto, headers);
             return restTemplate.postForEntity(
-                    restClientConfig.getProfileServiceUrl(), requestEntity, ProfileDto.class);
+                    restClientConfig.getProfileServiceUrl(), requestEntity, ProfileDtoWithImage.class);
         } catch (HttpClientErrorException.NotFound e) {
             log.error("Profile service URL to create not found: {}", e.getMessage());
         } catch (HttpClientErrorException.BadRequest e) {
@@ -105,7 +106,7 @@ public class ProfileApiImpl implements ProfileApi {
     }
 
     @Override
-    public ResponseEntity<ProfileDto> updateProfile(ProfileDto profileDto, User user, Long id) {
+    public ResponseEntity<ProfileDtoWithImage> updateProfile(ProfileDto profileDto, User user, Long id) {
         try {
             final HttpHeaders headers = new HttpHeaders();
             headers.setBasicAuth(user.getUserName(), user.getPassword());
@@ -115,7 +116,7 @@ public class ProfileApiImpl implements ProfileApi {
                     restClientConfig.getProfileServiceUrl() + "/" + id,
                     HttpMethod.PUT,
                     requestEntity,
-                    ProfileDto.class
+                    ProfileDtoWithImage.class
             );
         } catch (HttpClientErrorException.NotFound e) {
             log.error("Profile service URL to update not found: {}", e.getMessage());

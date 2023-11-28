@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.liga.dto.ProfileDto;
+import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.integration.api.ProfileApi;
 import ru.liga.model.PageInfo;
 import ru.liga.model.User;
@@ -23,10 +24,10 @@ public class ProfileClientServiceImpl implements ProfileClientService {
 
 
     @Override
-    public Optional<ProfileDto> findNextMatchingProfiles(Long telegramId, User user) {
+    public Optional<ProfileDtoWithImage> findNextMatchingProfiles(Long telegramId, User user) {
         final int currentPage = getCurrentPage(user);
         final int oneElementPerPage = 1;
-        final Page<ProfileDto> matchingProfiles = profileApi.findMatchingProfiles(
+        final Page<ProfileDtoWithImage> matchingProfiles = profileApi.findMatchingProfiles(
                 telegramId, currentPage, oneElementPerPage);
         updateCurrentPageIfNeeded(user, matchingProfiles.isLast(), currentPage);
         return matchingProfiles.getContent().stream().findFirst();
@@ -54,12 +55,12 @@ public class ProfileClientServiceImpl implements ProfileClientService {
 
     @Override
     public void updateProfile(ProfileDto profileDto, User user) {
-        final Long serverProfileId = profileApi.getProfile(user).getBody().getId();
+        final Long serverProfileId = profileApi.getProfile(user).getBody().getServerProfileId();
         profileApi.updateProfile(profileDto, user, serverProfileId);
     }
 
     @Override
-    public ResponseEntity<ProfileDto> getProfile(User user) {
+    public ResponseEntity<ProfileDtoWithImage> getProfile(User user) {
         return profileApi.getProfile(user);
     }
 }

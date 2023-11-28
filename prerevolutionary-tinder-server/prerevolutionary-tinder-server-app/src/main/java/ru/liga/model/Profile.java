@@ -36,4 +36,8 @@ public class Profile implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public String descriptionToString() {
+        return this.descriptionHeader + "\n" + this.description;
+    }
 }

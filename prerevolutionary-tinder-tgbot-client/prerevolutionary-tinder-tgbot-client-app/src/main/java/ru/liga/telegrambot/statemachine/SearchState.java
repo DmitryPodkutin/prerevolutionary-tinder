@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.liga.dto.ProfileDto;
+import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.integration.service.ProfileClientServiceImpl;
 import ru.liga.model.User;
 import ru.liga.repository.UserStateRepository;
@@ -38,7 +38,7 @@ public class SearchState extends AbstractBotState {
         }
         final Long userTelegramId = getChatId(update);
         final User currentUser = getUserByTelegramId(update);
-        final ProfileDto profileDto = profileClientService.findNextMatchingProfiles(userTelegramId,
+        final ProfileDtoWithImage profileDto = profileClientService.findNextMatchingProfiles(userTelegramId,
                 currentUser).orElseThrow(() -> new RuntimeException(
                 String.format("MatchingProfiles fo userTelegramId %s not found ", userTelegramId)));
         messageSender.openSearchSwipeKeyboard(update, profileDto.toString());

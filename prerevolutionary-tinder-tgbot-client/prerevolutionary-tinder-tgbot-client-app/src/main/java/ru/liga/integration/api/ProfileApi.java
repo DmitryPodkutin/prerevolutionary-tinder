@@ -3,12 +3,13 @@ package ru.liga.integration.api;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import ru.liga.dto.ProfileDto;
+import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.model.User;
 
 public interface ProfileApi {
 
-    Page<ProfileDto> findMatchingProfiles(Long telegramId, int page, int size);
-    ResponseEntity<ProfileDto> createProfile(ProfileDto profileDto, User user);
-    ResponseEntity<ProfileDto> updateProfile(ProfileDto profileDto, User user, Long id);
-    ResponseEntity<ProfileDto> getProfile(User user);
+    Page<ProfileDtoWithImage> findMatchingProfiles(Long telegramId, int page, int size);
+    ResponseEntity<ProfileDtoWithImage> createProfile(ProfileDto profileDto, User user);
+    ResponseEntity<ProfileDtoWithImage> updateProfile(ProfileDto profileDto, User user, Long id);
+    ResponseEntity<ProfileDtoWithImage> getProfile(User user);
 }

@@ -2,13 +2,14 @@ package ru.liga.telegrambot.sender;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import ru.liga.dto.ProfileDtoWithImage;
 
 public interface MessageSender {
     void sendMessage(Long chatId, String message);
 
     void sendMessageWithKeyboard(Update update, String text, InlineKeyboardMarkup keyboard);
 
-    void openProfileViewKeyboard(Update update, String message);
+    void openProfileViewKeyboard(Update update, ProfileDtoWithImage profileDtoWithImage);
 
     void openMenuKeyboard(Update update);
 

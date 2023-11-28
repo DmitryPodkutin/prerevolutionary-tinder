@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.liga.dto.ProfileDto;
+import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.integration.service.ProfileClientService;
 import ru.liga.model.User;
 import ru.liga.repository.UserStateRepository;
@@ -24,8 +24,6 @@ import static ru.liga.telegrambot.model.StateType.MENU;
 @Slf4j
 @Component
 public class ViewProfileState extends AbstractBotState {
-    private final ResourceBundle resourceBundle;
-    private final TelegramMessageSender telegramMessageSender;
     private final MessageSender messageSender;
     private final ProfileClientService profileClientService;
 
@@ -34,8 +32,6 @@ public class ViewProfileState extends AbstractBotState {
                             MessageSender messageSender, UserService userService,
                             UserStateRepository userStateRepository, ProfileClientService profileClientService) {
         super(StateType.FAVORITES, userService, userStateRepository);
-        this.resourceBundle = resourceBundle;
-        this.telegramMessageSender = telegramMessageSender;
         this.messageSender = messageSender;
         this.profileClientService = profileClientService;
     }
@@ -57,11 +53,11 @@ public class ViewProfileState extends AbstractBotState {
     }
 
     public void getProfile(Update update) {
-        final ResponseEntity<ProfileDto> profileResponse = profileClientService.getProfile(
+        final ResponseEntity<ProfileDtoWithImage> profileResponse = profileClientService.getProfile(
                 getUserByTelegramId(update));
         if (profileResponse.getStatusCode().is2xxSuccessful()) {
-            final String profileMessage = Objects.requireNonNull(profileResponse.getBody()).toString();
-            messageSender.openProfileViewKeyboard(update, profileMessage);
+            final ProfileDtoWithImage profileDtoWithImage = Objects.requireNonNull(profileResponse.getBody());
+            messageSender.openProfileViewKeyboard(update, profileDtoWithImage);
         } else {
             log.error("Profile response not successful. Status code: {}", profileResponse.getStatusCodeValue());
         }

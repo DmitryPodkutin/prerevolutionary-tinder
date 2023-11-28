@@ -42,10 +42,10 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProfileDto> getProfileById(@PathVariable Long id) {
+    public ResponseEntity<ProfileDtoWithImage> getProfileById(@PathVariable Long id) {
         return profileService.getProfileById(id)
                 .map(profile -> new ResponseEntity<>(customConversionService.convert(
-                        profile, ProfileDto.class),
+                        profile, ProfileDtoWithImage.class),
                         HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -58,10 +58,10 @@ public class ProfileController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ProfileDto> update(@NotNull @PathVariable("id") Long id,
+    public ResponseEntity<ProfileDtoWithImage> update(@NotNull @PathVariable("id") Long id,
                                              @RequestBody ProfileSaveDTO profileSaveDTO) {
         return new ResponseEntity<>(customConversionService.convert(
-                profileService.update(profileSaveDTO, id), ProfileDto.class),
+                profileService.update(profileSaveDTO, id), ProfileDtoWithImage.class),
                 HttpStatus.OK);
     }
 
