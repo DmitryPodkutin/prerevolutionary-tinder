@@ -2,26 +2,22 @@ package ru.liga.telegrambot.sender;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -86,6 +82,22 @@ public class TelegramMessageSender implements MessageSender {
         return request;
     }
 
+    private void sendHttpPhotoRequest(HttpPost request) throws IOException {
+        try {
+            final HttpResponse response = httpClient.execute(request);
+            final int statusCode = response.getStatusLine().getStatusCode();
+            if (HttpStatus.valueOf(statusCode).is2xxSuccessful()) {
+                logger.info("Success response: {}", response.getEntity());
+            } else {
+                logger.error("Error response, Status: {}", statusCode);
+            }
+            EntityUtils.consume(response.getEntity());
+        } catch (IOException e) {
+            logger.error("Error sending message: {}", e.getMessage());
+            throw new IOException(e.getMessage());
+        }
+    }
+
     private void sendHttpRequest(HttpPost request) throws IOException {
         try {
             final HttpResponse response = httpClient.execute(request);
@@ -104,8 +116,8 @@ public class TelegramMessageSender implements MessageSender {
     }
 
     public void sendMessageWithKeyboard(Update update, String text, InlineKeyboardMarkup keyboard) {
-        final String apiUrl = appConfig.getTgBotApiUrl() + botToken + SEND_MESSAGE_ENDPOINT +
-                CHAT_ID_ENDPOINT + getChatId(update).toString();
+        final String apiUrl = appConfig.getTgBotApiUrl() + botToken +
+                SEND_MESSAGE_ENDPOINT + CHAT_ID_ENDPOINT + getChatId(update).toString();
         final SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(getChatId(update).toString());
         sendMessage.setText(text);
@@ -132,8 +144,10 @@ public class TelegramMessageSender implements MessageSender {
     }
 
     public void sendMessageWithKeyboard(Update update, byte[] image, String text, InlineKeyboardMarkup keyboard) {
-        final String messageApiUrl = appConfig.getTgBotApiUrl() + botToken + SEND_MESSAGE_ENDPOINT +
-                CHAT_ID_ENDPOINT + getChatId(update).toString();
+        final String messageApiUrl = appConfig.getTgBotApiUrl() + botToken +
+                SEND_MESSAGE_ENDPOINT + CHAT_ID_ENDPOINT + getChatId(update).toString();
+        final String photoApiUrl = appConfig.getTgBotApiUrl() + botToken +
+                SEND_PHOTO_ENDPOINT + CHAT_ID_ENDPOINT + getChatId(update).toString();
         final SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(getChatId(update).toString());
         sendMessage.setText(text);
@@ -142,37 +156,85 @@ public class TelegramMessageSender implements MessageSender {
         final HttpPost requestForMessage = createHttpPostRequest(messageApiUrl, sendMessage);
 
         try {
-            sendImageViaHttp(update, image);
+            sendImageHttpRequest(image, photoApiUrl);
             sendHttpRequest(requestForMessage);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void sendImageViaHttp(Update update, byte[] imageBytes) {
-        final RestTemplate restTemplate = new RestTemplate();
-        final String telegramApiUrl = appConfig.getTgBotApiUrl() +
-                botToken + SEND_PHOTO_ENDPOINT; // Замените на соответствующий URL
-        final MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-        parts.add("chat_id", getChatId(update));
-        parts.add("photo", new ByteArrayResource(imageBytes));
+/*    public void sendPhoto(Long chatId, String photoCaption, String photoUrl) {
+        final String apiUrl = appConfig.getTgBotApiUrl() + botToken + SEND_PHOTO_ENDPOINT + CHAT_ID_ENDPOINT +
+                chatId + "&caption=" + photoCaption;
 
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        final HttpPost request = new HttpPost(apiUrl);
+        request.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 
-        final HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
+        final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        try {
+            builder.addPart("photo", new ByteArrayBody(getImageData(photoUrl),
+                    ContentType.IMAGE_JPEG, "photo.jpg"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        // Отправка запроса POST для отправки изображения
-        final ResponseEntity<String> response = restTemplate.exchange(
-                telegramApiUrl, HttpMethod.POST, requestEntity, String.class);
+        request.setEntity(builder.build());
+
+        try {
+            sendHttpRequest(request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }*/
+
+
+/*    public HttpPost createHttpPostRequestForImage(byte[] image, String apiUrl) {
+
+        final HttpPost request = new HttpPost(apiUrl);
+        request.setHeader(CONTENT_TYPE_HEADER, "image/png");
+
+        final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+        // Устанавливаем параметры Content-Disposition
+        builder.addBinaryBody("attachment", (image), ContentType.IMAGE_PNG, "questionnaire.png");
+
+        final HttpEntity multipart = builder.build();
+        request.setEntity(multipart);
+
+        return request;
+    }*/
+
+    private void sendImageHttpRequest(byte[]  imageData, String url) {
+        final CloseableHttpClient httpClient1 = HttpClients.createDefault();
+
+        final HttpPost request = new HttpPost(url);
+
+        request.setHeader(CONTENT_TYPE_HEADER, "image/png");
+        // Другие заголовки могут быть установлены через request.setHeader()
+
+        // Установка тела запроса в виде массива байтов
+        final HttpEntity entity = new ByteArrayEntity(imageData);
+        request.setEntity(entity);
+
+        try (CloseableHttpResponse response = httpClient1.execute(request)) {
+            // Обработка ответа, если необходимо
+            final int statusCode = response.getStatusLine().getStatusCode();
+            System.out.println("Response Status Code: " + statusCode);
+        } catch (ClientProtocolException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
 
     @Override
     public void openProfileViewKeyboard(Update update, ProfileDtoWithImage profileDtoWithImage) {
         final String profileMessage = formatOutputProfileMessage(profileDtoWithImage);
-        sendMessageWithKeyboard(update,
-                profileDtoWithImage.getImage(), profileMessage,
+        sendMessageWithKeyboard(update, profileDtoWithImage.getImage(), profileMessage,
                 telegramBotKeyboardFactory.createProfileViewKeyboard());
     }
 
@@ -184,8 +246,7 @@ public class TelegramMessageSender implements MessageSender {
 
     @Override
     public void openSearchSwipeKeyboard(Update update, String message) {
-        sendMessageWithKeyboard(update, message,
-                telegramBotKeyboardFactory.createSwipeKeyboard());
+        sendMessageWithKeyboard(update, message, telegramBotKeyboardFactory.createSwipeKeyboard());
     }
 
     @Override

@@ -19,8 +19,8 @@ public class ProfileToDtoWithImageConverter implements Converter<Profile, Profil
         final ProfileDtoWithImage profileDtoWithImage = new ProfileDtoWithImage();
         profileDtoWithImage.setId(profile.getId());
         final String translatedDescription = translationService.translateToOldStyle(profile.descriptionToString());
-        profileDtoWithImage.setImage(imageGeneratingService.fetchImageFromRemoteService(
-                translatedDescription).getBody());
+        profileDtoWithImage.setImage(imageGeneratingService.getProfileImage(
+                translatedDescription));
         profileDtoWithImage.setGender(profile.getGender().getValue());
         profileDtoWithImage.setName(profile.getName());
         return profileDtoWithImage;
