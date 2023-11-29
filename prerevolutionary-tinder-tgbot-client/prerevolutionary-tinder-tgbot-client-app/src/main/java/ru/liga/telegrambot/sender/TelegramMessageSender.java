@@ -2,15 +2,10 @@ package ru.liga.telegrambot.sender;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -25,7 +20,15 @@ import ru.liga.config.AppConfig;
 import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.telegrambot.keyboard.TelegramBotKeyboardFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
@@ -39,6 +42,10 @@ public class TelegramMessageSender implements MessageSender {
     private static final String CHAT_ID_ENDPOINT = "?chat_id=";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
+    private static final String BOUNDARY = "------Boundary\r\n";
+    private static final String CRLF = "\r\n";
+    private static final String CONTENT_TYPE_IMAGE_PNG = "Content-Type: image/png\r\n\r\n";
+    private static final String STRING = "\"\r\n";
     private final Logger logger = LoggerFactory.getLogger(TelegramMessageSender.class);
     private final TelegramBotKeyboardFactory telegramBotKeyboardFactory;
     private final ResourceBundle resourceBundle;
@@ -147,7 +154,7 @@ public class TelegramMessageSender implements MessageSender {
         final String messageApiUrl = appConfig.getTgBotApiUrl() + botToken +
                 SEND_MESSAGE_ENDPOINT + CHAT_ID_ENDPOINT + getChatId(update).toString();
         final String photoApiUrl = appConfig.getTgBotApiUrl() + botToken +
-                SEND_PHOTO_ENDPOINT + CHAT_ID_ENDPOINT + getChatId(update).toString();
+                SEND_PHOTO_ENDPOINT;
         final SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(getChatId(update).toString());
         sendMessage.setText(text);
@@ -156,7 +163,7 @@ public class TelegramMessageSender implements MessageSender {
         final HttpPost requestForMessage = createHttpPostRequest(messageApiUrl, sendMessage);
 
         try {
-            sendImageHttpRequest(image, photoApiUrl);
+            sendImageHttpRequest(image, photoApiUrl, update);
             sendHttpRequest(requestForMessage);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -206,28 +213,47 @@ public class TelegramMessageSender implements MessageSender {
         return request;
     }*/
 
-    private void sendImageHttpRequest(byte[]  imageData, String url) {
-        final CloseableHttpClient httpClient1 = HttpClients.createDefault();
+    private void sendImageHttpRequest(byte[] imageBytes, String urlString,
+                                      Update update) {
+        try {
+            final URL url = new URL(urlString);
+            final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty(CONTENT_TYPE_HEADER, "multipart/form-data; boundary=----Boundary");
+            final OutputStream outputStream = connection.getOutputStream();
+            final PrintWriter writer = new PrintWriter(new OutputStreamWriter(
+                    outputStream, "UTF-8"), true);
+            writer.append(BOUNDARY);
+            writer.append("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
+            writer.append(getChatId(update).toString()).append(CRLF);
+            writer.append(BOUNDARY);
+            writer.append("Content-Disposition: form-data; name=\"photo\"; filename=\"" + "fileName" + STRING);
+            writer.append(CONTENT_TYPE_IMAGE_PNG);
+            writer.flush();
+            outputStream.write(imageBytes);
+            outputStream.flush();
+            writer.append(CRLF);
+            writer.append("------Boundary--\r\n");
+            writer.close();
+            final InputStream responseStream = connection.getInputStream();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(responseStream));
+            String line;
+            final StringBuilder response = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
 
-        final HttpPost request = new HttpPost(url);
+            // Вывод ответа сервера
+            System.out.println("Response: " + response.toString());
 
-        request.setHeader(CONTENT_TYPE_HEADER, "image/png");
-        // Другие заголовки могут быть установлены через request.setHeader()
-
-        // Установка тела запроса в виде массива байтов
-        final HttpEntity entity = new ByteArrayEntity(imageData);
-        request.setEntity(entity);
-
-        try (CloseableHttpResponse response = httpClient1.execute(request)) {
-            // Обработка ответа, если необходимо
-            final int statusCode = response.getStatusLine().getStatusCode();
-            System.out.println("Response Status Code: " + statusCode);
-        } catch (ClientProtocolException e) {
-            throw new RuntimeException(e);
+            connection.disconnect();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
+
 
 
 
