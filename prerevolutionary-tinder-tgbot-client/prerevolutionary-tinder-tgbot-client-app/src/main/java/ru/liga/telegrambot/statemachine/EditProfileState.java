@@ -1,5 +1,6 @@
 package ru.liga.telegrambot.statemachine;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,10 @@ import static java.util.Objects.isNull;
 import static ru.liga.telegrambot.model.StateType.CREATE_PROFILE;
 import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
 
+/**
+ * Represents the state responsible for editing a user profile.
+ */
+@Slf4j
 @Component
 public class EditProfileState extends AbstractBotState {
     private static final String MALE_BOTTOM = "male.bottom";
@@ -50,6 +55,7 @@ public class EditProfileState extends AbstractBotState {
 
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        log.debug("Handling input for editing a user profile.");
         final Long chatId = getChatId(update);
         final Optional<Profile> profileOptional = profileService.getByChatId(chatId);
 
@@ -79,6 +85,7 @@ public class EditProfileState extends AbstractBotState {
     }
 
     private Profile createProfileWithGender(Optional<Profile> profileOptional, Update update) {
+        log.debug("Checking profile gender information.");
         if (profileOptional.isEmpty()) {
             final Profile profile = new Profile();
             profile.setChatId(getChatId(update));
@@ -91,11 +98,12 @@ public class EditProfileState extends AbstractBotState {
     }
 
     private boolean isProfileNameEmpty(Update update, Profile profile) {
+        log.debug("Checking profile name information.");
         if (isNull(profile.getName()) || profile.getName().equals(EMPTY_STRING)) {
             if (isNull(profile.getName())) {
                 profile.setName(EMPTY_STRING);
                 profileService.saveProfile(profile);
-                messageSender.sendMessage(getChatId(update),
+                messageSender.sendTextMessage(getChatId(update),
                         resourceBundle.getString("choose.name"));
                 return true;
             } else {
@@ -109,11 +117,12 @@ public class EditProfileState extends AbstractBotState {
     }
 
     private boolean isProfileDescriptionEmpty(Update update, Profile profile) {
+        log.debug("Checking profile description information.");
         if (isNull(profile.getDescription()) || profile.getDescription().equals(EMPTY_STRING)) {
             if (isNull(profile.getDescription())) {
                 profile.setDescription(EMPTY_STRING);
                 profileService.saveProfile(profile);
-                messageSender.sendMessage(update.getMessage().getChatId(),
+                messageSender.sendTextMessage(update.getMessage().getChatId(),
                         resourceBundle.getString("choose.description"));
                 return true;
             } else {
@@ -127,6 +136,7 @@ public class EditProfileState extends AbstractBotState {
     }
 
     private boolean isProfileLookingForEmpty(Update update, Profile profile) {
+        log.debug("Checking profile looking for information.");
         if (isNull(profile.getLookingFor()) || profile.getLookingFor().equals(EMPTY_STRING)) {
             if (isNull(profile.getLookingFor())) {
                 profile.setLookingFor(EMPTY_STRING);
@@ -163,6 +173,7 @@ public class EditProfileState extends AbstractBotState {
                 messageText.equals(FEMALE_BOTTOM) ||
                 messageText.equals(ALL_GENDER_BOTTOM)) {
             profile.setLookingFor(resourceBundle.getString(messageText));
+            profileService.saveProfile(profile);
         } else {
             throw new CreatingProfileError("Wrong choice of looking for.");
         }

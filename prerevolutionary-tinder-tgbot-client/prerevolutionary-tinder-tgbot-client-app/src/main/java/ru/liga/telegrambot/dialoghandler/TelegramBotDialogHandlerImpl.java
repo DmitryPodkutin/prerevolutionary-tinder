@@ -1,6 +1,7 @@
 package ru.liga.telegrambot.dialoghandler;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -13,14 +14,24 @@ import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 
+/**
+ * Implementation of the {@link TelegramBotDialogHandler} responsible for handling updates received by the Telegram bot.
+ */
+@Slf4j
 @Component
 @AllArgsConstructor
 public class TelegramBotDialogHandlerImpl implements TelegramBotDialogHandler {
     private final StateFactory stateFactory;
     private final UserService userService;
 
+    /**
+     * Handles the incoming update received by the Telegram bot.
+     *
+     * @param update The incoming update object.
+     */
     @Override
     public void handleUpdate(Update update) {
+        log.debug("Received update: {}", update);
         final StateType currentStateType;
         final User telegramUser = getCurrentUser(update);
         final Optional<ru.liga.model.User> userByTelegramId = userService.getUserByTelegramId(telegramUser.getId());

@@ -15,6 +15,9 @@ import ru.liga.telegrambot.sender.MessageSender;
 import static ru.liga.telegrambot.model.StateType.MENU;
 import static ru.liga.telegrambot.model.StateType.SEARCH;
 
+/**
+ * Represents the state responsible for searching an appropriate profile.
+ */
 @Slf4j
 @Component
 public class SearchState extends AbstractBotState {
@@ -30,8 +33,15 @@ public class SearchState extends AbstractBotState {
         this.profileClientService = profileClientService;
     }
 
-    @Override
+    /**
+     * Handles the input during the searching process.
+     *
+     * @param dialogHandler The dialog handler.
+     * @param update        The received update.
+     * @return The next bot state.
+     */ @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        log.debug("Handling input for searching an appropriate profile.");
         if (getUserMessage(update).equals("menu.bottom")) {
             changeUserState(getUserByTelegramId(update), MENU);
             return goToNextStep(MENU, dialogHandler, update);
@@ -41,7 +51,7 @@ public class SearchState extends AbstractBotState {
         final ProfileDtoWithImage profileDto = profileClientService.findNextMatchingProfiles(userTelegramId,
                 currentUser).orElseThrow(() -> new RuntimeException(
                 String.format("MatchingProfiles fo userTelegramId %s not found ", userTelegramId)));
-        messageSender.openSearchSwipeKeyboard(update, profileDto.toString());
+        messageSender.openSearchSwipeKeyboard(update, profileDto);
         return  this;
     }
 }

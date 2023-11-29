@@ -55,7 +55,7 @@ public class ProfileClientServiceImpl implements ProfileClientService {
 
     @Override
     public void updateProfile(ProfileDto profileDto, User user) {
-        final Long serverProfileId = profileApi.getProfile(user).getBody().getServerProfileId();
+        final Long serverProfileId = profileApi.getProfile(user).getBody().getId();
         profileApi.updateProfile(profileDto, user, serverProfileId);
     }
 

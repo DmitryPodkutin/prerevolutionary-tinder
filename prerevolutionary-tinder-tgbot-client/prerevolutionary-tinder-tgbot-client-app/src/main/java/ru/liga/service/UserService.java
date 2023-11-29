@@ -6,6 +6,9 @@ import ru.liga.model.User;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service interface to manage users within the application.
+ */
 @Service
 public interface UserService {
 

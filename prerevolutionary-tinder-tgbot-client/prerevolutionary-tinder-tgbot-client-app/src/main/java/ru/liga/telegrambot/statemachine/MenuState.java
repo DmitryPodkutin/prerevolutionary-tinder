@@ -1,5 +1,6 @@
 package ru.liga.telegrambot.statemachine;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,12 +15,17 @@ import static ru.liga.telegrambot.model.StateType.FAVORITES;
 import static ru.liga.telegrambot.model.StateType.SEARCH;
 import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
 
+/**
+ * Represents the state responsible for working with a menu.
+ */
+@Slf4j
 @Component
 public class MenuState extends AbstractBotState {
     private final MessageSender telegramMessageSender;
 
     @Autowired
-    public MenuState(UserService userService, UserStateRepository userStateRepository,
+    public MenuState(UserService userService,
+                     UserStateRepository userStateRepository,
                      MessageSender telegramMessageSender) {
         super(StateType.MENU, userService, userStateRepository);
         this.telegramMessageSender = telegramMessageSender;
@@ -28,6 +34,7 @@ public class MenuState extends AbstractBotState {
 
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        log.debug("Handling input for menu state.");
         final String userInput = getUserMessage(update);
         final User user = getUserByTelegramId(update);
         if ("search.bottom".equals(userInput)) {

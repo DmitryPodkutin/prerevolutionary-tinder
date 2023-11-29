@@ -14,6 +14,9 @@ import javax.persistence.EntityNotFoundException;
 import static java.util.Objects.nonNull;
 
 
+/**
+ * Abstract class defining the common functionalities and state handling methods for the Telegram bot.
+ */
 public abstract class AbstractBotState implements BotState {
 
     private final StateType stateType;
@@ -79,11 +82,24 @@ public abstract class AbstractBotState implements BotState {
         return stateType;
     }
 
+    /**
+     * Handles the input to the bot state.
+     *
+     * @param dialogHandler The dialog handler.
+     * @param update        The received update.
+     * @return The next bot state to transition to.
+     */
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
         return menuState;
     }
 
+    /**
+     * Returns the chat ID from the received update.
+     *
+     * @param update The received update.
+     * @return The chat ID.
+     */
     public Long getChatId(Update update) {
         final Long chatId;
         if (nonNull(update.getMessage())) {
@@ -94,6 +110,12 @@ public abstract class AbstractBotState implements BotState {
         return chatId;
     }
 
+    /**
+     * Changes the user's state to the specified state type.
+     *
+     * @param user           The user whose state is to be changed.
+     * @param stateTypeToSet The state type to set for the user.
+     */
     public void changeUserState(ru.liga.model.User user, StateType stateTypeToSet) {
         final UserState userState = userStateRepository.findByUserId(user.getId())
                 .orElseThrow(EntityNotFoundException::new);
@@ -101,6 +123,12 @@ public abstract class AbstractBotState implements BotState {
         userStateRepository.save(userState);
     }
 
+    /**
+     * Retrieves the user based on the Telegram ID from the received update.
+     *
+     * @param update The received update.
+     * @return The user.
+     */
     public ru.liga.model.User getUserByTelegramId(Update update) {
         final Long telegramId;
         if (nonNull(update.getMessage())) {
@@ -112,6 +140,12 @@ public abstract class AbstractBotState implements BotState {
                 .orElseThrow(EntityNotFoundException::new);
     }
 
+    /**
+     * Retrieves the message from the received update.
+     *
+     * @param update The received update.
+     * @return The user message.
+     */
     public String getUserMessage(Update update) {
         if (nonNull(update.getCallbackQuery())) {
             return update.getCallbackQuery().getData();
@@ -120,6 +154,14 @@ public abstract class AbstractBotState implements BotState {
         }
     }
 
+    /**
+     * Moves the bot to the next step/state based on the specified state type.
+     *
+     * @param stateTypeToGo            The state type to move to.
+     * @param telegramBotDialogHandler The dialog handler.
+     * @param update                   The received update.
+     * @return The next bot state.
+     */
     public BotState goToNextStep(StateType stateTypeToGo, TelegramBotDialogHandler
             telegramBotDialogHandler, Update update) {
         final StateType stateTypeSwitch = stateTypeToGo;

@@ -1,5 +1,6 @@
 package ru.liga.telegrambot.statemachine;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -12,6 +13,10 @@ import ru.liga.telegrambot.sender.TelegramMessageSender;
 
 import java.util.ResourceBundle;
 
+/**
+ * Represents the state responsible for handling the registration process in the Telegram bot.
+ */
+@Slf4j
 @Component
 public class RegistrationState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
@@ -20,19 +25,26 @@ public class RegistrationState extends AbstractBotState {
 
     @Autowired
     public RegistrationState(ResourceBundle resourceBundle,
-                             TelegramMessageSender telegramMessageSender, RegistrationService registrationService,
-                             UserService userService, UserStateRepository userStateRepository,
-                             MenuState menuState, EditProfileState editProfileState,
-                             ViewProfileState viewProfileState, SearchState searchState, FavoriteState favoriteState,
-                             CreateProfileState createProfileState) {
+                             TelegramMessageSender telegramMessageSender,
+                             RegistrationService registrationService,
+                             UserService userService,
+                             UserStateRepository userStateRepository) {
         super(StateType.REGISTRATION, userService, userStateRepository);
         this.resourceBundle = resourceBundle;
         this.telegramMessageSender = telegramMessageSender;
         this.registrationService = registrationService;
     }
 
+    /**
+     * Handles the input during the registration process.
+     *
+     * @param dialogHandler The dialog handler.
+     * @param update        The received update.
+     * @return The next bot state.
+     */
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        log.debug("Handling input for register a new user.");
         final Long chatId = update.getMessage().getChatId();
         final Long userTelegramId = update.getMessage().getFrom().getId();
         final String userInputMessage = update.getMessage().getText();
@@ -53,7 +65,7 @@ public class RegistrationState extends AbstractBotState {
     }
 
     private void handleStartCommand(Long chatId) {
-        telegramMessageSender.sendMessage(chatId,
+        telegramMessageSender.sendTextMessage(chatId,
                 resourceBundle.getString("registration.start.message"));
     }
 
@@ -62,6 +74,6 @@ public class RegistrationState extends AbstractBotState {
     }
 
     private void handleInvalidFormatMessage(Long chatId, String message) {
-        telegramMessageSender.sendMessage(chatId, message);
+        telegramMessageSender.sendTextMessage(chatId, message);
     }
 }

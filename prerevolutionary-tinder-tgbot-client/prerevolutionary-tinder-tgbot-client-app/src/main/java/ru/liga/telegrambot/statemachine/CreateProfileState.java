@@ -1,5 +1,6 @@
 package ru.liga.telegrambot.statemachine;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,10 @@ import static java.util.Objects.nonNull;
 import static ru.liga.telegrambot.model.StateType.CREATE_PROFILE;
 import static ru.liga.telegrambot.model.StateType.VIEW_PROFILE;
 
+/**
+ * Represents the state responsible for creating a user profile.
+ */
+@Slf4j
 @Component
 public class CreateProfileState extends AbstractBotState {
     private static final String MALE_BOTTOM = "male.bottom";
@@ -39,9 +44,12 @@ public class CreateProfileState extends AbstractBotState {
 
     @Autowired
     public CreateProfileState(MessageSender messageSender,
-                              ProfileService profileService, ResourceBundle resourceBundle,
-                              ConversionService customConversionService, ProfileClientService profileClientService,
-                              UserService userService, UserStateRepository userStateRepository) {
+                              ProfileService profileService,
+                              ResourceBundle resourceBundle,
+                              ConversionService customConversionService,
+                              ProfileClientService profileClientService,
+                              UserService userService,
+                              UserStateRepository userStateRepository) {
         super(CREATE_PROFILE, userService, userStateRepository);
         this.messageSender = messageSender;
         this.profileService = profileService;
@@ -52,6 +60,7 @@ public class CreateProfileState extends AbstractBotState {
 
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
+        log.debug("Handling input for creating a user profile.");
         final Long chatId = getChatId(update);
         final Optional<Profile> profileOptional = profileService.getByChatId(chatId);
         if (profileOptional.isEmpty()) {
@@ -87,6 +96,7 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     private Boolean getProfileLookingFor(Update update, Profile profile) {
+        log.debug("Checking profile looking for information.");
         if (isNull(profile.getLookingFor())) {
             profile.setLookingFor(EMPTY_STRING);
             profileService.saveProfile(profile);
@@ -99,10 +109,11 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     private Boolean getProfileDescription(Update update, Profile profile) {
+        log.debug("Checking profile description information.");
         if (isNull(profile.getDescription())) {
             profile.setDescription(EMPTY_STRING);
             profileService.saveProfile(profile);
-            messageSender.sendMessage(update.getMessage().getChatId(),
+            messageSender.sendTextMessage(update.getMessage().getChatId(),
                     resourceBundle.getString("choose.description"));
             return true;
         } else {
@@ -113,10 +124,11 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     private Boolean getProfileName(Update update, Profile profile) {
+        log.debug("Checking profile name information.");
         if (isNull(profile.getName())) {
             profile.setName(EMPTY_STRING);
             profileService.saveProfile(profile);
-            messageSender.sendMessage(getChatId(update),
+            messageSender.sendTextMessage(getChatId(update),
                     resourceBundle.getString("choose.name"));
             return true;
         } else {
@@ -127,6 +139,7 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     private Boolean getProfileGender(Update update) {
+        log.debug("Checking profile gender information.");
         if (nonNull(update.getCallbackQuery()) && nonNull(update.getCallbackQuery().getChatInstance())) {
             final Profile profile = new Profile();
             profile.setChatId(getChatId(update));
