@@ -19,16 +19,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.liga.config.AppConfig;
 import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.telegrambot.keyboard.TelegramBotKeyboardFactory;
+import ru.liga.telegrambot.sender.imagesender.ImageSender;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
@@ -52,18 +45,22 @@ public class TelegramMessageSender implements MessageSender {
     private final String botToken;
     private final HttpClient httpClient;
     private final AppConfig appConfig;
+    private final ImageSender imageSender;
 
     @Autowired
     public TelegramMessageSender(TelegramBotKeyboardFactory telegramBotKeyboardFactory,
-                                 ResourceBundle resourceBundle, AppConfig appConfig) {
+                                 ResourceBundle resourceBundle, AppConfig appConfig,
+                                 ImageSender imageSender) {
         this.telegramBotKeyboardFactory = telegramBotKeyboardFactory;
         this.resourceBundle = resourceBundle;
         this.appConfig = appConfig;
         this.botToken = AppConfig.getInstance().getBotToken();
         this.httpClient = HttpClients.createDefault();
+        this.imageSender = imageSender;
     }
 
     public TelegramMessageSender() {
+        this.imageSender = null;
         this.telegramBotKeyboardFactory = null;
         this.resourceBundle = null;
         this.botToken = null;
@@ -87,22 +84,6 @@ public class TelegramMessageSender implements MessageSender {
         }
 
         return request;
-    }
-
-    private void sendHttpPhotoRequest(HttpPost request) throws IOException {
-        try {
-            final HttpResponse response = httpClient.execute(request);
-            final int statusCode = response.getStatusLine().getStatusCode();
-            if (HttpStatus.valueOf(statusCode).is2xxSuccessful()) {
-                logger.info("Success response: {}", response.getEntity());
-            } else {
-                logger.error("Error response, Status: {}", statusCode);
-            }
-            EntityUtils.consume(response.getEntity());
-        } catch (IOException e) {
-            logger.error("Error sending message: {}", e.getMessage());
-            throw new IOException(e.getMessage());
-        }
     }
 
     private void sendHttpRequest(HttpPost request) throws IOException {
@@ -163,57 +144,14 @@ public class TelegramMessageSender implements MessageSender {
         final HttpPost requestForMessage = createHttpPostRequest(messageApiUrl, sendMessage);
 
         try {
-            sendImageHttpRequest(image, photoApiUrl, update);
+            imageSender.sendHttpRequest(image, text, photoApiUrl, update);
             sendHttpRequest(requestForMessage);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-/*    public void sendPhoto(Long chatId, String photoCaption, String photoUrl) {
-        final String apiUrl = appConfig.getTgBotApiUrl() + botToken + SEND_PHOTO_ENDPOINT + CHAT_ID_ENDPOINT +
-                chatId + "&caption=" + photoCaption;
-
-        final HttpPost request = new HttpPost(apiUrl);
-        request.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-
-        final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        try {
-            builder.addPart("photo", new ByteArrayBody(getImageData(photoUrl),
-                    ContentType.IMAGE_JPEG, "photo.jpg"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        request.setEntity(builder.build());
-
-        try {
-            sendHttpRequest(request);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
-
-
-/*    public HttpPost createHttpPostRequestForImage(byte[] image, String apiUrl) {
-
-        final HttpPost request = new HttpPost(apiUrl);
-        request.setHeader(CONTENT_TYPE_HEADER, "image/png");
-
-        final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-
-        // Устанавливаем параметры Content-Disposition
-        builder.addBinaryBody("attachment", (image), ContentType.IMAGE_PNG, "questionnaire.png");
-
-        final HttpEntity multipart = builder.build();
-        request.setEntity(multipart);
-
-        return request;
-    }*/
-
-    private void sendImageHttpRequest(byte[] imageBytes, String urlString,
+/*    private void sendImageHttpRequest(byte[] imageBytes, String textMessage, String urlString,
                                       Update update) {
         try {
             final URL url = new URL(urlString);
@@ -234,7 +172,11 @@ public class TelegramMessageSender implements MessageSender {
             outputStream.write(imageBytes);
             outputStream.flush();
             writer.append(CRLF);
+            writer.append(BOUNDARY);
+            writer.append("Content-Disposition: form-data; name=\"text\"\r\n\r\n");
+            writer.append(textMessage).append(CRLF);
             writer.append("------Boundary--\r\n");
+            writer.flush();
             writer.close();
             final InputStream responseStream = connection.getInputStream();
             final BufferedReader reader = new BufferedReader(new InputStreamReader(responseStream));
@@ -244,15 +186,11 @@ public class TelegramMessageSender implements MessageSender {
                 response.append(line);
             }
             reader.close();
-
-            // Вывод ответа сервера
-            System.out.println("Response: " + response.toString());
-
             connection.disconnect();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
 

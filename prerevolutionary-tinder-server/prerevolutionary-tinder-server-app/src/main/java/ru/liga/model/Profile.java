@@ -38,6 +38,6 @@ public class Profile implements Serializable {
     private User user;
 
     public String descriptionToString() {
-        return this.descriptionHeader + "\n" + this.description;
+        return this.descriptionHeader + "\n\r" + this.description;
     }
 }
