@@ -131,7 +131,7 @@ public class TelegramMessageSender implements MessageSender {
         }
     }
 
-    public void sendMessageWithKeyboard(Update update, byte[] image, String text, InlineKeyboardMarkup keyboard) {
+    public void sendMessageWithPhotoAndKeyboard(Update update, byte[] image, String text, InlineKeyboardMarkup keyboard) {
         final String messageApiUrl = appConfig.getTgBotApiUrl() + botToken +
                 SEND_MESSAGE_ENDPOINT + CHAT_ID_ENDPOINT + getChatId(update).toString();
         final String photoApiUrl = appConfig.getTgBotApiUrl() + botToken +
@@ -198,7 +198,7 @@ public class TelegramMessageSender implements MessageSender {
     @Override
     public void openProfileViewKeyboard(Update update, ProfileDtoWithImage profileDtoWithImage) {
         final String profileMessage = formatOutputProfileMessage(profileDtoWithImage);
-        sendMessageWithKeyboard(update, profileDtoWithImage.getImage(), profileMessage,
+        sendMessageWithPhotoAndKeyboard(update, profileDtoWithImage.getImage(), profileMessage,
                 telegramBotKeyboardFactory.createProfileViewKeyboard());
     }
 
