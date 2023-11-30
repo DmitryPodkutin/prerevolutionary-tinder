@@ -11,6 +11,7 @@ import ru.liga.enums.SeekingFor;
 import ru.liga.model.Profile;
 import ru.liga.model.User;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository("profileRepository")
@@ -18,11 +19,11 @@ public interface ProfileRepository extends BaseTinderServerRepository<Profile, L
 
     Optional<Profile> findByUserId(Long userId);
 
-    @Query("SELECT p FROM Profile p WHERE p.gender = :currentUserSeeking " +
+    @Query("SELECT p FROM Profile p WHERE p.gender in :currentUserSeeking " +
             "AND (p.seeking = :currentUserGender OR p.seeking = 'ALL')" +
             "AND p.user != :currentUser")
-    Page<Profile> findMatchingProfiles(@Param("currentUserGender") Gender currentUserGender,
-                                       @Param("currentUserSeeking") SeekingFor currentUserSeeking,
+    Page<Profile> findMatchingProfiles(@Param("currentUserGender") SeekingFor currentUserGender,
+                                       @Param("currentUserSeeking") List<Gender> currentUserSeeking,
                                        @Param("currentUser") User currentUser,
                                        Pageable pageable);
 

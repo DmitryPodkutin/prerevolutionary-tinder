@@ -19,7 +19,9 @@ import ru.liga.repository.UserRepository;
 import ru.liga.service.user.AuthenticationContext;
 
 import javax.persistence.EntityExistsException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,8 +36,9 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public Page<MatchingProfileDTO> getAllMatchingProfiles(Pageable pageable) {
         final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
+
         final Page<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
-                currentUser.getProfile().getGender(), currentUser.getProfile().getSeeking(),
+                fillSeekingFor(currentUser), fillGenderForLookingFor(currentUser),
                 userRepository.findById(currentUser.getUserId())
                         .orElseThrow(EntityExistsException::new),
                 pageable);
@@ -106,5 +109,28 @@ public class ProfileServiceImpl implements ProfileService {
                 .filter(g -> g.getValue().equalsIgnoreCase(seekingFor))
                 .findFirst()
                 .orElseThrow(() -> new SeekingForNotFoundException(seekingFor));
+    }
+
+    private List<Gender> fillGenderForLookingFor(AuthorizedUser user) {
+        final List<Gender> seekingFor = new ArrayList<>();
+        switch (user.getProfile().getSeeking()) {
+            case SUDAR:
+                seekingFor.add(Gender.MALE);
+            case SUDARYNYA:
+                seekingFor.add(Gender.FEMALE);
+            default:
+                seekingFor.add(Gender.FEMALE);
+                seekingFor.add(Gender.MALE);
+        }
+        return seekingFor;
+    }
+
+    public SeekingFor fillSeekingFor(AuthorizedUser user) {
+        switch (user.getProfile().getGender()) {
+            case MALE:
+                return SeekingFor.SUDAR;
+            default:
+                return SeekingFor.SUDARYNYA;
+        }
     }
 }
