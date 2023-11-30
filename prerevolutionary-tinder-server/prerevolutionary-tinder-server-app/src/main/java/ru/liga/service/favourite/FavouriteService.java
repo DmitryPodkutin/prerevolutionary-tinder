@@ -20,4 +20,6 @@ public interface FavouriteService {
     List<Favorite> getAllFavoritesByFavoriteUserUd(Long currentUserId);
 
     Page<FavoriteProfileDTO> findFavourites(Pageable pageable);
+
+    Favorite createFavorite(Long favoriteId);
 }

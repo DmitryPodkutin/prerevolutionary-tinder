@@ -57,6 +57,17 @@ public class FavouriteServiceImpl implements FavouriteService {
                         addMutualFlagIfIntersectsWithFavorites(currentUser.getUserId(), profile)));
     }
 
+    @Override
+    public Favorite createFavorite(Long favoriteUserId) {
+        final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
+        if (checkIfAlreadyFavorite(currentUser.getUserId(), favoriteUserId)) {
+            return favouriteRepository.findAllByUserId(currentUser.getUserId()).stream()
+                    .filter(favorite -> favorite.getFavoriteUser().equals(favoriteUserId)).findFirst()
+                    .orElseThrow(EntityNotFoundException::new);
+        }
+        return createFavorite(currentUser.getUserId(), favoriteUserId);
+    }
+
     public List<Favorite> findFavouritesByFilter(FavouriteFilter filter) {
         return favouriteRepository.findAllByUserAndFavoriteUser(filter.getUser().getId(), getSort(filter));
     }
@@ -112,5 +123,25 @@ public class FavouriteServiceImpl implements FavouriteService {
             return Mutuality.LIKE_YOU;
         }
 
+    }
+
+    private Favorite createFavorite(Long currentUser, Long favoriteUserId) {
+        final Favorite favorite = new Favorite();
+        favorite.setUser(userRepository.findById(currentUser)
+                .orElseThrow(EntityNotFoundException::new));
+        favorite.setFavoriteUser(userRepository.findById(favoriteUserId)
+                .orElseThrow(EntityNotFoundException::new));
+        favouriteRepository.save(favorite);
+        return favorite;
+    }
+
+    private Boolean checkIfAlreadyFavorite(Long currentUserId, Long favoriteId) {
+        if (favouriteRepository.findAllByUserId(currentUserId).stream()
+                 .map(favorite -> favorite.getFavoriteUser().getId()).collect(Collectors.toList())
+                 .contains(favoriteId)) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
     }
 }
