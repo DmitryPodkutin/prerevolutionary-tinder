@@ -18,6 +18,7 @@ import ru.liga.repository.ProfileRepository;
 import ru.liga.repository.UserRepository;
 import ru.liga.service.user.AuthenticationContext;
 
+import javax.persistence.EntityExistsException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -34,7 +35,10 @@ public class ProfileServiceImpl implements ProfileService {
     public Page<MatchingProfileDTO> getAllMatchingProfiles(Pageable pageable) {
         final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
         final Page<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
-                currentUser.getProfile().getGender(), currentUser.getProfile().getSeeking(), pageable);
+                currentUser.getProfile().getGender(), currentUser.getProfile().getSeeking(),
+                userRepository.findById(currentUser.getUserId())
+                        .orElseThrow(EntityExistsException::new),
+                pageable);
         return matchingProfiles.map(profile ->
                 entityToMatchingProfileDTOConverter.convert(currentUser.getUserId(), profile));
     }
