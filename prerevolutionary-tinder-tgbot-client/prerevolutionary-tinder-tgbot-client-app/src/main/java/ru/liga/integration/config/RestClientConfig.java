@@ -54,6 +54,9 @@ public class RestClientConfig {
     public String getProfileServiceUrl() {
         return properties.getProperty("profile.service.url");
     }
+    public String getFavoriteServiceUrl() {
+        return properties.getProperty("favorite.service.url");
+    }
 
     @Bean
     public ServiceUser serviceUser() {

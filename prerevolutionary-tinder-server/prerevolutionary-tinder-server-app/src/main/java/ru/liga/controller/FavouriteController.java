@@ -3,25 +3,24 @@ package ru.liga.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.liga.dto.FavoriteDto;
-import ru.liga.dto.filter.FavouriteFilter;
+import ru.liga.dto.FavoriteProfileDTO;
 import ru.liga.service.favourite.FavouriteService;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
 @CrossOrigin
-@RequestMapping("/favourite")
+@RequestMapping("/favorite")
 /*@Transactional(timeout = 240)*/
 public class FavouriteController {
 
@@ -29,11 +28,15 @@ public class FavouriteController {
     private final ConversionService customConversionService;
 
     @GetMapping
-    public ResponseEntity<List<FavoriteDto>> getAll(FavouriteFilter filter, Pageable pageable) {
-        final List<FavoriteDto> favourites = favouriteService.findFavouritesByFilter(filter).stream()
-                .map(favourite -> customConversionService.convert(favourite, FavoriteDto.class))
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(favourites, HttpStatus.OK);
+    public ResponseEntity<Page<FavoriteProfileDTO>> getAll(@RequestParam() int page,
+                                                           @RequestParam() int size) {
+        final Page<FavoriteProfileDTO> matchingProfiles =
+                    favouriteService.findFavourites(PageRequest.of(page, size));
+        if (matchingProfiles.hasContent()) {
+            return new ResponseEntity<>(matchingProfiles, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
 
     @GetMapping("/{id}")

@@ -48,7 +48,7 @@ public class SearchState extends AbstractBotState {
         }
         final Long userTelegramId = getChatId(update);
         final User currentUser = getUserByTelegramId(update);
-        final ProfileDtoWithImage profileDto = profileClientService.findNextMatchingProfiles(userTelegramId,
+        final ProfileDtoWithImage profileDto = profileClientService.findNextMatchingProfile(userTelegramId,
                 currentUser).orElseThrow(() -> new RuntimeException(
                 String.format("MatchingProfiles fo userTelegramId %s not found ", userTelegramId)));
         messageSender.openSearchSwipeKeyboard(update, profileDto);

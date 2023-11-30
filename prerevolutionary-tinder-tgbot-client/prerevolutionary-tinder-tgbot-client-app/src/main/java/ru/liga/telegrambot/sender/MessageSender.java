@@ -53,9 +53,10 @@ public interface MessageSender {
     /**
      * Opens a keyboard for favorites with swipe functionality.
      *
-     * @param update The received update.
+     * @param update     The received update.
+     * @param profileDto
      */
-    void openFavoritesSwipeKeyboard(Update update);
+    void openFavoritesSwipeKeyboard(Update update, ProfileDtoWithImage profileDto);
 
     /**
      * Opens a greeting keyboard.

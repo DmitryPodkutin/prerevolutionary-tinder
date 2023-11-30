@@ -8,8 +8,10 @@ import ru.liga.model.User;
 
 public interface ProfileApi {
 
-    Page<ProfileDtoWithImage> findMatchingProfiles(Long telegramId, int page, int size);
+    Page<ProfileDtoWithImage> findMatchingProfiles(Long telegramId, int currentPage, int oneElementPerPage);
     ResponseEntity<ProfileDtoWithImage> createProfile(ProfileDto profileDto, User user);
     ResponseEntity<ProfileDtoWithImage> updateProfile(ProfileDto profileDto, User user, Long id);
     ResponseEntity<ProfileDtoWithImage> getProfile(User user);
+
+    Page<ProfileDtoWithImage> findFavoriteProfiles(Long telegramId, int currentPage, int oneElementPerPage);
 }

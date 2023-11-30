@@ -27,6 +27,7 @@ public class TelegramMessageSender implements MessageSender {
     private static final String SEND_MESSAGE_ENDPOINT = "/sendMessage";
     private static final String SEND_PHOTO_ENDPOINT = "/sendPhoto";
     private static final String CHAT_ID_ENDPOINT = "?chat_id=";
+    private static final String COMMA_SEPARATOR_FOR_FORMATTED_MESSAGE = ", ";
     private final TelegramBotKeyboardFactory telegramBotKeyboardFactory;
     private final ResourceBundle resourceBundle;
     private final AppConfig appConfig;
@@ -61,8 +62,9 @@ public class TelegramMessageSender implements MessageSender {
     }
 
     @Override
-    public void openFavoritesSwipeKeyboard(Update update) {
-        sendMessageWithKeyboard(update, resourceBundle.getString("favorite.message"),
+    public void openFavoritesSwipeKeyboard(Update update, ProfileDtoWithImage profileDtoWithImage) {
+        final String profileMessage = formatOutputProfileFavoriteMessage(profileDtoWithImage);
+        sendMessageWithPhotoAndKeyboard(update, profileDtoWithImage.getImage(), profileMessage,
                 telegramBotKeyboardFactory.createSwipeKeyboard());
 
     }
@@ -122,6 +124,13 @@ public class TelegramMessageSender implements MessageSender {
     }
 
     private String formatOutputProfileMessage(ProfileDtoWithImage profileDtoWithImage) {
-        return String.format(profileDtoWithImage.getGender() + ", " + profileDtoWithImage.getName());
+        return String.format(profileDtoWithImage.getGender() + COMMA_SEPARATOR_FOR_FORMATTED_MESSAGE +
+                profileDtoWithImage.getName());
+    }
+
+    private String formatOutputProfileFavoriteMessage(ProfileDtoWithImage profileDtoWithImage) {
+        return String.format(profileDtoWithImage.getGender() + COMMA_SEPARATOR_FOR_FORMATTED_MESSAGE +
+                profileDtoWithImage.getName() +
+                COMMA_SEPARATOR_FOR_FORMATTED_MESSAGE + profileDtoWithImage.getMutuality());
     }
 }

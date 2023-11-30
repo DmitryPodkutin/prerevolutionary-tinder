@@ -1,12 +1,12 @@
 package ru.liga.service.profile;
 
 import lombok.AllArgsConstructor;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.liga.dto.MatchingProfileDTO;
+import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.dto.ProfileSaveDTO;
-import ru.liga.dto.converter.ProfileEntityToMatchingProfileDTOConverter;
 import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
 import ru.liga.exception.EntityNotFoundException;
@@ -30,11 +30,11 @@ public class ProfileServiceImpl implements ProfileService {
 
     private final ProfileRepository profileRepository;
     private final AuthenticationContext authenticationContext;
-    private final ProfileEntityToMatchingProfileDTOConverter entityToMatchingProfileDTOConverter;
     private final UserRepository userRepository;
+    private final ConversionService customConversionService;
 
     @Override
-    public Page<MatchingProfileDTO> getAllMatchingProfiles(Pageable pageable) {
+    public Page<ProfileDtoWithImage> getAllMatchingProfiles(Pageable pageable) {
         final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
 
         final Page<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
@@ -43,7 +43,7 @@ public class ProfileServiceImpl implements ProfileService {
                         .orElseThrow(EntityExistsException::new),
                 pageable);
         return matchingProfiles.map(profile ->
-                entityToMatchingProfileDTOConverter.convert(currentUser.getUserId(), profile));
+                customConversionService.convert(profile, ProfileDtoWithImage.class));
     }
 
     @Override

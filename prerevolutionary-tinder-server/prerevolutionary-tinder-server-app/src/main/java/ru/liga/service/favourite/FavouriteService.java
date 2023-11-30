@@ -1,5 +1,8 @@
 package ru.liga.service.favourite;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import ru.liga.dto.FavoriteProfileDTO;
 import ru.liga.dto.filter.FavouriteFilter;
 import ru.liga.model.Favorite;
 
@@ -13,4 +16,8 @@ public interface FavouriteService {
     List<Favorite> findFavouritesByFilter(FavouriteFilter filter);
 
     Optional<Favorite> getOne(Long id);
+
+    List<Favorite> getAllFavoritesByFavoriteUserUd(Long currentUserId);
+
+    Page<FavoriteProfileDTO> findFavourites(Pageable pageable);
 }

@@ -4,8 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.core.convert.ConversionService;
 import ru.liga.dto.ProfileSaveDTO;
-import ru.liga.dto.converter.ProfileEntityToMatchingProfileDTOConverter;
+import ru.liga.dto.converter.ProfileEntityToFavoriteProfileDTOConverter;
 import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
 import ru.liga.exception.EntityNotFoundException;
@@ -37,16 +38,15 @@ public class ProfileServiceImplTest {
     private ProfileRepository profileRepository;
 
     @Mock
-    private ProfileEntityToMatchingProfileDTOConverter profileDtoConverter;
-
-    @Mock
     private UserRepository userRepository;
+    @Mock
+    private ConversionService customConversionService;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         profileService = new ProfileServiceImpl(profileRepository, authenticationContext,
-                profileDtoConverter, userRepository);
+                userRepository, customConversionService);
     }
 
     @Test

@@ -5,11 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Sort;
+import ru.liga.dto.converter.ProfileEntityToFavoriteProfileDTOConverter;
 import ru.liga.dto.filter.FavouriteFilter;
 import ru.liga.model.Favorite;
 import ru.liga.model.User;
 import ru.liga.repository.FavouriteRepository;
+import ru.liga.repository.ProfileRepository;
+import ru.liga.repository.UserRepository;
 import ru.liga.service.favourite.FavouriteServiceImpl;
+import ru.liga.service.user.AuthenticationContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,10 +27,21 @@ public class FavouriteServiceImplTest {
     @Mock
     private FavouriteRepository favouriteRepository;
 
+    @Mock
+    private AuthenticationContext authenticationContext;
+
+    @Mock
+    private ProfileEntityToFavoriteProfileDTOConverter profileEntityToFavoriteProfileDTOConverter;
+    @Mock
+    private ProfileRepository profileRepository;
+    @Mock
+    private UserRepository userRepository;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        favouriteService = new FavouriteServiceImpl(favouriteRepository);
+        favouriteService = new FavouriteServiceImpl(favouriteRepository, authenticationContext,
+                profileEntityToFavoriteProfileDTOConverter, profileRepository, userRepository);
     }
 
     @Test

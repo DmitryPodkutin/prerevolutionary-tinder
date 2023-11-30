@@ -31,6 +31,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ProfileApiImpl implements ProfileApi {
 
+    private static final String PAGE_PARAM = "page";
+    private static final String SIZE_PARAM = "size";
     private final RestClientConfig restClientConfig;
     private final RestTemplate restTemplate;
     private final UserService userService;
@@ -60,16 +62,13 @@ public class ProfileApiImpl implements ProfileApi {
     @Override
     public Page<ProfileDtoWithImage> findMatchingProfiles(Long telegramId, int page, int size) {
         try {
-            final Optional<User> currentUser = userService.getUserByTelegramId(telegramId);
-            if (currentUser.isEmpty()) {
-                throw new RuntimeException("User not found for Telegram ID: " + telegramId);
-            }
+            final User currentUser = getCurrentuser(telegramId);
             final HttpHeaders headers = new HttpHeaders();
-            currentUser.ifPresent(user -> headers.setBasicAuth(user.getUserName(), user.getPassword()));
+            headers.setBasicAuth(currentUser.getUserName(), currentUser.getPassword());
             final UriComponentsBuilder builder = UriComponentsBuilder
                     .fromUriString(restClientConfig.getProfileMatchingServiceUrl())
-                    .queryParam("page", page)
-                    .queryParam("size", size);
+                    .queryParam(PAGE_PARAM, page)
+                    .queryParam(SIZE_PARAM, size);
             final ResponseEntity<CustomPageImpl<ProfileDtoWithImage>> responseEntity = restTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.GET,
@@ -78,10 +77,36 @@ public class ProfileApiImpl implements ProfileApi {
                     });
             return responseEntity.getBody();
         } catch (HttpClientErrorException e) {
-            log.error("HTTP error during remote service call: {}", e.getRawStatusCode(), e);
+            log.error("HTTP error during remote service call to get matching profiles: {}", e.getRawStatusCode(), e);
             return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
         } catch (RuntimeException e) {
-            log.error("Error during remote service call", e);
+            log.error("Error during remote service call to get matching profile", e);
+            return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
+        }
+    }
+
+    @Override
+    public Page<ProfileDtoWithImage> findFavoriteProfiles(Long telegramId, int page, int size) {
+        try {
+            final User currentUser = getCurrentuser(telegramId);
+            final HttpHeaders headers = new HttpHeaders();
+            headers.setBasicAuth(currentUser.getUserName(), currentUser.getPassword());
+            final UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromUriString(restClientConfig.getFavoriteServiceUrl())
+                    .queryParam(PAGE_PARAM, page)
+                    .queryParam(SIZE_PARAM, size);
+            final ResponseEntity<CustomPageImpl<ProfileDtoWithImage>> responseEntity = restTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    new ParameterizedTypeReference<>() {
+                    });
+            return responseEntity.getBody();
+        } catch (HttpClientErrorException e) {
+            log.error("HTTP error during remote service call to get favorites: {}", e.getRawStatusCode(), e);
+            return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
+        } catch (RuntimeException e) {
+            log.error("Error during remote service call to get favorites", e);
             return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
         }
     }
@@ -126,6 +151,15 @@ public class ProfileApiImpl implements ProfileApi {
             log.error("Unauthorized access to profile update service: {}", e.getMessage());
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    private User getCurrentuser(Long telegramId) {
+        final Optional<User> currentUser = userService.getUserByTelegramId(telegramId);
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("User not found for Telegram ID: " + telegramId);
+        } else {
+            return currentUser.get();
+        }
     }
 }
 

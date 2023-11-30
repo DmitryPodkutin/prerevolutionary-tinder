@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.liga.dto.MatchingProfileDTO;
 import ru.liga.dto.ProfileDto;
 import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.dto.ProfileSaveDTO;
@@ -66,9 +65,9 @@ public class ProfileController {
     }
 
     @GetMapping("/matching")
-    public ResponseEntity<Page<MatchingProfileDTO>> findMatchingProfiles(@RequestParam() int page,
+    public ResponseEntity<Page<ProfileDtoWithImage>> findMatchingProfiles(@RequestParam() int page,
                                                                          @RequestParam() int size) {
-        final Page<MatchingProfileDTO> matchingProfiles =
+        final Page<ProfileDtoWithImage> matchingProfiles =
                 profileService.getAllMatchingProfiles(PageRequest.of(page, size));
         if (matchingProfiles.hasContent()) {
             return new ResponseEntity<>(matchingProfiles, HttpStatus.OK);
