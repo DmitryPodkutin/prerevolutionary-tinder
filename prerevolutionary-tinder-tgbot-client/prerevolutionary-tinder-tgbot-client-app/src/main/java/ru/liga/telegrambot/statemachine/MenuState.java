@@ -45,7 +45,7 @@ public class MenuState extends AbstractBotState {
             return goToNextStep(VIEW_PROFILE, dialogHandler, update);
         } else if ("favorite.bottom".equals(userInput)) {
             changeUserState(user, FAVORITES);
-            goToNextStep(FAVORITES, dialogHandler, update);
+            return goToNextStep(FAVORITES, dialogHandler, update);
         }
         telegramMessageSender.openMenuKeyboard(update);
         return this;
