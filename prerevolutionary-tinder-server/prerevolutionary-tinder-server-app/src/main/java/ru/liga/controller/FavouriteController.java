@@ -10,19 +10,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.liga.dto.FavoriteDto;
 import ru.liga.dto.FavoriteProfileDTO;
+import ru.liga.model.Favorite;
 import ru.liga.service.favourite.FavouriteService;
 
 @AllArgsConstructor
 @RestController
 @CrossOrigin
 @RequestMapping("/favorite")
-/*@Transactional(timeout = 240)*/
 public class FavouriteController {
 
     private final FavouriteService favouriteService;
@@ -32,7 +32,7 @@ public class FavouriteController {
     public ResponseEntity<Page<FavoriteProfileDTO>> getAll(@RequestParam() int page,
                                                            @RequestParam() int size) {
         final Page<FavoriteProfileDTO> matchingProfiles =
-                    favouriteService.findFavourites(PageRequest.of(page, size));
+                favouriteService.findFavourites(PageRequest.of(page, size));
         if (matchingProfiles.hasContent()) {
             return new ResponseEntity<>(matchingProfiles, HttpStatus.OK);
         } else {
@@ -48,9 +48,12 @@ public class FavouriteController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    public ResponseEntity<FavoriteDto> addFavorite(@RequestBody Long favoriteId) {
-        return new ResponseEntity<>(customConversionService.convert(
-                favouriteService.createFavorite(favoriteId), FavoriteDto.class), HttpStatus.CREATED);
+    @PostMapping("/{favoriteId}")
+    public ResponseEntity<Favorite> addFavorite(@PathVariable Long favoriteId) {
+        final Favorite favourite = favouriteService.createFavorite(favoriteId);
+        return favourite != null ?
+                ResponseEntity.status(HttpStatus.CREATED).build() :
+                ResponseEntity.notFound().build();
     }
 
 }

@@ -2,7 +2,7 @@ package ru.liga.service.profile;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import ru.liga.dto.ProfileDtoWithImage;
+import ru.liga.dto.MatchingProfileDtoWithImage;
 import ru.liga.dto.ProfileSaveDTO;
 import ru.liga.model.Profile;
 
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface ProfileService {
 
-    Page<ProfileDtoWithImage> getAllMatchingProfiles(Pageable pageable);
+    Page<MatchingProfileDtoWithImage> getAllMatchingProfiles(Pageable pageable);
 
     Optional<Profile> getByUserId(Long userId);
 

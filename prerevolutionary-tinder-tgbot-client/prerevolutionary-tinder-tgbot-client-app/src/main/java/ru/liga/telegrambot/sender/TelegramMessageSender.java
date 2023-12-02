@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.liga.config.AppConfig;
+import ru.liga.dto.MatchingProfileDtoWithImage;
 import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.telegrambot.keyboard.TelegramBotKeyboardFactory;
 import ru.liga.telegrambot.sender.imagesender.ImageSender;
@@ -38,12 +39,12 @@ public class TelegramMessageSender implements MessageSender {
     /**
      * Opens the keyboard for viewing a profile.
      *
-     * @param update             The received update.
+     * @param update              The received update.
      * @param profileDtoWithImage The profile information with an image.
      */
     @Override
     public void openProfileViewKeyboard(Update update, ProfileDtoWithImage profileDtoWithImage) {
-        final String profileMessage = formatOutputProfileMessage(profileDtoWithImage);
+        final String profileMessage = formatOutputMatchingProfileSearchMessage(profileDtoWithImage);
         sendMessageWithPhotoAndKeyboard(update, profileDtoWithImage.getImage(), profileMessage,
                 telegramBotKeyboardFactory.createProfileViewKeyboard());
     }
@@ -55,9 +56,9 @@ public class TelegramMessageSender implements MessageSender {
     }
 
     @Override
-    public void openSearchSwipeKeyboard(Update update, ProfileDtoWithImage profileDtoWithImage) {
-        final String profileMessage = formatOutputProfileMessage(profileDtoWithImage);
-        sendMessageWithPhotoAndKeyboard(update, profileDtoWithImage.getImage(), profileMessage,
+    public void openSearchSwipeKeyboard(Update update, MatchingProfileDtoWithImage matchingProfileDtoWithImage) {
+        final String profileMessage = formatOutputMatchingProfileSearchMessage(matchingProfileDtoWithImage);
+        sendMessageWithPhotoAndKeyboard(update, matchingProfileDtoWithImage.getImage(), profileMessage,
                 telegramBotKeyboardFactory.createSwipeKeyboard());
     }
 
@@ -123,9 +124,14 @@ public class TelegramMessageSender implements MessageSender {
         }
     }
 
-    private String formatOutputProfileMessage(ProfileDtoWithImage profileDtoWithImage) {
+    private String formatOutputMatchingProfileSearchMessage(ProfileDtoWithImage profileDtoWithImage) {
         return String.format(profileDtoWithImage.getGender() + COMMA_SEPARATOR_FOR_FORMATTED_MESSAGE +
                 profileDtoWithImage.getName());
+    }
+
+    private String formatOutputMatchingProfileSearchMessage(MatchingProfileDtoWithImage matchingProfileDtoWithImage) {
+        return String.format(matchingProfileDtoWithImage.getGender() + COMMA_SEPARATOR_FOR_FORMATTED_MESSAGE +
+                matchingProfileDtoWithImage.getName());
     }
 
     private String formatOutputProfileFavoriteMessage(ProfileDtoWithImage profileDtoWithImage) {

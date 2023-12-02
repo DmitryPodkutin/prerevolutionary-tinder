@@ -9,14 +9,13 @@ import org.springframework.stereotype.Service;
 import ru.liga.dto.FavoriteProfileDTO;
 import ru.liga.dto.converter.ProfileEntityToFavoriteProfileDTOConverter;
 import ru.liga.dto.filter.FavouriteFilter;
-import ru.liga.enums.Gender;
-import ru.liga.enums.Mutuality;
 import ru.liga.model.AuthorizedUser;
 import ru.liga.model.Favorite;
 import ru.liga.model.Profile;
 import ru.liga.repository.FavouriteRepository;
 import ru.liga.repository.ProfileRepository;
 import ru.liga.repository.UserRepository;
+import ru.liga.service.mutuality.MutualityService;
 import ru.liga.service.user.AuthenticationContext;
 
 import javax.persistence.EntityNotFoundException;
@@ -34,6 +33,7 @@ public class FavouriteServiceImpl implements FavouriteService {
     private final ProfileEntityToFavoriteProfileDTOConverter profileEntityToFavoriteProfileDTOConverter;
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final MutualityService mutualityService;
 
     @Override
     public List<Favorite> getAllFavouritesByUserId(Long userId) {
@@ -54,7 +54,9 @@ public class FavouriteServiceImpl implements FavouriteService {
                         .orElseThrow(EntityNotFoundException::new), pageable);
         return convertFavoriteToProfile(favoritePage, currentUser.getUserId()).map(profile ->
                 profileEntityToFavoriteProfileDTOConverter.convert(profile,
-                        addMutualFlagIfIntersectsWithFavorites(currentUser.getUserId(), profile)));
+                        mutualityService.addMutualFlagIfIntersectsWithFavorites(currentUser.getUserId(), profile,
+                                getAllFavouritesByUserId(currentUser.getUserId()),
+                                getAllFavoritesByFavoriteUserUd(currentUser.getUserId()))));
     }
 
     @Override
@@ -62,7 +64,7 @@ public class FavouriteServiceImpl implements FavouriteService {
         final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
         if (checkIfAlreadyFavorite(currentUser.getUserId(), favoriteUserId)) {
             return favouriteRepository.findAllByUserId(currentUser.getUserId()).stream()
-                    .filter(favorite -> favorite.getFavoriteUser().equals(favoriteUserId)).findFirst()
+                    .filter(favorite -> favorite.getFavoriteUser().getId().equals(favoriteUserId)).findFirst()
                     .orElseThrow(EntityNotFoundException::new);
         }
         return createFavorite(currentUser.getUserId(), favoriteUserId);
@@ -78,10 +80,9 @@ public class FavouriteServiceImpl implements FavouriteService {
     }
 
     private Sort getSort(FavouriteFilter filter) {
-        final Sort sort = Sort.by(filter.getSortBy().stream()
+        return Sort.by(filter.getSortBy().stream()
                 .map(customSort -> new Sort.Order(customSort.getDirection(), customSort.getColumnName()))
                 .collect(Collectors.toList()));
-        return sort;
     }
 
     private Page<Profile> convertFavoriteToProfile(Page<Favorite> favorites, Long currentUserId) {
@@ -98,33 +99,6 @@ public class FavouriteServiceImpl implements FavouriteService {
         return new PageImpl<>(profiles, favorites.getPageable(), favorites.getTotalElements());
     }
 
-    private Mutuality addMutualFlagIfIntersectsWithFavorites(Long currentUserId, Profile profile) {
-        final List<Long> myFavorites = getAllFavouritesByUserId(currentUserId).stream()
-                .map(favorite -> favorite.getFavoriteUser().getId())
-                .collect(Collectors.toList());
-        final List<Long> iAmFavoriteFor = getAllFavoritesByFavoriteUserUd(currentUserId).stream()
-                .map(favorite -> favorite.getUser().getId())
-                .collect(Collectors.toList());
-
-        final List<Long> mutualFavorites = new ArrayList<>(myFavorites);
-        mutualFavorites.retainAll(iAmFavoriteFor);
-        if (mutualFavorites.contains(profile.getUser().getId())) {
-            return Mutuality.MUTUAL;
-        }
-        final List<Long> uniqueFromMyFavorites = new ArrayList<>(myFavorites);
-        uniqueFromMyFavorites.removeAll(mutualFavorites);
-        if (uniqueFromMyFavorites.contains(profile.getUser().getId())) {
-            if (profile.getGender().equals(Gender.MALE)) {
-                return Mutuality.YOU_LIKE_HIM;
-            } else {
-                return Mutuality.YOU_LIKE_HER;
-            }
-        } else {
-            return Mutuality.LIKE_YOU;
-        }
-
-    }
-
     private Favorite createFavorite(Long currentUser, Long favoriteUserId) {
         final Favorite favorite = new Favorite();
         favorite.setUser(userRepository.findById(currentUser)
@@ -137,8 +111,8 @@ public class FavouriteServiceImpl implements FavouriteService {
 
     private Boolean checkIfAlreadyFavorite(Long currentUserId, Long favoriteId) {
         if (favouriteRepository.findAllByUserId(currentUserId).stream()
-                 .map(favorite -> favorite.getFavoriteUser().getId()).collect(Collectors.toList())
-                 .contains(favoriteId)) {
+                .map(favorite -> favorite.getFavoriteUser().getId()).collect(Collectors.toList())
+                .contains(favoriteId)) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;

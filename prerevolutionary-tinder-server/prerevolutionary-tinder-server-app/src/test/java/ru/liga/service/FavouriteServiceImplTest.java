@@ -13,6 +13,7 @@ import ru.liga.repository.FavouriteRepository;
 import ru.liga.repository.ProfileRepository;
 import ru.liga.repository.UserRepository;
 import ru.liga.service.favourite.FavouriteServiceImpl;
+import ru.liga.service.mutuality.MutualityService;
 import ru.liga.service.user.AuthenticationContext;
 
 import java.util.List;
@@ -36,12 +37,14 @@ public class FavouriteServiceImplTest {
     private ProfileRepository profileRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private MutualityService mutualityService;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         favouriteService = new FavouriteServiceImpl(favouriteRepository, authenticationContext,
-                profileEntityToFavoriteProfileDTOConverter, profileRepository, userRepository);
+                profileEntityToFavoriteProfileDTOConverter, profileRepository, userRepository, mutualityService);
     }
 
     @Test

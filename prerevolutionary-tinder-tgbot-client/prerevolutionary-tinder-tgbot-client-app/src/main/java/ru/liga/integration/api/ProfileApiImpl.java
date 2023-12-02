@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.liga.dto.MatchingProfileDtoWithImage;
 import ru.liga.dto.ProfileDto;
 import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.integration.component.CustomPageImpl;
@@ -60,7 +61,7 @@ public class ProfileApiImpl implements ProfileApi {
     }
 
     @Override
-    public Page<ProfileDtoWithImage> findMatchingProfiles(Long telegramId, int page, int size) {
+    public Page<MatchingProfileDtoWithImage> findMatchingProfiles(Long telegramId, int page, int size) {
         try {
             final User currentUser = getCurrentuser(telegramId);
             final HttpHeaders headers = new HttpHeaders();
@@ -69,7 +70,7 @@ public class ProfileApiImpl implements ProfileApi {
                     .fromUriString(restClientConfig.getProfileMatchingServiceUrl())
                     .queryParam(PAGE_PARAM, page)
                     .queryParam(SIZE_PARAM, size);
-            final ResponseEntity<CustomPageImpl<ProfileDtoWithImage>> responseEntity = restTemplate.exchange(
+            final ResponseEntity<CustomPageImpl<MatchingProfileDtoWithImage>> responseEntity = restTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.GET,
                     new HttpEntity<>(headers),

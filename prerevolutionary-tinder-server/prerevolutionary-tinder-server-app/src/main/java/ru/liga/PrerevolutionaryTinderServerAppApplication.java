@@ -8,6 +8,7 @@ import org.springframework.context.support.ConversionServiceFactoryBean;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 import ru.liga.dto.converter.FavouriteEntityToDtoConverter;
+import ru.liga.dto.converter.MatchingProfileToDtoWithImageConverter;
 import ru.liga.dto.converter.ProfileEntityToProfileDtoConverter;
 import ru.liga.dto.converter.ProfileToDtoWithImageConverter;
 
@@ -27,6 +28,7 @@ public class PrerevolutionaryTinderServerAppApplication {
         converters.add(context.getBean(ProfileEntityToProfileDtoConverter.class));
         converters.add(context.getBean(FavouriteEntityToDtoConverter.class));
         converters.add(context.getBean(ProfileToDtoWithImageConverter.class));
+        converters.add(context.getBean(MatchingProfileToDtoWithImageConverter.class));
         bean.setConverters(converters);
         bean.afterPropertiesSet();
         return bean.getObject();

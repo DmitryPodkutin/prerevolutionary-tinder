@@ -2,6 +2,7 @@ package ru.liga.telegrambot.sender;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import ru.liga.dto.MatchingProfileDtoWithImage;
 import ru.liga.dto.ProfileDtoWithImage;
 
 
@@ -48,7 +49,7 @@ public interface MessageSender {
      * @param update  The received update.
      * @param profileDtoWithImage The profile information with an image.
      */
-    void openSearchSwipeKeyboard(Update update, ProfileDtoWithImage profileDtoWithImage);
+    void openSearchSwipeKeyboard(Update update, MatchingProfileDtoWithImage profileDtoWithImage);
 
     /**
      * Opens a keyboard for favorites with swipe functionality.

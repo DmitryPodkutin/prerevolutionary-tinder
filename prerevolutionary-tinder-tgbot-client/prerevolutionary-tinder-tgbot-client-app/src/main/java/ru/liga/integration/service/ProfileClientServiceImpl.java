@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.liga.dto.MatchingProfileDtoWithImage;
 import ru.liga.dto.ProfileDto;
 import ru.liga.dto.ProfileDtoWithImage;
 import ru.liga.emuns.SwipeDirection;
@@ -26,9 +27,9 @@ public class ProfileClientServiceImpl implements ProfileClientService {
 
 
     @Override
-    public Optional<ProfileDtoWithImage> findNextMatchingProfile(Long telegramId, User user) {
+    public Optional<MatchingProfileDtoWithImage> findNextMatchingProfile(Long telegramId, User user) {
         final int currentPage = getCurrentPage(user);
-        final Page<ProfileDtoWithImage> matchingProfiles = profileApi.findMatchingProfiles(
+        final Page<MatchingProfileDtoWithImage> matchingProfiles = profileApi.findMatchingProfiles(
                 telegramId, currentPage, ONE_ELEMENT_PER_PAGE);
         updateSearchingCurrentPageIfNeeded(user, matchingProfiles.isLast(), currentPage);
         return matchingProfiles.getContent().stream().findFirst();

@@ -15,6 +15,8 @@ import ru.liga.exception.SeekingForNotFoundException;
 import ru.liga.model.Profile;
 import ru.liga.repository.ProfileRepository;
 import ru.liga.repository.UserRepository;
+import ru.liga.service.favourite.FavouriteService;
+import ru.liga.service.mutuality.MutualityService;
 import ru.liga.service.profile.ProfileServiceImpl;
 import ru.liga.service.user.AuthenticationContext;
 
@@ -39,18 +41,25 @@ public class ProfileServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
     @Mock
     private ConversionService customConversionService;
+
+    @Mock
+    private MutualityService mutualityService;
+
+    @Mock
+    private FavouriteService favouriteService;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         profileService = new ProfileServiceImpl(profileRepository, authenticationContext,
-                userRepository, customConversionService);
+                userRepository, customConversionService, mutualityService, favouriteService);
     }
 
     @Test
-        public void getProfileById_ExistingProfile_ReturnsProfile() {
+    public void getProfileById_ExistingProfile_ReturnsProfile() {
         Long fakeProfileId = 1L;
         Profile fakeProfile = new Profile();
         when(profileRepository.findById(fakeProfileId)).thenReturn(Optional.of(fakeProfile));

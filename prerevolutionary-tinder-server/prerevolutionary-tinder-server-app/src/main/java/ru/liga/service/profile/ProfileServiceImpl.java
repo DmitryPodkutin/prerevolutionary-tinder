@@ -5,7 +5,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.liga.dto.ProfileDtoWithImage;
+import ru.liga.dto.MatchingProfileDtoWithImage;
 import ru.liga.dto.ProfileSaveDTO;
 import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
@@ -13,9 +13,12 @@ import ru.liga.exception.EntityNotFoundException;
 import ru.liga.exception.GenderNotFoundException;
 import ru.liga.exception.SeekingForNotFoundException;
 import ru.liga.model.AuthorizedUser;
+import ru.liga.model.Favorite;
 import ru.liga.model.Profile;
 import ru.liga.repository.ProfileRepository;
 import ru.liga.repository.UserRepository;
+import ru.liga.service.favourite.FavouriteService;
+import ru.liga.service.mutuality.MutualityService;
 import ru.liga.service.user.AuthenticationContext;
 
 import javax.persistence.EntityExistsException;
@@ -32,18 +35,18 @@ public class ProfileServiceImpl implements ProfileService {
     private final AuthenticationContext authenticationContext;
     private final UserRepository userRepository;
     private final ConversionService customConversionService;
+    private final MutualityService mutualityService;
+    private final FavouriteService favouriteService;
 
     @Override
-    public Page<ProfileDtoWithImage> getAllMatchingProfiles(Pageable pageable) {
+    public Page<MatchingProfileDtoWithImage> getAllMatchingProfiles(Pageable pageable) {
         final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
-
         final Page<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
                 fillSeekingFor(currentUser), fillGenderForLookingFor(currentUser),
                 userRepository.findById(currentUser.getUserId())
                         .orElseThrow(EntityExistsException::new),
                 pageable);
-        return matchingProfiles.map(profile ->
-                customConversionService.convert(profile, ProfileDtoWithImage.class));
+        return matchingProfiles.map(profile -> convertToMatchingProfileDto(profile, currentUser.getUserId()));
     }
 
     @Override
@@ -125,12 +128,27 @@ public class ProfileServiceImpl implements ProfileService {
         return seekingFor;
     }
 
-    public SeekingFor fillSeekingFor(AuthorizedUser user) {
+    private SeekingFor fillSeekingFor(AuthorizedUser user) {
         switch (user.getProfile().getGender()) {
             case MALE:
                 return SeekingFor.SUDAR;
             default:
                 return SeekingFor.SUDARYNYA;
         }
+    }
+
+    private MatchingProfileDtoWithImage convertToMatchingProfileDto(Profile profile, Long currentUserId) {
+        final MatchingProfileDtoWithImage matchingProfileDtoWithImage = customConversionService.convert(profile,
+                MatchingProfileDtoWithImage.class);
+        if (matchingProfileDtoWithImage != null) {
+            final boolean isMutual = mutualityService.isMutual(profile.getId(), getFavorites(currentUserId),
+                    currentUserId, getFavorites(profile.getId()));
+            matchingProfileDtoWithImage.setMutuality(isMutual);
+        }
+        return matchingProfileDtoWithImage;
+    }
+
+    private List<Favorite> getFavorites(Long currentUserId) {
+        return favouriteService.getAllFavouritesByUserId(currentUserId);
     }
 }
