@@ -61,14 +61,15 @@ public class SearchState extends AbstractBotState {
                 findNextMatchingProfile(userTelegramId,
                         currentUser).orElseThrow(() -> new RuntimeException(
                         String.format("MatchingProfiles fo userTelegramId %s not found ", userTelegramId)));
-        if ("right.bottom".equals(getUserMessage(update))) {
+        final boolean isRightButtonPress = "right.bottom".equals(getUserMessage(update));
+        if (isRightButtonPress) {
             favoriteClientService.addFavorite(matchingProfileDtoWithImage.getId(), currentUser);
-            if (Boolean.TRUE.equals(matchingProfileDtoWithImage.isMutuality())) {
-                messageSender.sendTextMessage(getChatId(update),
-                        resourceBundle.getString("search.message.mutuality"));
-            }
         }
         messageSender.openSearchSwipeKeyboard(update, matchingProfileDtoWithImage);
+        if (Boolean.TRUE.equals(matchingProfileDtoWithImage.isMutuality()) && isRightButtonPress) {
+            messageSender.sendTextMessage(getChatId(update),
+                    resourceBundle.getString("search.message.mutuality"));
+        }
         return this;
     }
 }
