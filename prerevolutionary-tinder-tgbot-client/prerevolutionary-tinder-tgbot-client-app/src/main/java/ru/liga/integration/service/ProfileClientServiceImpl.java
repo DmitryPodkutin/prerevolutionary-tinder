@@ -17,6 +17,10 @@ import ru.liga.service.MatchingProfilesPageInfoService;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+
+/**
+ * Implementation of the ProfileClientService that handles profile-related operations.
+ */
 @Slf4j
 @Service
 @AllArgsConstructor

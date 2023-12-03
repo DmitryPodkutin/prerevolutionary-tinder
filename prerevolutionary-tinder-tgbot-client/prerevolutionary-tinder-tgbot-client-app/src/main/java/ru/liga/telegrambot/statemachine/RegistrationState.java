@@ -22,17 +22,20 @@ public class RegistrationState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
     private final TelegramMessageSender telegramMessageSender;
     private final RegistrationService registrationService;
+    private final ResourceBundle logMessages;
 
     @Autowired
     public RegistrationState(ResourceBundle resourceBundle,
                              TelegramMessageSender telegramMessageSender,
                              RegistrationService registrationService,
                              UserService userService,
-                             UserStateRepository userStateRepository) {
+                             UserStateRepository userStateRepository,
+                             ResourceBundle logMessages) {
         super(StateType.REGISTRATION, userService, userStateRepository);
         this.resourceBundle = resourceBundle;
         this.telegramMessageSender = telegramMessageSender;
         this.registrationService = registrationService;
+        this.logMessages = logMessages;
     }
 
     /**
@@ -44,7 +47,7 @@ public class RegistrationState extends AbstractBotState {
      */
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-        log.debug("Handling input for register a new user.");
+        log.debug(logMessages.getString("hande.registration.input"));
         final Long chatId = update.getMessage().getChatId();
         final Long userTelegramId = update.getMessage().getFrom().getId();
         final String userInputMessage = update.getMessage().getText();

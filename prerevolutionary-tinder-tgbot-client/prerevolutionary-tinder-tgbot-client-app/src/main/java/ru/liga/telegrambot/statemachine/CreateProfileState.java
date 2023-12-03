@@ -41,6 +41,7 @@ public class CreateProfileState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
     private final ConversionService customConversionService;
     private final ProfileClientService profileClientService;
+    private final ResourceBundle logMessages;
 
     @Autowired
     public CreateProfileState(MessageSender messageSender,
@@ -49,18 +50,19 @@ public class CreateProfileState extends AbstractBotState {
                               ConversionService customConversionService,
                               ProfileClientService profileClientService,
                               UserService userService,
-                              UserStateRepository userStateRepository) {
+                              UserStateRepository userStateRepository, ResourceBundle logMessages) {
         super(CREATE_PROFILE, userService, userStateRepository);
         this.messageSender = messageSender;
         this.profileService = profileService;
         this.resourceBundle = resourceBundle;
         this.customConversionService = customConversionService;
         this.profileClientService = profileClientService;
+        this.logMessages = logMessages;
     }
 
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-        log.debug("Handling input for creating a user profile.");
+        log.debug(logMessages.getString("handle.create.profile.input"));
         final Long chatId = getChatId(update);
         final Optional<Profile> profileOptional = profileService.getByChatId(chatId);
         if (profileOptional.isEmpty()) {
@@ -96,7 +98,7 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     private Boolean getProfileLookingFor(Update update, Profile profile) {
-        log.debug("Checking profile looking for information.");
+        log.debug(logMessages.getString("check.looking.for"));
         if (isNull(profile.getLookingFor())) {
             profile.setLookingFor(EMPTY_STRING);
             profileService.saveProfile(profile);
@@ -109,7 +111,7 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     private Boolean getProfileDescription(Update update, Profile profile) {
-        log.debug("Checking profile description information.");
+        log.debug(logMessages.getString("check.description"));
         if (isNull(profile.getDescription())) {
             profile.setDescription(EMPTY_STRING);
             profileService.saveProfile(profile);
@@ -124,7 +126,7 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     private Boolean getProfileName(Update update, Profile profile) {
-        log.debug("Checking profile name information.");
+        log.debug(logMessages.getString("check.name"));
         if (isNull(profile.getName())) {
             profile.setName(EMPTY_STRING);
             profileService.saveProfile(profile);
@@ -139,7 +141,7 @@ public class CreateProfileState extends AbstractBotState {
     }
 
     private Boolean getProfileGender(Update update) {
-        log.debug("Checking profile gender information.");
+        log.debug(logMessages.getString("check.gender"));
         if (nonNull(update.getCallbackQuery()) && nonNull(update.getCallbackQuery().getChatInstance())) {
             final Profile profile = new Profile();
             profile.setChatId(getChatId(update));
@@ -158,7 +160,9 @@ public class CreateProfileState extends AbstractBotState {
             profile.setGender(resourceBundle.getString(messageText));
             profileService.saveProfile(profile);
         } else {
-            throw new CreatingProfileError("Wrong gender.");
+            final String errorMessage = logMessages.getString("wrong.gender");
+            log.error(errorMessage);
+            throw new CreatingProfileError(errorMessage);
         }
     }
 
@@ -168,7 +172,9 @@ public class CreateProfileState extends AbstractBotState {
                 messageText.equals(ALL_GENDER_BOTTOM)) {
             profile.setLookingFor(resourceBundle.getString(messageText));
         } else {
-            throw new CreatingProfileError("Wrong choice of looking for.");
+            final String errorMessage = logMessages.getString("wrong.looking.for");
+            log.error(errorMessage);
+            throw new CreatingProfileError(errorMessage);
         }
     }
 

@@ -13,6 +13,8 @@ import ru.liga.telegrambot.statemachine.RegistrationState;
 import ru.liga.telegrambot.statemachine.SearchState;
 import ru.liga.telegrambot.statemachine.ViewProfileState;
 
+import java.util.ResourceBundle;
+
 /**
  * A factory responsible for creating different states of the Telegram Bot based on the StateType.
  */
@@ -27,6 +29,7 @@ public class StateFactoryImpl implements StateFactory {
     private final SearchState searchState;
     private final FavoriteState favoriteState;
     private final CreateProfileState createProfileState;
+    private final ResourceBundle logMessages;
 
     /**
      * Creates and returns the corresponding BotState based on the provided StateType.
@@ -38,25 +41,25 @@ public class StateFactoryImpl implements StateFactory {
     public BotState createState(StateType stateType) {
         switch (stateType) {
             case REGISTRATION:
-                log.debug("Creating Registration State");
+                log.debug(logMessages.getString("debug.create.registration.state"));
                 return registrationState;
             case CREATE_PROFILE:
-                log.debug("Creating Create Profile State");
+                log.debug(logMessages.getString("debug.create.create.profile.state"));
                 return createProfileState;
             case EDIT_PROFILE:
-                log.debug("Creating Edit Profile State");
+                log.debug(logMessages.getString("debug.create.edit.profile.state"));
                 return editProfileState;
             case MENU:
-                log.debug("Creating Menu State");
+                log.debug(logMessages.getString("debug.create.menu.state"));
                 return menuState;
             case FAVORITES:
-                log.debug("Creating Favorites State");
+                log.debug(logMessages.getString("debug.create.favorites.state"));
                 return favoriteState;
             case SEARCH:
-                log.debug("Creating Search State");
+                log.debug(logMessages.getString("debug.create.search.state"));
                 return searchState;
             default:
-                log.debug("Creating View Profile State");
+                log.debug(logMessages.getString("debug.create.view.profile.state"));
                 return viewProfileState;
         }
     }

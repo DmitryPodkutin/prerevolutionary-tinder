@@ -11,6 +11,8 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import ru.liga.config.AppConfig;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 
+import java.util.ResourceBundle;
+
 /**
  * Represents the Telegram bot used for Tinder-related interactions.
  */
@@ -20,6 +22,7 @@ import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 public class TinderTelegramBot extends TelegramLongPollingBot {
 
     private final TelegramBotDialogHandler telegramBotDialogHandler;
+    private final ResourceBundle logMessages;
 
     /**
      * Processes the received update from Telegram.
@@ -28,7 +31,7 @@ public class TinderTelegramBot extends TelegramLongPollingBot {
      */
     @Override
     public void onUpdateReceived(Update update) {
-        log.debug("Received an update: {}", update);
+        log.debug(logMessages.getString("debug.update.received"), update);
         telegramBotDialogHandler.handleUpdate(update);
     }
 
@@ -58,13 +61,13 @@ public class TinderTelegramBot extends TelegramLongPollingBot {
      * @throws TelegramApiException If an error occurs during bot registration.
      */
     public void initializeBot() throws TelegramApiException {
-        log.info("Initializing Telegram Bot...");
+        log.info(logMessages.getString("info.initializing.bot"));
         final TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         try {
-            botsApi.registerBot(this); // Регистрация вашего бота
-            log.info("Telegram Bot successfully registered!");
+            botsApi.registerBot(this);
+            log.info(logMessages.getString("info.bot.registered"));
         } catch (TelegramApiException e) {
-            log.error("Failed to register Telegram Bot: {}", e.getMessage());
+            log.error(logMessages.getString("error.bot.registration"), e.getMessage());
             throw new TelegramApiException(e);
         }
     }

@@ -13,6 +13,8 @@ import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.model.StateType;
 import ru.liga.telegrambot.sender.MessageSender;
 
+import java.util.ResourceBundle;
+
 import static ru.liga.telegrambot.model.StateType.MENU;
 
 @Slf4j
@@ -21,16 +23,23 @@ public class FavoriteState extends AbstractBotState {
 
     private final ProfileClientServiceImpl profileClientService;
     private final MessageSender messageSender;
-    public FavoriteState(UserService userService, UserStateRepository userStateRepository,
-                         ProfileClientServiceImpl profileClientService, MessageSender messageSender) {
+    private final ResourceBundle logMessages;
+    public FavoriteState(UserService userService,
+                         UserStateRepository userStateRepository,
+                         ProfileClientServiceImpl profileClientService,
+                         MessageSender messageSender,
+                         ResourceBundle logMessages) {
         super(StateType.FAVORITES, userService, userStateRepository);
         this.profileClientService = profileClientService;
         this.messageSender = messageSender;
+        this.logMessages = logMessages;
+
+
     }
 
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-        log.debug("Handling input for favorites.");
+        log.debug(logMessages.getString("handle.favorite.input"));
         if (getUserMessage(update).equals("menu.bottom")) {
             changeUserState(getUserByTelegramId(update), MENU);
             return goToNextStep(MENU, dialogHandler, update);

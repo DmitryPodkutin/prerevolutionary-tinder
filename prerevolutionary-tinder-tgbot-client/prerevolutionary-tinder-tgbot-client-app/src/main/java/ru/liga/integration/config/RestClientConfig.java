@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Configuration class for RestClient setup and properties handling.
+ */
 @Configuration
 public class RestClientConfig {
 
@@ -19,6 +22,9 @@ public class RestClientConfig {
     private final Logger logger = LoggerFactory.getLogger(RestClientConfig.class);
     private final Properties properties = new Properties();
 
+    /**
+     * Constructs a RestClientConfig object and loads application properties.
+     */
     public RestClientConfig() {
         final String propertiesPath = "application.properties";
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(propertiesPath)) {

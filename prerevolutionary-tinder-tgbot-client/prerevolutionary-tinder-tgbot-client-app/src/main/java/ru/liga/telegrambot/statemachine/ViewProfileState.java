@@ -13,7 +13,6 @@ import ru.liga.service.UserService;
 import ru.liga.telegrambot.dialoghandler.TelegramBotDialogHandler;
 import ru.liga.telegrambot.model.StateType;
 import ru.liga.telegrambot.sender.MessageSender;
-import ru.liga.telegrambot.sender.TelegramMessageSender;
 
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -26,14 +25,18 @@ import static ru.liga.telegrambot.model.StateType.MENU;
 public class ViewProfileState extends AbstractBotState {
     private final MessageSender messageSender;
     private final ProfileClientService profileClientService;
+    private final ResourceBundle logMessages;
 
     @Autowired
-    public ViewProfileState(ResourceBundle resourceBundle, TelegramMessageSender telegramMessageSender,
-                            MessageSender messageSender, UserService userService,
-                            UserStateRepository userStateRepository, ProfileClientService profileClientService) {
+    public ViewProfileState(MessageSender messageSender,
+                            UserService userService,
+                            UserStateRepository userStateRepository,
+                            ProfileClientService profileClientService,
+                            ResourceBundle logMessages) {
         super(StateType.FAVORITES, userService, userStateRepository);
         this.messageSender = messageSender;
         this.profileClientService = profileClientService;
+        this.logMessages = logMessages;
     }
 
     @Override
@@ -59,7 +62,7 @@ public class ViewProfileState extends AbstractBotState {
             final ProfileDtoWithImage profileDtoWithImage = Objects.requireNonNull(profileResponse.getBody());
             messageSender.openProfileViewKeyboard(update, profileDtoWithImage);
         } else {
-            log.error("Profile response not successful. Status code: {}", profileResponse.getStatusCodeValue());
+            log.error(logMessages.getString("error.getting.profile"), profileResponse.getStatusCodeValue());
         }
     }
 

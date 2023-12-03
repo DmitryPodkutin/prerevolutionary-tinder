@@ -1,8 +1,7 @@
 package ru.liga.telegrambot.keyboard;
 
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -12,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 public class TelegramBotKeyboardFactoryImpl implements TelegramBotKeyboardFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TelegramBotKeyboardFactoryImpl.class);
     private static final String MENU_BOTTOM = "menu.bottom";
     private static final String MALE_BOTTOM = "male.bottom";
     private static final String FEMALE_BOTTOM = "female.bottom";
@@ -30,7 +29,13 @@ public class TelegramBotKeyboardFactoryImpl implements TelegramBotKeyboardFactor
     private static final String EDIT_PROFILE_BOTTOM = "edit.profile.bottom";
 
     private final ResourceBundle resourceBundle;
+    private final ResourceBundle logMessages;
 
+    /**
+     * Creates an inline keyboard for viewing a user profile.
+     *
+     * @return The InlineKeyboardMarkup representing the profile view keyboard.
+     */
     @Override
     public InlineKeyboardMarkup createProfileViewKeyboard() {
         final InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
@@ -80,6 +85,12 @@ public class TelegramBotKeyboardFactoryImpl implements TelegramBotKeyboardFactor
         return keyboard;
     }
 
+    /**
+     * Creates an inline keyboard for swiping actions.
+     *
+     * @return The InlineKeyboardMarkup representing the swipe keyboard.
+     * @throws KeyboardCreationError if there is an error while creating the swipe inline keyboard.
+     */
     @Override
     public InlineKeyboardMarkup createSwipeKeyboard() {
         final InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
@@ -101,7 +112,7 @@ public class TelegramBotKeyboardFactoryImpl implements TelegramBotKeyboardFactor
             row.add(menuButton);
             keyboard.add(row);
         } catch (KeyboardCreationError e) {
-            LOGGER.error("Fail to create swipe inline keyboard.", e);
+            log.error(logMessages.getString("keyboard.creation.error.swipe"), e);
             throw new KeyboardCreationError("Error while creating swipe inline keyboard.");
         }
 

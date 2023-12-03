@@ -11,6 +11,9 @@ import ru.liga.model.User;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**
+ * Service implementation for handling favorite operations.
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -19,6 +22,13 @@ public class FavoriteClientServiceImpl implements FavoriteClientService {
     private final FavoriteApi favoriteApi;
     private final ResourceBundle logMessages;
 
+    /**
+     * Adds a favorite for the current user.
+     *
+     * @param favoriteId  ID of the favorite to add
+     * @param currentUser The current user
+     * @return An optional containing the added FavoriteDto if successful, empty otherwise
+     */
     @Override
     public Optional<FavoriteDto> addFavorite(Long favoriteId, User currentUser) {
         try {

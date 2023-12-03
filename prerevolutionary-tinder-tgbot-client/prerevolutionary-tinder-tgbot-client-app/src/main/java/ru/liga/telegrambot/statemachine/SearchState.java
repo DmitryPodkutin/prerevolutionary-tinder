@@ -28,17 +28,22 @@ public class SearchState extends AbstractBotState {
     private final FavoriteClientService favoriteClientService;
     private final MessageSender messageSender;
     private final ResourceBundle resourceBundle;
+    private final ResourceBundle logMessages;
 
     @Autowired
     public SearchState(MessageSender messageSender,
-                       ProfileClientServiceImpl profileClientService, UserService userService,
-                       UserStateRepository userStateRepository, FavoriteClientService favoriteClientService,
-                       ResourceBundle resourceBundle) {
+                       ProfileClientServiceImpl profileClientService,
+                       UserService userService,
+                       UserStateRepository userStateRepository,
+                       FavoriteClientService favoriteClientService,
+                       ResourceBundle resourceBundle,
+                       ResourceBundle logMessages) {
         super(SEARCH, userService, userStateRepository);
         this.messageSender = messageSender;
         this.profileClientService = profileClientService;
         this.favoriteClientService = favoriteClientService;
         this.resourceBundle = resourceBundle;
+        this.logMessages = logMessages;
     }
 
     /**
@@ -50,7 +55,7 @@ public class SearchState extends AbstractBotState {
      */
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-        log.debug("Handling input for searching an appropriate profile.");
+        log.debug(logMessages.getString("handling.search.input"));
         if (getUserMessage(update).equals("menu.bottom")) {
             changeUserState(getUserByTelegramId(update), MENU);
             return goToNextStep(MENU, dialogHandler, update);

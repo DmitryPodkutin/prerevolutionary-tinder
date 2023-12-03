@@ -6,6 +6,11 @@ import ru.liga.model.User;
 
 import java.util.ResourceBundle;
 
+
+/**
+ * Service responsible for validating user credentials.
+ * This service performs validation on provided usernames and passwords during user registration.
+ */
 @Service
 @AllArgsConstructor
 public class CredentialsValidator {
@@ -15,6 +20,12 @@ public class CredentialsValidator {
     private final UserService userService;
 
 
+    /**
+     * Validates the provided credentials.
+     *
+     * @param credentialsParts The parts of the credentials to be validated (username and password).
+     * @return A string indicating the validation status or any issues encountered during validation.
+     */
     public String validate(String[] credentialsParts) {
         if (credentialsParts.length != 2) {
             return resourceBundle.getString("registration.invalid.format");

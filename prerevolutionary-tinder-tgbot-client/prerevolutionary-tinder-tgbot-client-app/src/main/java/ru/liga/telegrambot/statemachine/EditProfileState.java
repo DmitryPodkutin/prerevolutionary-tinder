@@ -39,23 +39,29 @@ public class EditProfileState extends AbstractBotState {
     private final ResourceBundle resourceBundle;
     private final ConversionService customConversionService;
     private final ProfileClientService profileClientService;
+    private final ResourceBundle logMessages;
 
     @Autowired
     public EditProfileState(MessageSender messageSender,
-                            ProfileService profileService, ResourceBundle resourceBundle,
-                            ConversionService customConversionService, ProfileClientService profileClientService,
-                            UserService userService, UserStateRepository userStateRepository) {
+                            ProfileService profileService,
+                            ResourceBundle resourceBundle,
+                            ConversionService customConversionService,
+                            ProfileClientService profileClientService,
+                            UserService userService,
+                            UserStateRepository userStateRepository,
+                            ResourceBundle logMessages) {
         super(CREATE_PROFILE, userService, userStateRepository);
         this.messageSender = messageSender;
         this.profileService = profileService;
         this.resourceBundle = resourceBundle;
         this.customConversionService = customConversionService;
         this.profileClientService = profileClientService;
+        this.logMessages = logMessages;
     }
 
     @Override
     public BotState handleInput(TelegramBotDialogHandler dialogHandler, Update update) {
-        log.debug("Handling input for editing a user profile.");
+        log.debug(logMessages.getString("handle.edit.profile.input"));
         final Long chatId = getChatId(update);
         final Optional<Profile> profileOptional = profileService.getByChatId(chatId);
 
@@ -85,7 +91,7 @@ public class EditProfileState extends AbstractBotState {
     }
 
     private Profile createProfileWithGender(Optional<Profile> profileOptional, Update update) {
-        log.debug("Checking profile gender information.");
+        log.debug(logMessages.getString("check.gender"));
         if (profileOptional.isEmpty()) {
             final Profile profile = new Profile();
             profile.setChatId(getChatId(update));
@@ -98,7 +104,7 @@ public class EditProfileState extends AbstractBotState {
     }
 
     private boolean isProfileNameEmpty(Update update, Profile profile) {
-        log.debug("Checking profile name information.");
+        log.debug(logMessages.getString("check.name"));
         if (isNull(profile.getName()) || profile.getName().equals(EMPTY_STRING)) {
             if (isNull(profile.getName())) {
                 profile.setName(EMPTY_STRING);
@@ -117,7 +123,7 @@ public class EditProfileState extends AbstractBotState {
     }
 
     private boolean isProfileDescriptionEmpty(Update update, Profile profile) {
-        log.debug("Checking profile description information.");
+        log.debug(logMessages.getString("check.description"));
         if (isNull(profile.getDescription()) || profile.getDescription().equals(EMPTY_STRING)) {
             if (isNull(profile.getDescription())) {
                 profile.setDescription(EMPTY_STRING);
@@ -136,7 +142,7 @@ public class EditProfileState extends AbstractBotState {
     }
 
     private boolean isProfileLookingForEmpty(Update update, Profile profile) {
-        log.debug("Checking profile looking for information.");
+        log.debug(logMessages.getString("check.looking.for"));
         if (isNull(profile.getLookingFor()) || profile.getLookingFor().equals(EMPTY_STRING)) {
             if (isNull(profile.getLookingFor())) {
                 profile.setLookingFor(EMPTY_STRING);
@@ -164,7 +170,9 @@ public class EditProfileState extends AbstractBotState {
             profile.setGender(resourceBundle.getString(messageText));
             profileService.saveProfile(profile);
         } else {
-            throw new CreatingProfileError("Wrong gender.");
+            final String errorMessage = logMessages.getString("wrong.gender");
+            logMessages.equals(errorMessage);
+            throw new CreatingProfileError(errorMessage);
         }
     }
 
@@ -175,7 +183,9 @@ public class EditProfileState extends AbstractBotState {
             profile.setLookingFor(resourceBundle.getString(messageText));
             profileService.saveProfile(profile);
         } else {
-            throw new CreatingProfileError("Wrong choice of looking for.");
+            final String errorMessages = logMessages.getString("wrong.looking.for");
+            log.error(errorMessages);
+            throw new CreatingProfileError(errorMessages);
         }
     }
 

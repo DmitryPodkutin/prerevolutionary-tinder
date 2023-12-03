@@ -8,9 +8,18 @@ import ru.liga.model.Profile;
 
 import static java.util.Objects.nonNull;
 
+/**
+ * Converter implementation to convert {@link Profile} entity to {@link ProfileDto}.
+ */
 @Component
 @AllArgsConstructor
 public class ProfileEntityToProfileDtoConverter implements Converter<Profile, ProfileDto> {
+    /**
+     * Converts a {@link Profile} entity to a {@link ProfileDto} object.
+     *
+     * @param profile The source {@link Profile} entity to be converted.
+     * @return A converted {@link ProfileDto} object.
+     */
     @Override
     public ProfileDto convert(Profile profile) {
         final ProfileDto profileDto = new ProfileDto();
