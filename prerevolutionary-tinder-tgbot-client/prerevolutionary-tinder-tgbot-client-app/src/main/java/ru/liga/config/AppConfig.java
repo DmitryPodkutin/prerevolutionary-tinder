@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Application configuration.
+ */
 @Configuration
 public class AppConfig {
 

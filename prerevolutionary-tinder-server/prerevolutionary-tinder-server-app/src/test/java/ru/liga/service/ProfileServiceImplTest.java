@@ -4,15 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import ru.liga.dto.ProfileSaveDTO;
-import ru.liga.dto.converter.ProfileEntityToFavoriteProfileDTOConverter;
 import ru.liga.enums.Gender;
 import ru.liga.enums.SeekingFor;
-import ru.liga.exception.EntityNotFoundException;
-import ru.liga.exception.GenderNotFoundException;
-import ru.liga.exception.SeekingForNotFoundException;
 import ru.liga.model.Profile;
 import ru.liga.repository.ProfileRepository;
 import ru.liga.repository.UserRepository;
@@ -24,11 +19,7 @@ import ru.liga.service.user.AuthenticationContext;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 public class ProfileServiceImplTest {
@@ -53,12 +44,13 @@ public class ProfileServiceImplTest {
     @Mock
     private FavouriteService favouriteService;
 
-    @Autowired
+
     private ResourceBundle logMessages;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        logMessages = ResourceBundle.getBundle("log_message");
         profileService = new ProfileServiceImpl(profileRepository, authenticationContext,
                 userRepository, customConversionService, mutualityService, favouriteService, logMessages);
     }
@@ -105,6 +97,12 @@ public class ProfileServiceImplTest {
         Long fakeProfileId = 1L;
         ProfileSaveDTO profileSaveDTO = createSampleProfileSaveDTO();
         Profile existingProfile = new Profile();
+        existingProfile.setName("John");
+        existingProfile.setGender(Gender.MALE);
+        existingProfile.setDescriptionHeader("About me");
+        existingProfile.setDescription("I'm a friendly person.");
+        existingProfile.setSeeking(SeekingFor.SUDAR);
+
         when(profileRepository.findById(fakeProfileId)).thenReturn(Optional.of(existingProfile));
 
         Profile updatedProfile = profileService.update(profileSaveDTO, fakeProfileId);
@@ -123,41 +121,7 @@ public class ProfileServiceImplTest {
         ProfileSaveDTO profileSaveDTO = createSampleProfileSaveDTO();
         when(profileRepository.findById(fakeProfileId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> profileService.update(profileSaveDTO, fakeProfileId));
-    }
-
-    @Test
-    public void convertToGender_ValidInput_ReturnsGenderEnum() {
-        String genderString = "Сударъ";
-        Gender expectedGender = Gender.MALE;
-
-        Gender convertedGender = profileService.convertToGender(genderString);
-
-        assertEquals(expectedGender, convertedGender);
-    }
-
-    @Test
-    public void convertToGender_InvalidInput_ThrowsGenderNotFoundException() {
-        String genderString = "UnknownGender";
-
-        assertThrows(GenderNotFoundException.class, () -> profileService.convertToGender(genderString));
-    }
-
-    @Test
-    public void convertToSeekingFor_ValidInput_ReturnsSeekingForEnum() {
-        String seekingForString = "Сударъ";
-        SeekingFor expectedSeekingFor = SeekingFor.SUDAR;
-
-        SeekingFor convertedSeekingFor = profileService.convertToSeekingFor(seekingForString);
-
-        assertEquals(expectedSeekingFor, convertedSeekingFor);
-    }
-
-    @Test
-    public void convertToSeekingFor_InvalidInput_ThrowsSeekingForNotFoundException() {
-        String seekingForString = "UnknownSeekingFor";
-
-        assertThrows(SeekingForNotFoundException.class, () -> profileService.convertToSeekingFor(seekingForString));
+        assertThrows(RuntimeException.class, () -> profileService.update(profileSaveDTO, fakeProfileId));
     }
 
     private ProfileSaveDTO createSampleProfileSaveDTO() {

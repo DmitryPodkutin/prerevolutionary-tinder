@@ -27,6 +27,12 @@ public class AuthApiImpl implements AuthApi {
     private final ServiceUser serviceUser;
     private final ResourceBundle logMessages;
 
+    /**
+    * Registers a user remotely via an authentication API.
+            *
+            * @param userDto The UserDto object containing user information to be registered.
+            * @return A string representing the result or response from the remote registration.
+     */
     @Override
     public String remoteRegister(UserDto userDto) {
         try {

@@ -40,6 +40,12 @@ public class ProfileApiImpl implements ProfileApi {
     private final UserService userService;
     private final ResourceBundle logMessages;
 
+    /**
+     * Method to retrieve the user profile.
+     *
+     * @param user The user whose profile needs to be retrieved.
+     * @return A ResponseEntity containing the user's profile with image.
+     */
     @Override
     public ResponseEntity<ProfileDtoWithImage> getProfile(User user) {
         try {

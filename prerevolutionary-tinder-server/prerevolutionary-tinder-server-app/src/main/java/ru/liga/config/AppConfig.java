@@ -12,6 +12,7 @@ import ru.liga.dto.converter.ProfileEntityToProfileDtoConverter;
 import ru.liga.dto.converter.ProfileToDtoWithImageConverter;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 @Configuration
@@ -32,7 +33,7 @@ public class AppConfig {
 
     @Bean
     public ResourceBundle logMessages() {
-        return ResourceBundle.getBundle("log_message");
+        return ResourceBundle.getBundle("log_message", Locale.getDefault());
     }
 
 }

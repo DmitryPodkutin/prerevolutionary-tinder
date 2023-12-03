@@ -144,7 +144,7 @@ public class ProfileServiceImpl implements ProfileService {
             profileRepository.save(profile);
             log.info(logMessages.getString("profile.updated"), id);
             return profile;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error(logMessages.getString("error.updating.profile"), id, e);
             throw e;
         }

@@ -25,6 +25,13 @@ public class FavoriteApiImpl implements FavoriteApi {
     private final RestClientConfig restClientConfig;
     private final ResourceBundle logMessages;
 
+    /**
+     * Adds a user with the specified favoriteId to the current user's favorites.
+     *
+     * @param favoriteId  The ID of the user to be added to favorites.
+     * @param currentUser The current user making the request.
+     * @return A ResponseEntity indicating the result of adding the user to favorites.
+     */
     @Override
     public ResponseEntity<FavoriteDto> addFavorite(Long favoriteId, User currentUser) {
         try {
