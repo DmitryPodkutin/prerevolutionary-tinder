@@ -114,7 +114,7 @@ public class ProfileClientServiceImpl implements ProfileClientService {
     }
 
     private int getFavoriteCurrentPage(User user) {
-        return user.getPageInfo() == null ? 0 : user.getPageInfo().getSearchProfileCurrentPage();
+        return user.getPageInfo() == null ? 0 : user.getPageInfo().getFavoriteCurrentPage();
     }
 
     private void updateSearchingCurrentPageIfNeeded(User user, boolean isLast, int currentPage) {
@@ -136,9 +136,9 @@ public class ProfileClientServiceImpl implements ProfileClientService {
             pageInfo.setFavoriteCurrentPage(currentPage);
         } else {
             if (swipeDirection.equals(SwipeDirection.FORWARD)) {
-                pageInfo.setSearchProfileCurrentPage(isLast ? 0 : currentPage + 1);
+                pageInfo.setFavoriteCurrentPage(isLast ? 0 : currentPage + 1);
             } else {
-                pageInfo.setSearchProfileCurrentPage(isFirst ? totalPages - 1 : currentPage - 1);
+                pageInfo.setFavoriteCurrentPage(isFirst ? totalPages - 1 : currentPage - 1);
             }
         }
         matchingProfilesPageInfoService.save(pageInfo);
