@@ -26,6 +26,7 @@ import ru.liga.service.UserService;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 @Slf4j
 @Component
@@ -37,6 +38,7 @@ public class ProfileApiImpl implements ProfileApi {
     private final RestClientConfig restClientConfig;
     private final RestTemplate restTemplate;
     private final UserService userService;
+    private final ResourceBundle logMessages;
 
     @Override
     public ResponseEntity<ProfileDtoWithImage> getProfile(User user) {
@@ -51,11 +53,11 @@ public class ProfileApiImpl implements ProfileApi {
                     new ParameterizedTypeReference<>() {
                     });
         } catch (HttpClientErrorException.NotFound e) {
-            log.error("Profile not found for URL: {}", restClientConfig.getProfileServiceUrl());
+            log.error(logMessages.getString("error.profile.not.found"), restClientConfig.getProfileServiceUrl());
         } catch (HttpClientErrorException.BadRequest e) {
-            log.error("Bad request to profile service: {}", e.getMessage());
+            log.error(logMessages.getString("error.bad.request.to.profile.service"), e.getMessage());
         } catch (HttpClientErrorException.Unauthorized e) {
-            log.error("Unauthorized access to profile service: {}", e.getMessage());
+            log.error(logMessages.getString("error.unauthorized.access.to.profile.service"), e.getMessage());
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
@@ -78,10 +80,10 @@ public class ProfileApiImpl implements ProfileApi {
                     });
             return responseEntity.getBody();
         } catch (HttpClientErrorException e) {
-            log.error("HTTP error during remote service call to get matching profiles: {}", e.getRawStatusCode(), e);
+            log.error(logMessages.getString("error.http.error.get.matching.profiles"), e.getRawStatusCode(), e);
             return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
         } catch (RuntimeException e) {
-            log.error("Error during remote service call to get matching profile", e);
+            log.error(logMessages.getString("error.runtime.error.get.matching.profile"), e);
             return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
         }
     }
@@ -104,10 +106,10 @@ public class ProfileApiImpl implements ProfileApi {
                     });
             return responseEntity.getBody();
         } catch (HttpClientErrorException e) {
-            log.error("HTTP error during remote service call to get favorites: {}", e.getRawStatusCode(), e);
+            log.error(logMessages.getString("error.http.error.get.favorites"), e.getRawStatusCode(), e);
             return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
         } catch (RuntimeException e) {
-            log.error("Error during remote service call to get favorites", e);
+            log.error("error.runtime.error.get.favorites", e);
             return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
         }
     }
@@ -122,11 +124,11 @@ public class ProfileApiImpl implements ProfileApi {
             return restTemplate.postForEntity(
                     restClientConfig.getProfileServiceUrl(), requestEntity, ProfileDtoWithImage.class);
         } catch (HttpClientErrorException.NotFound e) {
-            log.error("Profile service URL to create not found: {}", e.getMessage());
+            log.error(logMessages.getString("error.profile.service.create.not.found"), e.getMessage());
         } catch (HttpClientErrorException.BadRequest e) {
-            log.error("Bad request to profile create service: {}", e.getMessage());
+            log.error(logMessages.getString("error.bad.request.to.profile.create.service"), e.getMessage());
         } catch (HttpClientErrorException.Unauthorized e) {
-            log.error("Unauthorized access to profile create service: {}", e.getMessage());
+            log.error(logMessages.getString("error.unauthorized.access.to.profile.create.service"), e.getMessage());
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
@@ -145,11 +147,11 @@ public class ProfileApiImpl implements ProfileApi {
                     ProfileDtoWithImage.class
             );
         } catch (HttpClientErrorException.NotFound e) {
-            log.error("Profile service URL to update not found: {}", e.getMessage());
+            log.error(logMessages.getString("error.profile.service.update.not.found"), e.getMessage());
         } catch (HttpClientErrorException.BadRequest e) {
-            log.error("Bad request to profile update service: {}", e.getMessage());
+            log.error(logMessages.getString("error.bad.request.to.profile.update.service"), e.getMessage());
         } catch (HttpClientErrorException.Unauthorized e) {
-            log.error("Unauthorized access to profile update service: {}", e.getMessage());
+            log.error(logMessages.getString("error.unauthorized.access.to.profile.update.service"), e.getMessage());
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }

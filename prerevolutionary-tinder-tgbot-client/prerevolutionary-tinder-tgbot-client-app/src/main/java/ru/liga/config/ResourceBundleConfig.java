@@ -13,4 +13,9 @@ public class ResourceBundleConfig {
     public ResourceBundle resourceBundle() {
         return ResourceBundle.getBundle("messages", Locale.getDefault());
     }
+
+    @Bean
+    public ResourceBundle logMessages() {
+        return ResourceBundle.getBundle("log_message");
+    }
 }

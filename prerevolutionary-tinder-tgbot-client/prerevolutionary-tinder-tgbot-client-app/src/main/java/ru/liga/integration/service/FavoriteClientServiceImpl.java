@@ -9,6 +9,7 @@ import ru.liga.integration.api.FavoriteApi;
 import ru.liga.model.User;
 
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 @Slf4j
 @Service
@@ -16,10 +17,23 @@ import java.util.Optional;
 public class FavoriteClientServiceImpl implements FavoriteClientService {
 
     private final FavoriteApi favoriteApi;
+    private final ResourceBundle logMessages;
 
     @Override
     public Optional<FavoriteDto> addFavorite(Long favoriteId, User currentUser) {
-        final ResponseEntity<FavoriteDto> favoriteDtoResponseEntity = favoriteApi.addFavorite(favoriteId, currentUser);
-        return Optional.ofNullable(favoriteDtoResponseEntity.getBody());
+        try {
+            final ResponseEntity<FavoriteDto> favoriteDtoResponseEntity =
+                    favoriteApi.addFavorite(favoriteId, currentUser);
+            final FavoriteDto favoriteDto = favoriteDtoResponseEntity.getBody();
+            if (favoriteDto != null) {
+                log.info(logMessages.getString("info.favorite.added"), favoriteDto.getId());
+            } else {
+                log.warn(logMessages.getString("warn.favorite.added.failed"), favoriteId);
+            }
+            return Optional.ofNullable(favoriteDto);
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.favorite.adding"), favoriteId, e);
+            return Optional.empty();
+        }
     }
 }

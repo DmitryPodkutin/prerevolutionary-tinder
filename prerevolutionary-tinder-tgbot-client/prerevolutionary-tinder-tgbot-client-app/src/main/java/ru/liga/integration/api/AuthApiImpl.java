@@ -25,6 +25,7 @@ public class AuthApiImpl implements AuthApi {
     private final RestTemplate restTemplate;
     private final ResourceBundle resourceBundle;
     private final ServiceUser serviceUser;
+    private final ResourceBundle logMessages;
 
     @Override
     public String remoteRegister(UserDto userDto) {
@@ -34,9 +35,10 @@ public class AuthApiImpl implements AuthApi {
             headers.setContentType(MediaType.APPLICATION_JSON);
             final HttpEntity<UserDto> requestEntity = new HttpEntity<>(userDto, headers);
             restTemplate.postForEntity(restClientConfig.getRegisterServiceUrl(), requestEntity, UserDto.class);
+            log.info(logMessages.getString("success.remote.registration"));
             return HttpStatus.OK.name();
         } catch (RuntimeException e) {
-            log.error(e.getMessage());
+            log.error(logMessages.getString("error.remote.registration"));
             return resourceBundle.getString("registration.remote.service.error");
         }
     }
