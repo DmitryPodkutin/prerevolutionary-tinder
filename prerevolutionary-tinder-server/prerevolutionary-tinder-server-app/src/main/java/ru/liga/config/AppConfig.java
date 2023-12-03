@@ -12,6 +12,7 @@ import ru.liga.dto.converter.ProfileEntityToProfileDtoConverter;
 import ru.liga.dto.converter.ProfileToDtoWithImageConverter;
 
 import java.util.HashSet;
+import java.util.ResourceBundle;
 
 @Configuration
 public class AppConfig {
@@ -27,6 +28,11 @@ public class AppConfig {
         bean.setConverters(converters);
         bean.afterPropertiesSet();
         return bean.getObject();
+    }
+
+    @Bean
+    public ResourceBundle logMessages() {
+        return ResourceBundle.getBundle("log_message");
     }
 
 }

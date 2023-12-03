@@ -18,6 +18,7 @@ import ru.liga.service.user.AuthenticationContext;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -39,12 +40,15 @@ public class FavouriteServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private MutualityService mutualityService;
+    @Mock
+    private ResourceBundle logMessage;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         favouriteService = new FavouriteServiceImpl(favouriteRepository, authenticationContext,
-                profileEntityToFavoriteProfileDTOConverter, profileRepository, userRepository, mutualityService);
+                profileEntityToFavoriteProfileDTOConverter, profileRepository, userRepository,
+                mutualityService, logMessage);
     }
 
     @Test

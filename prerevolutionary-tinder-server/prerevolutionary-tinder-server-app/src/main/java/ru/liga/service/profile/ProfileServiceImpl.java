@@ -1,6 +1,7 @@
 package ru.liga.service.profile;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 @Service
+@Slf4j
 @AllArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
@@ -37,64 +40,119 @@ public class ProfileServiceImpl implements ProfileService {
     private final ConversionService customConversionService;
     private final MutualityService mutualityService;
     private final FavouriteService favouriteService;
+    private final ResourceBundle logMessages;
 
     @Override
     public Page<MatchingProfileDtoWithImage> getAllMatchingProfiles(Pageable pageable) {
         final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
-        final Page<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
-                fillSeekingFor(currentUser), fillGenderForLookingFor(currentUser),
-                userRepository.findById(currentUser.getUserId())
-                        .orElseThrow(EntityExistsException::new),
-                pageable);
-        return matchingProfiles.map(profile -> convertToMatchingProfileDto(profile, currentUser.getUserId()));
+        try {
+            final Page<Profile> matchingProfiles = profileRepository.findMatchingProfiles(
+                    fillSeekingFor(currentUser), fillGenderForLookingFor(currentUser),
+                    userRepository.findById(currentUser.getUserId())
+                            .orElseThrow(EntityExistsException::new),
+                    pageable);
+            log.info(logMessages.getString("matching.profiles.retrieved"), currentUser.getUserId());
+            return matchingProfiles.map(profile -> convertToMatchingProfileDto(profile, currentUser.getUserId()));
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.retrieving.matching.profiles"), e);
+            return Page.empty();
+        }
     }
 
     @Override
     public Optional<Profile> getCurrent() {
-        return profileRepository.findByUserId(authenticationContext.getCurrentUserId());
+        try {
+            final Long currentUserId = authenticationContext.getCurrentUserId();
+            final Optional<Profile> profile = profileRepository.findByUserId(currentUserId);
+            if (profile.isPresent()) {
+                log.info(logMessages.getString("current.profile.retrieved"), currentUserId);
+            } else {
+                log.warn(logMessages.getString("current.profile.not.found"), currentUserId);
+            }
+            return profile;
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.retrieving.current.profile"), e);
+            return Optional.empty();
+        }
     }
 
     @Override
     public Optional<Profile> getByUserId(Long userId) {
-        return profileRepository.findByUserId(userId);
+        try {
+            final Optional<Profile> profile = profileRepository.findByUserId(userId);
+            if (profile.isPresent()) {
+                log.info("Successfully retrieved profile for user with ID: {}", userId);
+            } else {
+                log.warn(logMessages.getString("profile.not.found"), userId);
+            }
+            return profile;
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.retrieving.profile.by.user.id"), userId, e);
+            return Optional.empty();
+        }
     }
 
     @Override
     public Optional<Profile> getProfileById(Long id) {
-        return profileRepository.findById(id);
+        try {
+            final Optional<Profile> profile = profileRepository.findById(id);
+            if (profile.isPresent()) {
+                log.info(logMessages.getString("profile.found"), id);
+            } else {
+                log.warn(logMessages.getString("profile.found.with.id"), id);
+            }
+            return profile;
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.retrieving.profile.by.id"), id, e);
+            return Optional.empty();
+        }
     }
 
 
     @Override
     public Profile create(ProfileSaveDTO profileSaveDTO) {
-        final Profile profile = new Profile();
-        profile.setName(profileSaveDTO.getName());
-        profile.setGender(convertToGender(profileSaveDTO.getGender()));
-        profile.setDescriptionHeader(profileSaveDTO.getDescriptionHeader());
-        profile.setDescription(profileSaveDTO.getDescription());
-        profile.setSeeking(convertToSeekingFor(profileSaveDTO.getSeekingFor()));
-        profile.setUser(userRepository.findById(authenticationContext.getCurrentUserId())
-                .orElseThrow(() -> new EntityNotFoundException(authenticationContext.getCurrentUserId())));
-        profileRepository.save(profile);
-        return profile;
+        try {
+            final Profile profile = new Profile();
+            profile.setName(profileSaveDTO.getName());
+            profile.setGender(convertToGender(profileSaveDTO.getGender()));
+            profile.setDescriptionHeader(profileSaveDTO.getDescriptionHeader());
+            profile.setDescription(profileSaveDTO.getDescription());
+            profile.setSeeking(convertToSeekingFor(profileSaveDTO.getSeekingFor()));
+            profile.setUser(userRepository.findById(authenticationContext.getCurrentUserId())
+                    .orElseThrow(() -> new EntityNotFoundException(authenticationContext.getCurrentUserId())));
+            profileRepository.save(profile);
+
+            log.info(logMessages.getString("profile.created"), profile.getId());
+
+            return profile;
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.creating.profile"), e);
+            throw e;
+        }
     }
 
     @Override
     public Profile update(ProfileSaveDTO profileSaveDTO, Long id) {
-        final Profile profile = profileRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id));
-        profile.setName(profileSaveDTO.getName());
-        profile.setGender(convertToGender(profileSaveDTO.getGender()));
-        profile.setDescriptionHeader(profileSaveDTO.getDescriptionHeader());
-        profile.setDescription(profileSaveDTO.getDescription());
-        profile.setSeeking(convertToSeekingFor(profileSaveDTO.getSeekingFor()));
-        profileRepository.save(profile);
-        return profile;
+        try {
+            final Profile profile = profileRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException(id));
+            profile.setName(profileSaveDTO.getName());
+            profile.setGender(convertToGender(profileSaveDTO.getGender()));
+            profile.setDescriptionHeader(profileSaveDTO.getDescriptionHeader());
+            profile.setDescription(profileSaveDTO.getDescription());
+            profile.setSeeking(convertToSeekingFor(profileSaveDTO.getSeekingFor()));
+            profileRepository.save(profile);
+            log.info(logMessages.getString("profile.updated"), id);
+            return profile;
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.updating.profile"), id, e);
+            throw e;
+        }
     }
 
     public Gender convertToGender(String genderString) {
         if (genderString == null) {
-            throw new GenderNotFoundException("Gender is null or empty");
+            throw new GenderNotFoundException(logMessages.getString("gender.is.null.or.empty"));
         }
 
         return Arrays.stream(Gender.values())
@@ -105,7 +163,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     public SeekingFor convertToSeekingFor(String seekingFor) {
         if (seekingFor == null) {
-            throw new SeekingForNotFoundException("SeekingFor is null or empty");
+            throw new SeekingForNotFoundException(logMessages.getString("seeking.for.is.null.or.empty"));
         }
 
         return Arrays.stream(SeekingFor.values())

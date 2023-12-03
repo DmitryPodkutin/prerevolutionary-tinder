@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import ru.liga.dto.ProfileSaveDTO;
 import ru.liga.dto.converter.ProfileEntityToFavoriteProfileDTOConverter;
@@ -21,6 +22,7 @@ import ru.liga.service.profile.ProfileServiceImpl;
 import ru.liga.service.user.AuthenticationContext;
 
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -51,11 +53,14 @@ public class ProfileServiceImplTest {
     @Mock
     private FavouriteService favouriteService;
 
+    @Autowired
+    private ResourceBundle logMessages;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         profileService = new ProfileServiceImpl(profileRepository, authenticationContext,
-                userRepository, customConversionService, mutualityService, favouriteService);
+                userRepository, customConversionService, mutualityService, favouriteService, logMessages);
     }
 
     @Test

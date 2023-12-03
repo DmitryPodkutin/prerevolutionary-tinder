@@ -23,7 +23,6 @@ public class TranslationServiceImpl implements TranslationService {
         final String resourceUrl = restTemplateConfig.getRemoteServiceUrl() + text;
         try {
             final ResponseEntity<String> response = restTemplate.getForEntity(resourceUrl, String.class);
-
             if (response.getStatusCode().is2xxSuccessful()) {
                 return response.getBody();
             } else {

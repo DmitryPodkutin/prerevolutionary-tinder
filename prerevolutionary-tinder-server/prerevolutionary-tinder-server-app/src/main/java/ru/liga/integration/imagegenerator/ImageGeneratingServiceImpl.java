@@ -69,7 +69,7 @@ public class ImageGeneratingServiceImpl implements ImageGeneratingService {
         final HttpHeaders headers = responseEntity.getHeaders();
         final Resource resource = responseEntity.getBody();
 
-        if (headers != null && resource != null) {
+        if (resource != null) {
             final MediaType contentType = headers.getContentType();
             if (contentType != null && contentType.isCompatibleWith(MediaType.IMAGE_PNG)) {
                 try {
@@ -82,18 +82,14 @@ public class ImageGeneratingServiceImpl implements ImageGeneratingService {
                     }
                     return outputStream.toByteArray();
                 } catch (IOException e) {
-                    // Обработка исключений при работе с потоками
-                    e.printStackTrace();
+                    log.error("Error reading image data from the resource", e);
                 }
             } else {
-                // Не совместимый тип содержимого
-                System.err.println("Несовместимый тип содержимого или не изображение PNG");
+                log.warn("Incompatible content type or not an image PNG");
             }
         } else {
-            // Ошибка при извлечении заголовков или ресурса
-            System.err.println("Ошибка при извлечении заголовков или ресурса");
+            log.error("Error extracting resource");
         }
-
         return null;
     }
 

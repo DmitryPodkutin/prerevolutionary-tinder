@@ -1,6 +1,7 @@
 package ru.liga.integration.api;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import java.util.ResourceBundle;
 import static ru.liga.utils.Base64EncoderDecoder.decode;
 
 @Component
+@Slf4j
 @AllArgsConstructor
 public class AuthApiImpl implements AuthApi {
 
@@ -34,7 +36,7 @@ public class AuthApiImpl implements AuthApi {
             restTemplate.postForEntity(restClientConfig.getRegisterServiceUrl(), requestEntity, UserDto.class);
             return HttpStatus.OK.name();
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             return resourceBundle.getString("registration.remote.service.error");
         }
     }

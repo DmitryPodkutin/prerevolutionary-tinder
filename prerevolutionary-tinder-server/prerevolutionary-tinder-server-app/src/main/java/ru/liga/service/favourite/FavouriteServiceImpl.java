@@ -1,6 +1,7 @@
 package ru.liga.service.favourite;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,11 +21,14 @@ import ru.liga.service.user.AuthenticationContext;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @AllArgsConstructor
 public class FavouriteServiceImpl implements FavouriteService {
 
@@ -34,49 +38,90 @@ public class FavouriteServiceImpl implements FavouriteService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final MutualityService mutualityService;
+    private final ResourceBundle logMessages;
 
     @Override
     public List<Favorite> getAllFavouritesByUserId(Long userId) {
-        return favouriteRepository.findAllByUserId(userId);
+        try {
+            final List<Favorite> favorites = favouriteRepository.findAllByUserId(userId);
+            log.info(logMessages.getString("retrieved.favorites.with.id"), favorites.size(), userId);
+            return favorites;
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.retrieved.favorites.with.id"), userId, e);
+            return Collections.emptyList();
+        }
     }
 
     @Override
     public List<Favorite> getAllFavoritesByFavoriteUserUd(Long currentUserId) {
-        return favouriteRepository.findAllFavoritesByFavoritesUserId(currentUserId);
+        try {
+            final List<Favorite> favorites = favouriteRepository.findAllFavoritesByFavoritesUserId(currentUserId);
+            log.info(logMessages.getString("find.favorites.with.ud"), favorites.size(), currentUserId);
+            return favorites;
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.find.favorites.with.id"), currentUserId, e);
+            return Collections.emptyList();
+        }
     }
 
     @Override
     public Page<FavoriteProfileDTO> findFavourites(Pageable pageable) {
-        final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
-
-        final Page<Favorite> favoritePage = favouriteRepository.findMatchingProfiles(
-                userRepository.findById(currentUser.getUserId())
-                        .orElseThrow(EntityNotFoundException::new), pageable);
-        return convertFavoriteToProfile(favoritePage, currentUser.getUserId()).map(profile ->
-                profileEntityToFavoriteProfileDTOConverter.convert(profile,
-                        mutualityService.addMutualFlagIfIntersectsWithFavorites(currentUser.getUserId(), profile,
-                                getAllFavouritesByUserId(currentUser.getUserId()),
-                                getAllFavoritesByFavoriteUserUd(currentUser.getUserId()))));
+        try {
+            final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
+            final Page<Favorite> favoritePage = favouriteRepository.findMatchingProfiles(
+                    userRepository.findById(currentUser.getUserId())
+                            .orElseThrow(EntityNotFoundException::new), pageable);
+            log.info(logMessages.getString("find.favorites.with.id"), favoritePage.getTotalElements(),
+                    currentUser.getUserId());
+            return convertFavoriteToProfile(favoritePage, currentUser.getUserId()).map(profile ->
+                    profileEntityToFavoriteProfileDTOConverter.convert(profile,
+                            mutualityService.addMutualFlagIfIntersectsWithFavorites(currentUser.getUserId(), profile,
+                                    getAllFavouritesByUserId(currentUser.getUserId()),
+                                    getAllFavoritesByFavoriteUserUd(currentUser.getUserId()))));
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.find.favorites"), e);
+            return Page.empty();
+        }
     }
 
     @Override
     public Favorite createFavorite(Long favoriteUserId) {
-        final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
-        if (checkIfAlreadyFavorite(currentUser.getUserId(), favoriteUserId)) {
-            return favouriteRepository.findAllByUserId(currentUser.getUserId()).stream()
-                    .filter(favorite -> favorite.getFavoriteUser().getId().equals(favoriteUserId)).findFirst()
-                    .orElseThrow(EntityNotFoundException::new);
+        try {
+            final AuthorizedUser currentUser = authenticationContext.getCurrentUser();
+            if (checkIfAlreadyFavorite(currentUser.getUserId(), favoriteUserId)) {
+                log.info(logMessages.getString("favorite.already.exists.with.id"),
+                        currentUser.getUserId(), favoriteUserId);
+                return favouriteRepository.findAllByUserId(currentUser.getUserId()).stream()
+                        .filter(favorite -> favorite.getFavoriteUser().getId().equals(favoriteUserId)).findFirst()
+                        .orElseThrow(EntityNotFoundException::new);
+            }
+            log.info(logMessages.getString("favorite.created.successfully"),
+                    currentUser.getUserId(), favoriteUserId);
+            return createFavorite(currentUser.getUserId(), favoriteUserId);
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.creating.favorite"), e);
+            throw e;
         }
-        return createFavorite(currentUser.getUserId(), favoriteUserId);
     }
 
+    @Override
     public List<Favorite> findFavouritesByFilter(FavouriteFilter filter) {
-        return favouriteRepository.findAllByUserAndFavoriteUser(filter.getUser().getId(), getSort(filter));
+        try {
+            return favouriteRepository.findAllByUserAndFavoriteUser(filter.getUser().getId(), getSort(filter));
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.finding.favorites.by.filter"), e);
+            throw e;
+        }
     }
 
     @Override
     public Optional<Favorite> getOne(Long id) {
-        return favouriteRepository.findById(id);
+        try {
+            return favouriteRepository.findById(id);
+        } catch (Exception e) {
+            log.error(logMessages.getString("error.finding.favorites.by.id"), id, e);
+            throw e;
+        }
     }
 
     private Sort getSort(FavouriteFilter filter) {
