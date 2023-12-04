@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  tinder_databases:
+    image: postgres:latest
+    container_name: tinder_databases
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+      - ./create_databases.sql:/docker-entrypoint-initdb.d/create_databases.sql
+  translator:
+    image: briarey/old_russian_translator:latest
+    ports:
+      - "5006:5006"
+    restart: always
+  tti:
+    image: asura0kami/txt-to-img:latest
+    ports:
+      - "5005:5005"
+    restart: always
